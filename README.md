@@ -12,6 +12,10 @@
 **Concept:** A productivity tool that evolves from a simple Kanban board into an AI-powered project assistant.
 **Focus:** Productivity, Algorithms, Team Management.
 
+**The Problem (Problématique):** Traditional project management tools suffer from high friction; users waste significant time manually typing detailed bug reports, acceptance criteria, and organizing tags, which often leads to vague tickets and misalignment.
+
+**The Solution:** An intelligent productivity platform that eliminates administrative overhead by using Generative AI to automatically write technical descriptions from one-line prompts and algorithmic logic to prioritize tasks based on deadlines and team burnout risk.
+
 ### Phase 1: The MVP (The "Must-Have")
 
 * **Goal:** Secure the passing grade with solid fundamentals.
@@ -21,8 +25,6 @@
 * **Logic (Simple):** **The Eisenhower Matrix Automation.**
 * User inputs "Deadline" and "Importance".
 * System automatically tags tasks as "Do First," "Schedule," or "Delegate" based on a standard `if-then` algorithm.
-
-
 
 ### Phase 2: The Scale (The "Limit Pusher")
 
@@ -57,6 +59,11 @@
 
 **Concept:** A streaming architecture that understands *content scenarios* (semantic search) and *social dynamics* (cross-profile suggestions).
 **Focus:** Big Data, Vector Search, User Experience.
+
+**The Problem (Problématique):** Standard streaming platforms rely on rigid metadata (Genre, Year, Actor), making it impossible for users to search for specific scenarios (e.g., "a movie about a sad robot in space") or receive recommendations that account for social influence between household members.
+
+**The Solution:** A "Semantic-First" streaming architecture that utilizes **Gemini Embeddings** and **ChromaDB** to understand the nuance of plot descriptions via vector search, combined with a unique cross-profile algorithm that weights recommendations based on trusted family members' watch history.
+
 
 ### Phase 1: The MVP (The "Must-Have")
 
@@ -116,6 +123,10 @@
 
 **Concept:** A triage tool for pet owners to determine medical urgency using Decision Trees.
 **Focus:** Logic, Medical Data, Mobile-First.
+
+**The Problem (Problématique):** Pet owners often lack the medical knowledge to distinguish between a minor issue and a life-threatening emergency, leading to either unnecessary panic visits to the vet or dangerous delays in treatment.
+
+**The Solution:** A digital triage system that provides immediate decision support using a **Decision Tree Classifier**, analyzing specific symptoms to categorize medical urgency (Monitor vs. Emergency) while maintaining a centralized digital vaccination and health record for the pet.
 
 ### Phase 1: The MVP (The "Must-Have")
 
