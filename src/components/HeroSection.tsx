@@ -1,12 +1,6 @@
-import { Search } from "lucide-react";
 import heroImage from "@/assets/hero-library.png";
 
-interface HeroSectionProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-}
-
-const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
+const HeroSection = () => {
   return (
     <section className="relative w-full overflow-hidden">
       {/* Background image */}
@@ -35,18 +29,14 @@ const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
           Explore thousands of stories across every genre imaginable
         </p>
 
-        {/* Search bar */}
-        <div className="animate-float-up w-full max-w-md" style={{ animationDelay: "0.3s" }}>
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search by title or author..."
-              className="w-full pl-12 pr-4 py-3 rounded-lg bg-card/90 backdrop-blur-sm border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-body text-base"
-            />
-          </div>
+        {/* Get Started CTA */}
+        <div className="animate-float-up" style={{ animationDelay: "0.3s" }}>
+          <a
+            href="#catalog"
+            className="inline-block px-10 py-4 rounded-full bg-primary text-primary-foreground font-display text-lg font-semibold tracking-wide transition-all duration-300 hover:shadow-[0_0_30px_hsl(38_90%_60%/0.5)] hover:-translate-y-1 hover:scale-105 border border-primary/60"
+          >
+            Get Started ✦
+          </a>
         </div>
       </div>
     </section>
