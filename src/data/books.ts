@@ -1,3 +1,11 @@
+import coverFantasy from "@/assets/cover-fantasy.png";
+import coverHorror from "@/assets/cover-horror.png";
+import coverMystery from "@/assets/cover-mystery.png";
+import coverCrime from "@/assets/cover-crime.png";
+import coverRomance from "@/assets/cover-romance.png";
+import coverDrama from "@/assets/cover-drama.png";
+import coverHistorical from "@/assets/cover-historical.png";
+
 export type Genre = "Fantasy" | "Horror" | "Mystery" | "Crime" | "Romance" | "Drama" | "Historical Fiction";
 
 export interface Book {
@@ -9,9 +17,15 @@ export interface Book {
   trending: boolean;
 }
 
-const covers = [
-  "📕", "📗", "📘", "📙", "📓", "📔", "📒"
-];
+export const genreCovers: Record<Genre, string> = {
+  Fantasy: coverFantasy,
+  Horror: coverHorror,
+  Mystery: coverMystery,
+  Crime: coverCrime,
+  Romance: coverRomance,
+  Drama: coverDrama,
+  "Historical Fiction": coverHistorical,
+};
 
 export const books: Book[] = [
   { id: 1, title: "The Shadow's Edge", author: "Elena Blackwood", genre: "Fantasy", cover: "📕", trending: true },
