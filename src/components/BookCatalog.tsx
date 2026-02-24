@@ -1,22 +1,19 @@
 import { useState, useMemo } from "react";
+import { Search } from "lucide-react";
 import { books } from "@/data/books";
 import BookCard from "./BookCard";
 import GenreFilter, { type FilterTab } from "./GenreFilter";
 
-interface BookCatalogProps {
-  searchQuery: string;
-}
-
 const ITEMS_PER_PAGE = 8;
 
-const BookCatalog = ({ searchQuery }: BookCatalogProps) => {
+const BookCatalog = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterTab>("trending");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   const filteredBooks = useMemo(() => {
     let result = books;
 
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -26,7 +23,6 @@ const BookCatalog = ({ searchQuery }: BookCatalogProps) => {
       );
     }
 
-    // Tab filter
     if (activeFilter === "trending") {
       result = result.filter((b) => b.trending);
     } else {
@@ -46,9 +42,24 @@ const BookCatalog = ({ searchQuery }: BookCatalogProps) => {
 
   return (
     <section className="w-full max-w-6xl mx-auto px-4 py-10">
-      <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6">
-        📚 Book Catalog
-      </h2>
+      {/* Catalog header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+          📚 Book Catalog
+        </h2>
+
+        {/* Search bar */}
+        <div className="relative group w-full md:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by title or author..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-card/90 backdrop-blur-sm border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-body text-sm"
+          />
+        </div>
+      </div>
 
       <GenreFilter activeFilter={activeFilter} onFilterChange={handleFilterChange} />
 
@@ -65,14 +76,14 @@ const BookCatalog = ({ searchQuery }: BookCatalogProps) => {
         </div>
       )}
 
-      {/* See More */}
+      {/* Explore More */}
       {hasMore && (
         <div className="flex justify-center mt-10">
           <button
             onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
             className="px-8 py-3 rounded-lg bg-primary text-primary-foreground font-display text-lg font-semibold hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5 border border-primary"
           >
-            See More ✦
+            Explore More ✦
           </button>
         </div>
       )}
