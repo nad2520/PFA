@@ -1,4 +1,4 @@
-import { type Book, genreColors } from "@/data/books";
+import { type Book, genreColors, genreCovers } from "@/data/books";
 
 interface BookCardProps {
   book: Book;
@@ -7,6 +7,7 @@ interface BookCardProps {
 
 const BookCard = ({ book, index }: BookCardProps) => {
   const colors = genreColors[book.genre];
+  const coverImage = genreCovers[book.genre];
 
   return (
     <div
@@ -14,8 +15,13 @@ const BookCard = ({ book, index }: BookCardProps) => {
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       {/* Cover area */}
-      <div className="relative h-48 md:h-56 bg-secondary flex items-center justify-center overflow-hidden">
-        <span className="text-7xl md:text-8xl select-none">{book.cover}</span>
+      <div className="relative h-48 md:h-56 overflow-hidden">
+        <img
+          src={coverImage}
+          alt={`${book.title} cover`}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
         {/* Warm overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent pointer-events-none" />
         {book.trending && (
