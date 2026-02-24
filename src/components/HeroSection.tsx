@@ -19,15 +19,9 @@ const HeroSection = () => {
 
       {/* Hero content overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
-        <p className="font-pixel text-[10px] md:text-xs tracking-[0.3em] uppercase text-primary mb-4 animate-float-up">
-          ✦ Digital E-book Library ✦
-        </p>
-        <h1 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-golden text-center mb-3 animate-float-up" style={{ animationDelay: "0.1s" }}>
-          Your Next Great Adventure Awaits
+        <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-golden text-center mb-8 animate-float-up">
+          Lexora
         </h1>
-        <p className="font-body text-base md:text-lg text-muted-foreground text-center max-w-lg mb-8 animate-float-up" style={{ animationDelay: "0.2s" }}>
-          Explore thousands of stories across every genre imaginable
-        </p>
 
         {/* Get Started CTA */}
         <div className="animate-float-up" style={{ animationDelay: "0.3s" }}>

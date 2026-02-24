@@ -23,32 +23,31 @@ const features = [
 
 const WhyLexora = () => {
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 py-16">
-      <div className="text-center mb-12">
-        <p className="font-pixel text-[10px] tracking-[0.3em] uppercase text-primary mb-3">
-          ✦ Why Lexora? ✦
-        </p>
-        <h2 className="font-display text-2xl md:text-4xl font-bold text-foreground">
-          Everything a reader needs
-        </h2>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <section className="w-full px-4 py-20 md:py-28">
+      <div className="max-w-6xl mx-auto space-y-24">
         {features.map((feature, i) => (
           <div
             key={feature.title}
-            className="rounded-lg border border-border bg-card p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 animate-float-up"
-            style={{ animationDelay: `${i * 0.1}s` }}
+            className={`flex flex-col md:flex-row items-center gap-10 md:gap-16 ${
+              i % 2 === 1 ? "md:flex-row-reverse" : ""
+            }`}
           >
-            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
-              <feature.icon className="h-7 w-7 text-primary" />
+            {/* Visual / Icon block */}
+            <div className="flex-shrink-0 flex items-center justify-center w-full md:w-1/2">
+              <div className="w-48 h-48 md:w-64 md:h-64 rounded-2xl bg-card border border-border flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+                <feature.icon className="w-20 h-20 md:w-28 md:h-28 text-primary" />
+              </div>
             </div>
-            <h3 className="font-display text-xl font-semibold text-foreground mb-3">
-              {feature.title}
-            </h3>
-            <p className="font-body text-base text-muted-foreground leading-relaxed">
-              {feature.description}
-            </p>
+
+            {/* Text block */}
+            <div className="w-full md:w-1/2 text-center md:text-left">
+              <h3 className="font-display text-2xl md:text-4xl font-bold text-foreground mb-4 italic">
+                {feature.title}
+              </h3>
+              <p className="font-body text-base md:text-lg text-muted-foreground leading-relaxed max-w-md mx-auto md:mx-0">
+                {feature.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>
