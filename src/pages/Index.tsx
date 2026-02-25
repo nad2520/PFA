@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import HeroSection from "@/components/HeroSection";
 import BookCatalog from "@/components/BookCatalog";
 import WhyLexora from "@/components/WhyLexora";
@@ -12,9 +13,9 @@ const Index = () => {
             📖 LEXORA
           </span>
           <div className="flex gap-4 items-center">
-            <a href="#catalog" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Browse
-            </a>
+            <Link to="/profile" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Profile
+            </Link>
             <a href="#why" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
               About
             </a>
