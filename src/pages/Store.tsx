@@ -45,6 +45,12 @@ const Store = () => {
             <Link to="/store" className="font-body text-sm text-foreground transition-colors">
               My Store
             </Link>
+            <Link
+              to="/auth"
+              className="font-pixel text-[8px] md:text-[9px] px-4 py-2 rounded-full bg-primary text-primary-foreground tracking-wider hover:shadow-lg hover:shadow-primary/30 transition-all"
+            >
+              SIGN IN
+            </Link>
           </div>
         </div>
       </nav>

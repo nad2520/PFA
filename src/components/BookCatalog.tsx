@@ -1,15 +1,54 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search } from "lucide-react";
-import { books } from "@/data/books";
+import { books, type Genre, genres } from "@/data/books";
+import { mockUserBooks } from "@/data/userData";
 import BookCard from "./BookCard";
 import GenreFilter, { type FilterTab } from "./GenreFilter";
 
 const ITEMS_PER_PAGE = 8;
 
-const BookCatalog = () => {
+interface BookCatalogProps {
+  externalGenre?: string | null;
+}
+
+const BookCatalog = ({ externalGenre }: BookCatalogProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterTab>("trending");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+
+  // Sync external genre selection from map
+  useEffect(() => {
+    if (externalGenre && genres.includes(externalGenre as Genre)) {
+      setActiveFilter(externalGenre as FilterTab);
+      setVisibleCount(ITEMS_PER_PAGE);
+    }
+  }, [externalGenre]);
+
+  // "For You" recommendations based on user's reading history
+  const forYouBooks = useMemo(() => {
+    const readGenres = mockUserBooks
+      .filter((ub) => ub.status === "reading" || ub.status === "completed")
+      .map((ub) => ub.book.genre);
+
+    if (readGenres.length === 0) return [];
+
+    // Count genre frequency
+    const genreCount: Record<string, number> = {};
+    readGenres.forEach((g) => {
+      genreCount[g] = (genreCount[g] || 0) + 1;
+    });
+
+    // Sort genres by frequency
+    const topGenres = Object.entries(genreCount)
+      .sort((a, b) => b[1] - a[1])
+      .map(([g]) => g);
+
+    // Get books from top genres that user hasn't started
+    const userBookIds = new Set(mockUserBooks.map((ub) => ub.book.id));
+    return books
+      .filter((b) => topGenres.includes(b.genre) && !userBookIds.has(b.id))
+      .slice(0, 4);
+  }, []);
 
   const filteredBooks = useMemo(() => {
     let result = books;
@@ -62,6 +101,33 @@ const BookCatalog = () => {
       </div>
 
       <GenreFilter activeFilter={activeFilter} onFilterChange={handleFilterChange} />
+
+      {/* For You Section */}
+      {activeFilter === "trending" && (
+        <div className="mt-8 mb-6">
+          <h3 className="font-display text-xl md:text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+            ✨ For You
+          </h3>
+          {forYouBooks.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+              {forYouBooks.map((book, i) => (
+                <BookCard key={book.id} book={book} index={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
+              <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">
+                📖 Read a few books to get personalized picks!
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Divider */}
+      {activeFilter === "trending" && forYouBooks.length > 0 && (
+        <div className="border-t border-border my-6" />
+      )}
 
       {/* Grid */}
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
