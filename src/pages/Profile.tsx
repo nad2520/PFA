@@ -45,11 +45,14 @@ const Profile = () => {
             📖 LEXORA
           </Link>
           <div className="flex gap-4 items-center">
-            <Link to="/" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Home
-            </Link>
             <Link to="/profile" className="font-body text-sm text-foreground transition-colors">
               Profile
+            </Link>
+            <a href="/#why" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
+              About
+            </a>
+            <Link to="/store" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
+              My Store
             </Link>
           </div>
         </div>

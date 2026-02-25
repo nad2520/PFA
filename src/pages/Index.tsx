@@ -19,6 +19,9 @@ const Index = () => {
             <a href="#why" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
               About
             </a>
+            <Link to="/store" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
+              My Store
+            </Link>
           </div>
         </div>
       </nav>
