@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import HeroSection from "@/components/HeroSection";
 import BookCatalog from "@/components/BookCatalog";
 import WhyLexora from "@/components/WhyLexora";
+import { type Genre } from "@/data/books";
 
 const Index = () => {
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -22,14 +26,20 @@ const Index = () => {
             <Link to="/store" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
               My Store
             </Link>
+            <Link
+              to="/auth"
+              className="font-pixel text-[8px] md:text-[9px] px-4 py-2 rounded-full bg-primary text-primary-foreground tracking-wider hover:shadow-lg hover:shadow-primary/30 transition-all"
+            >
+              SIGN IN
+            </Link>
           </div>
         </div>
       </nav>
 
-      <HeroSection />
+      <HeroSection onGenreSelect={(genre) => setSelectedGenre(genre)} />
 
       <div id="catalog">
-        <BookCatalog />
+        <BookCatalog externalGenre={selectedGenre} />
       </div>
 
       <div id="why">
