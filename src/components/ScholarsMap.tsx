@@ -9,13 +9,13 @@ interface MapNode {
 }
 
 const mapNodes: MapNode[] = [
-  { level: 1, label: "Starting Meadow", x: "8%", y: "75%" },
-  { level: 5, label: "Whispering Woods", x: "22%", y: "60%" },
-  { level: 10, label: "Scholar's Bridge", x: "38%", y: "50%" },
-  { level: 15, label: "Mystic Grove", x: "50%", y: "38%" },
-  { level: 20, label: "Crystal Lake", x: "65%", y: "45%" },
-  { level: 25, label: "Dragon's Rest", x: "78%", y: "30%" },
-  { level: 30, label: "Imperial Library", x: "88%", y: "20%" },
+  { level: 1, label: "Starting Meadow", x: "12%", y: "82%" },
+  { level: 5, label: "Whispering Woods", x: "18%", y: "55%" },
+  { level: 10, label: "Crystal Ruins", x: "40%", y: "68%" },
+  { level: 15, label: "Crystal Lake", x: "52%", y: "85%" },
+  { level: 20, label: "Stone Pass", x: "62%", y: "60%" },
+  { level: 25, label: "Dragon's Rest", x: "75%", y: "42%" },
+  { level: 30, label: "Imperial Library", x: "90%", y: "25%" },
 ];
 
 interface ScholarsMapProps {
