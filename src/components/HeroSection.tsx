@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import heroVideo from "@/assets/hero-library.mp4";
 import heroImage from "@/assets/hero-library.png";
 import genreMap from "@/assets/genre-map.png";
+import LumoWelcome from "./LumoWelcome";
 
 const mapGenres = [
   { label: "Romance", genre: "Romance", top: "5%", left: "5%", width: "25%", height: "20%" },
@@ -17,17 +17,21 @@ interface HeroSectionProps {
   onGenreSelect?: (genre: string) => void;
 }
 
+type HeroState = "video" | "lumo" | "map";
+
 const HeroSection = ({ onGenreSelect }: HeroSectionProps) => {
-  const [showMap, setShowMap] = useState(false);
-  const navigate = useNavigate();
+  const [state, setState] = useState<HeroState>("video");
 
   const handleGetStarted = () => {
-    setShowMap(true);
+    setState("lumo");
+  };
+
+  const handleLumoDismiss = () => {
+    setState("map");
   };
 
   const handleGenreClick = (genre: string) => {
     onGenreSelect?.(genre);
-    // Scroll to catalog
     const el = document.getElementById("catalog");
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
@@ -38,14 +42,10 @@ const HeroSection = ({ onGenreSelect }: HeroSectionProps) => {
         {/* Video layer */}
         <div
           className="absolute inset-0 transition-opacity duration-500 ease-in-out"
-          style={{ opacity: showMap ? 0 : 1 }}
+          style={{ opacity: state === "video" ? 1 : 0 }}
         >
           <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            poster={heroImage}
+            autoPlay loop muted playsInline poster={heroImage}
             className="w-full h-full object-cover"
           >
             <source src={heroVideo} type="video/mp4" />
@@ -55,10 +55,9 @@ const HeroSection = ({ onGenreSelect }: HeroSectionProps) => {
         {/* Map layer */}
         <div
           className="absolute inset-0 transition-opacity duration-500 ease-in-out"
-          style={{ opacity: showMap ? 1 : 0, pointerEvents: showMap ? "auto" : "none" }}
+          style={{ opacity: state === "map" ? 1 : 0, pointerEvents: state === "map" ? "auto" : "none" }}
         >
           <img src={genreMap} alt="Genre Map" className="w-full h-full object-cover" />
-          {/* Clickable genre hotspots */}
           {mapGenres.map((g) => (
             <button
               key={g.genre}
@@ -70,21 +69,22 @@ const HeroSection = ({ onGenreSelect }: HeroSectionProps) => {
           ))}
         </div>
 
-        {/* Vignette overlay */}
+        {/* Lumo Welcome overlay */}
+        {state === "lumo" && <LumoWelcome onDismiss={handleLumoDismiss} />}
+
+        {/* Vignette + bottom gradient */}
         <div className="absolute inset-0 vignette pointer-events-none" />
-        {/* Bottom gradient fade */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
       </div>
 
       {/* Hero content overlay */}
       <div
         className="absolute inset-0 flex flex-col items-center justify-center px-4 transition-opacity duration-500"
-        style={{ opacity: showMap ? 0 : 1, pointerEvents: showMap ? "none" : "auto" }}
+        style={{ opacity: state === "video" ? 1 : 0, pointerEvents: state === "video" ? "auto" : "none" }}
       >
         <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-golden text-center mb-8 animate-float-up">
           Lexora
         </h1>
-
         <div className="animate-float-up" style={{ animationDelay: "0.15s" }}>
           <button
             onClick={handleGetStarted}
@@ -95,8 +95,8 @@ const HeroSection = ({ onGenreSelect }: HeroSectionProps) => {
         </div>
       </div>
 
-      {/* Map instruction overlay */}
-      {showMap && (
+      {/* Map instruction */}
+      {state === "map" && (
         <div className="absolute bottom-12 left-0 right-0 flex justify-center pointer-events-none">
           <span className="font-pixel text-[9px] text-foreground bg-card/80 backdrop-blur-sm px-4 py-2 rounded-full border border-border tracking-wider animate-float-up">
             ✦ TAP A REGION TO EXPLORE ✦
