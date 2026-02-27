@@ -3,6 +3,7 @@ import heroVideo from "@/assets/hero-library.mp4";
 import heroImage from "@/assets/hero-library.png";
 import genreMap from "@/assets/genre-map.png";
 import LumoWelcome from "./LumoWelcome";
+import { Dialog, DialogContent } from "./ui/dialog";
 
 const mapGenres = [
   { label: "Romance", genre: "Romance", top: "5%", left: "5%", width: "25%", height: "20%" },
@@ -21,12 +22,14 @@ type HeroState = "video" | "lumo" | "map";
 
 const HeroSection = ({ onGenreSelect }: HeroSectionProps) => {
   const [state, setState] = useState<HeroState>("video");
+  const [showLumo, setShowLumo] = useState(false);
 
   const handleGetStarted = () => {
-    setState("lumo");
+    setShowLumo(true);
   };
 
   const handleLumoDismiss = () => {
+    setShowLumo(false);
     setState("map");
   };
 
@@ -69,8 +72,12 @@ const HeroSection = ({ onGenreSelect }: HeroSectionProps) => {
           ))}
         </div>
 
-        {/* Lumo Welcome overlay */}
-        {state === "lumo" && <LumoWelcome onDismiss={handleLumoDismiss} />}
+        {/* Lumo Welcome dialog */}
+        <Dialog open={showLumo} onOpenChange={(open) => { if (!open) handleLumoDismiss(); }}>
+          <DialogContent className="bg-card border-border max-w-lg p-0 overflow-hidden">
+            <LumoWelcome onDismiss={handleLumoDismiss} />
+          </DialogContent>
+        </Dialog>
 
         {/* Vignette + bottom gradient */}
         <div className="absolute inset-0 vignette pointer-events-none" />
