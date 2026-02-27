@@ -54,7 +54,7 @@ const Index = () => {
         <WhyLexora />
       </div>
 
-      <ReadingKingdomMap open={showMap} onOpenChange={setShowMap} />
+      <ReadingKingdomMap open={showMap} onOpenChange={setShowMap} onGenreSelect={(genre) => setSelectedGenre(genre)} />
 
       {/* Footer */}
       <footer className="border-t border-border py-8 text-center">

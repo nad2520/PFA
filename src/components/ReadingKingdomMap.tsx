@@ -104,20 +104,21 @@ const mapRegions: MapRegion[] = [
 interface ReadingKingdomMapProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onGenreSelect?: (genre: string) => void;
 }
 
-const ReadingKingdomMap = ({ open, onOpenChange }: ReadingKingdomMapProps) => {
+const ReadingKingdomMap = ({ open, onOpenChange, onGenreSelect }: ReadingKingdomMapProps) => {
   const navigate = useNavigate();
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
 
   const handleRegionClick = (genre: string) => {
     onOpenChange(false);
-    // Navigate home and scroll to catalog with the genre filter
+    onGenreSelect?.(genre);
     navigate("/");
     setTimeout(() => {
       const el = document.getElementById("catalog");
       if (el) el.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    }, 150);
   };
 
   return (
