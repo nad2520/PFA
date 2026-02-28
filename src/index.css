@@ -234,4 +234,13 @@
     0%, 100% { opacity: 0.4; transform: scale(1); }
     50% { opacity: 0.8; transform: scale(1.05); }
   }
+
+  @keyframes lumo-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-lumo-float {
+    animation: lumo-float 3s ease-in-out infinite;
+  }
 }
