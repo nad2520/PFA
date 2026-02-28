@@ -1,6 +1,7 @@
 import { type Book, genreColors, genreCovers } from "@/data/books";
 import { bookPrices } from "@/data/bookPrices";
 import { Coins, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface BookCardProps {
   book: Book;
@@ -11,11 +12,13 @@ const BookCard = ({ book, index }: BookCardProps) => {
   const colors = genreColors[book.genre];
   const coverImage = genreCovers[book.genre];
   const price = bookPrices[book.id];
+  const navigate = useNavigate();
 
   return (
     <div
       className="book-card-container cursor-pointer animate-float-up"
       style={{ animationDelay: `${index * 0.05}s` }}
+      onClick={() => navigate(`/book/${book.id}`)}
     >
       <div className="book-card-inner rounded-lg border border-border overflow-hidden" style={{ minHeight: "320px" }}>
         {/* Front */}
