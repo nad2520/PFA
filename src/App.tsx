@@ -9,6 +9,7 @@ import Store from "./pages/Store";
 import Auth from "./pages/Auth";
 import BookDetail from "./pages/BookDetail";
 import NotFound from "./pages/NotFound";
+import LumoChatbot from "./components/LumoChatbot";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <LumoChatbot />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
