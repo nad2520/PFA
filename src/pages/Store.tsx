@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { CreditCard, ShieldCheck, Crown, Sparkles, Gem } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import GlobalHeader from "@/components/GlobalHeader";
 
 const tiers = [
   {
@@ -29,31 +30,14 @@ const tiers = [
 const Store = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="font-pixel text-[10px] md:text-xs text-primary tracking-wider">
-            📖 LEXORA
-          </Link>
-          <div className="flex gap-4 items-center">
-            <Link to="/profile" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Profile
-            </Link>
-            <Link to="/#why" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
-              About
-            </Link>
-            <Link to="/store" className="font-body text-sm text-foreground transition-colors">
-              My Store
-            </Link>
-            <Link
-              to="/auth"
-              className="font-pixel text-[8px] md:text-[9px] px-4 py-2 rounded-full bg-primary text-primary-foreground tracking-wider hover:shadow-lg hover:shadow-primary/30 transition-all"
-            >
-              SIGN IN
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <GlobalHeader>
+        <Link to="/#why" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
+          About
+        </Link>
+        <Link to="/store" className="font-body text-sm text-foreground transition-colors">
+          My Store
+        </Link>
+      </GlobalHeader>
 
       {/* Header */}
       <section className="py-16 md:py-24 text-center space-y-4">

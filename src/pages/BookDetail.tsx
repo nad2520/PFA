@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { books, genreCovers, genreColors } from "@/data/books";
 import { bookPrices } from "@/data/bookPrices";
 import { mockUserBooks } from "@/data/userData";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import GlobalHeader from "@/components/GlobalHeader";
 
 type SortMode = "top" | "recent" | "trending";
 
@@ -96,15 +97,15 @@ const BookDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav bar */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <span className="font-display text-sm text-muted-foreground truncate">{book.title}</span>
-        </div>
-      </header>
+      <GlobalHeader>
+        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
+          <ArrowLeft className="w-4 h-4" />
+          <span className="font-body text-sm">Back</span>
+        </button>
+        <Link to="/store" className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
+          My Store
+        </Link>
+      </GlobalHeader>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-12">
         {/* ─── Book Info Section ─── */}
