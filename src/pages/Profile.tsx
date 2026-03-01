@@ -5,7 +5,6 @@ import { mockUser, mockUserBooks } from "@/data/userData";
 import { genreCovers, genreColors } from "@/data/books";
 import { Progress } from "@/components/ui/progress";
 import ScholarsMap from "@/components/ScholarsMap";
-import LampOfKnowledge from "@/components/LampOfKnowledge";
 import GlobalHeader from "@/components/GlobalHeader";
 
 const CircularProgress = ({ value, max, label }: { value: number; max: number; label: string }) => {
@@ -37,13 +36,8 @@ const CircularProgress = ({ value, max, label }: { value: number; max: number; l
 };
 
 const Profile = () => {
-  const [coins, setCoins] = useState(mockUser.coins);
   const library = mockUserBooks.filter((b) => b.status === "reading" || b.status === "completed");
   const planToRead = mockUserBooks.filter((b) => b.status === "plan-to-read");
-
-  const handleCoinPenalty = (amount: number) => {
-    setCoins((c) => Math.max(0, c - amount));
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,7 +63,7 @@ const Profile = () => {
                 <div className="w-24 h-24 rounded-full bg-secondary flex items-center justify-center">
                   <Coins className="w-8 h-8 text-primary" />
                 </div>
-                <span className="font-display text-lg font-bold text-foreground">{coins.toLocaleString()}</span>
+                <span className="font-display text-lg font-bold text-foreground">{mockUser.coins.toLocaleString()}</span>
                 <span className="font-body text-sm text-muted-foreground">Coins</span>
               </div>
               <div className="flex flex-col items-center gap-2">
@@ -85,9 +79,6 @@ const Profile = () => {
 
         {/* Scholar's Map (replaces level bar) */}
         <ScholarsMap currentLevel={mockUser.level} />
-
-        {/* Lamp of Knowledge */}
-        <LampOfKnowledge userLevel={mockUser.level} coins={coins} onCoinPenalty={handleCoinPenalty} />
 
         {/* My Library */}
         <section className="space-y-4">
