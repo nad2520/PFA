@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Lexora</title>
+    <meta name="description" content="Sign in to your Lexora account and continue your reading journey.">
+    <link rel="stylesheet" href="scss/main.css">
+</head>
+
+<body>
+    <div class="auth-page">
+        <!-- Nav -->
+        <nav class="global-header">
+            <div class="header-inner" style="justify-content:space-between">
+                <a href="index.html" class="logo">📖 LEXORA</a>
+            </div>
+        </nav>
+
+        <div class="auth-body">
+            <div class="auth-card">
+                <div class="auth-title">
+                    <h1 class="text-golden">Lexora</h1>
+                    <p>✦ YOUR COZY READING SANCTUARY ✦</p>
+                </div>
+
+                <div class="auth-box">
+                    <h2 id="authFormTitle">Sign In</h2>
+                    <form id="authForm">
+                        <!-- Username -->
+                        <div class="field">
+                            <label>
+                                <span style="font-size:1.1rem">🐻</span> Username
+                            </label>
+                            <input type="text" id="username" placeholder="Username" required>
+                        </div>
+                        <!-- Password -->
+                        <div class="field">
+                            <label>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" viewBox="0 0 24 24" style="color:var(--primary)">
+                                    <path
+                                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                                </svg>
+                                Password
+                            </label>
+                            <input type="password" id="password" placeholder="••••••" required>
+                        </div>
+                        <!-- Confirm Password (sign-up only) -->
+                        <div class="field" id="confirmWrap" style="display:none">
+                            <label>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" viewBox="0 0 24 24" style="color:var(--primary)">
+                                    <path
+                                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                                </svg>
+                                Confirm Password
+                            </label>
+                            <input type="password" placeholder="••••••">
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="authSubmit">
+                            <span id="authSubmitIcon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                    <polyline points="10 17 15 12 10 7" />
+                                    <line x1="15" y1="12" x2="3" y2="12" />
+                                </svg>
+                            </span>
+                            <span id="authSubmitLabel">Sign In</span>
+                        </button>
+                    </form>
+
+                    <div class="auth-toggle">
+                        <button id="authToggle">✦ Register</button>
+                        <span id="forgotLink">🔒 Forgot Password?</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lumo Chatbot -->
+    <div id="lumo-fab" class="animate-lumo-float">
+        <button aria-label="Chat with Lumo">
+            <img src="assets/lumo-happy.png" alt="Lumo">
+            <div class="ping-ring"></div>
+            <div class="chat-hint"><span>CHAT WITH ME!</span></div>
+        </button>
+    </div>
+    <div id="lumo-chat" class="hidden">
+        <div class="chat-header">
+            <img src="assets/lumo-happy.png" alt="Lumo">
+            <div>
+                <h3>Lumo</h3>
+                <p>YOUR READING COMPANION</p>
+            </div>
+            <button class="chat-close-btn" id="chatClose">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                    stroke-width="2" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg lumo-msg">
+                <img src="assets/lumo-happy.png" alt="">
+                <div class="bubble">Hi there! I'm Lumo 🐻 your cozy reading companion. Ask me anything!</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <form onsubmit="return false">
+                <input id="chatInput" type="text" placeholder="Ask Lumo anything...">
+                <button id="chatSend" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                        stroke-width="2" viewBox="0 0 24 24">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

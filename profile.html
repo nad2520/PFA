@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile — Lexora</title>
+    <meta name="description"
+        content="Your Lexora reading profile — track progress, view your library, and explore the Scholar's Map.">
+    <link rel="stylesheet" href="scss/main.css">
+</head>
+
+<body>
+    <div class="min-h-screen">
+
+        <!-- ─── Global Header ─────────────────────────────────────────────────────── -->
+        <nav class="global-header">
+            <div class="header-inner">
+                <a href="index.html" class="logo">📖 LEXORA</a>
+                <div class="lamp-bar">
+                    <div class="lamp-inner">
+                        <div class="lumo-thumb">
+                            <img id="lumoThumb" src="assets/lumo-happy.png" alt="Lumo">
+                            <div id="lampDot" class="lamp-dot animate-lamp-glow">🔥</div>
+                        </div>
+                        <div class="lamp-status">
+                            <div id="lampStatus">
+                                <p class="status-lit"
+                                    style="font-family:'Press Start 2P';font-size:.45rem;letter-spacing:.05em">🪔 LAMP
+                                    LIT — Keep reading!</p>
+                            </div>
+                            <div class="slider-row">
+                                <input id="lampSlider" type="range" min="0" max="24" step="1" value="0">
+                                <span id="lampHours"
+                                    style="font-family:'Press Start 2P';font-size:.45rem;color:var(--primary);flex-shrink:0">0h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-right">
+                    <a href="index.html#why">About</a>
+                    <a href="store.html">My Store</a>
+                    <button class="btn-disconnect" onclick="nav('index.html')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        DISCONNECT
+                    </button>
+                    <div class="hover-card">
+                        <button class="avatar-btn" onclick="nav('profile.html')">
+                            <img id="avatarImg" src="assets/lumo-happy.png" alt="User avatar">
+                        </button>
+                        <div class="hover-card-content">
+                            <img src="assets/lumo-happy.png" alt="Lumo">
+                            <div style="text-align:center">
+                                <p style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700">Eleanor
+                                    Vance</p>
+                                <p
+                                    style="font-family:'Press Start 2P';font-size:.5rem;color:var(--primary);letter-spacing:.05em;margin-top:.25rem">
+                                    LVL 12</p>
+                            </div>
+                            <div class="coins-badge">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none"
+                                    stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="8" />
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                    <path d="M12 17h.01" />
+                                </svg>
+                                <span id="coinCount">1,350</span> COINS
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ─── Profile Content ───────────────────────────────────────────────────── -->
+        <div class="profile-wrap">
+
+            <!-- Stats Card -->
+            <section class="profile-stats">
+                <div class="stats-inner">
+                    <div class="avatar-block">
+                        <div class="avatar-circle">📚</div>
+                        <h1 class="font-display">Eleanor Vance</h1>
+                    </div>
+                    <div class="stats-row">
+                        <!-- Reading hours circular -->
+                        <div class="stat-item">
+                            <div class="circular-progress" style="position:relative;width:6rem;height:6rem">
+                                <svg id="circularSvg" width="96" height="96" viewBox="0 0 100 100"
+                                    style="transform:rotate(-90deg)"></svg>
+                                <div
+                                    style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+                                    <span id="circularLabel" class="font-display"
+                                        style="font-size:1.1rem;font-weight:700">2.4h</span>
+                                </div>
+                            </div>
+                            <span style="font-size:.875rem;color:var(--muted-foreground)">of 4h goal</span>
+                        </div>
+                        <!-- Coins -->
+                        <div class="stat-item">
+                            <div class="stat-circle">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" viewBox="0 0 24 24" style="color:var(--primary)">
+                                    <circle cx="12" cy="12" r="8" />
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                    <path d="M12 17h.01" />
+                                </svg>
+                            </div>
+                            <span id="profileCoins" class="font-display"
+                                style="font-size:1.1rem;font-weight:700">1,350</span>
+                            <span style="font-size:.875rem;color:var(--muted-foreground)">Coins</span>
+                        </div>
+                        <!-- Books Read -->
+                        <div class="stat-item">
+                            <div class="stat-circle">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" viewBox="0 0 24 24" style="color:var(--destructive)">
+                                    <path
+                                        d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z" />
+                                </svg>
+                            </div>
+                            <span id="booksReadCount" class="font-display"
+                                style="font-size:1.1rem;font-weight:700">5</span>
+                            <span style="font-size:.875rem;color:var(--muted-foreground)">Books Read</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scholar's Map -->
+            <div class="scholars-map">
+                <div class="map-head">
+                    <h2 class="font-display">🗺️ Scholar's Map</h2>
+                    <p>Level up to unlock new regions and biomes</p>
+                </div>
+                <div class="map-body" id="scholarsMapBody"></div>
+            </div>
+
+            <!-- My Library -->
+            <section style="display:flex;flex-direction:column;gap:1rem">
+                <h2 class="font-display"
+                    style="font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:.5rem">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"
+                        style="color:var(--primary)">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                    My Library
+                </h2>
+                <div class="book-grid" id="libraryGrid"></div>
+            </section>
+
+            <!-- My List -->
+            <section style="display:flex;flex-direction:column;gap:1rem">
+                <h2 class="font-display" style="font-size:1.5rem;font-weight:700">📋 My List</h2>
+                <div id="planGrid"></div>
+            </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <p>✦ LEXORA — A cozy corner for readers ✦</p>
+        </footer>
+    </div>
+
+    <!-- Lumo Chatbot -->
+    <div id="lumo-fab" class="animate-lumo-float">
+        <button aria-label="Chat with Lumo">
+            <img src="assets/lumo-happy.png" alt="Lumo">
+            <div class="ping-ring"></div>
+            <div class="chat-hint"><span>CHAT WITH ME!</span></div>
+        </button>
+    </div>
+    <div id="lumo-chat" class="hidden">
+        <div class="chat-header">
+            <img src="assets/lumo-happy.png" alt="Lumo">
+            <div>
+                <h3>Lumo</h3>
+                <p>YOUR READING COMPANION</p>
+            </div>
+            <button class="chat-close-btn" id="chatClose">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                    stroke-width="2" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg lumo-msg">
+                <img src="assets/lumo-happy.png" alt="">
+                <div class="bubble">Hi there! I'm Lumo 🐻 Ask me about your progress or book recommendations!</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <form onsubmit="return false">
+                <input id="chatInput" type="text" placeholder="Ask Lumo anything...">
+                <button id="chatSend" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                        stroke-width="2" viewBox="0 0 24 24">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

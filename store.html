@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imperial Treasury — Lexora</title>
+    <meta name="description" content="Purchase coin bundles for the Lexora Reading Kingdom and unlock premium books.">
+    <link rel="stylesheet" href="scss/main.css">
+</head>
+
+<body>
+    <div class="min-h-screen">
+
+        <!-- ─── Global Header ─────────────────────────────────────────────────────── -->
+        <nav class="global-header">
+            <div class="header-inner">
+                <a href="index.html" class="logo">📖 LEXORA</a>
+                <div class="lamp-bar">
+                    <div class="lamp-inner">
+                        <div class="lumo-thumb">
+                            <img id="lumoThumb" src="assets/lumo-happy.png" alt="Lumo">
+                            <div id="lampDot" class="lamp-dot animate-lamp-glow">🔥</div>
+                        </div>
+                        <div class="lamp-status">
+                            <div id="lampStatus">
+                                <p class="status-lit"
+                                    style="font-family:'Press Start 2P';font-size:.45rem;letter-spacing:.05em">🪔 LAMP
+                                    LIT — Keep reading!</p>
+                            </div>
+                            <div class="slider-row">
+                                <input id="lampSlider" type="range" min="0" max="24" step="1" value="0">
+                                <span id="lampHours"
+                                    style="font-family:'Press Start 2P';font-size:.45rem;color:var(--primary);flex-shrink:0">0h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-right">
+                    <a href="index.html#why">About</a>
+                    <a href="store.html" style="color:var(--foreground)">My Store</a>
+                    <button class="btn-disconnect" onclick="nav('index.html')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        DISCONNECT
+                    </button>
+                    <div class="hover-card">
+                        <button class="avatar-btn" onclick="nav('profile.html')">
+                            <img id="avatarImg" src="assets/lumo-happy.png" alt="User avatar">
+                        </button>
+                        <div class="hover-card-content">
+                            <img src="assets/lumo-happy.png" alt="Lumo">
+                            <div style="text-align:center">
+                                <p style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700">Eleanor
+                                    Vance</p>
+                                <p
+                                    style="font-family:'Press Start 2P';font-size:.5rem;color:var(--primary);letter-spacing:.05em;margin-top:.25rem">
+                                    LVL 12</p>
+                            </div>
+                            <div class="coins-badge">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none"
+                                    stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="8" />
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                    <path d="M12 17h.01" />
+                                </svg>
+                                <span id="coinCount">1,350</span> COINS
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ─── Hero ──────────────────────────────────────────────────────────────── -->
+        <div class="store-hero">
+            <h1 class="text-golden font-display">Imperial Treasury</h1>
+            <p>Acquire premium book volumes or test your luck.</p>
+        </div>
+
+        <!-- ─── Tier Cards ────────────────────────────────────────────────────────── -->
+        <div class="tier-grid" id="tierGrid"></div>
+
+        <!-- ─── Footer ───────────────────────────────────────────────────────────── -->
+        <footer class="site-footer">
+            <div class="footer-secure">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <polyline points="9 12 11 14 15 10" />
+                </svg>
+                <span>Secure Checkout — Your payment is encrypted and safe</span>
+            </div>
+            <p>✦ LEXORA — A cozy corner for readers ✦</p>
+        </footer>
+
+    </div>
+
+    <!-- Lumo Chatbot -->
+    <div id="lumo-fab" class="animate-lumo-float">
+        <button aria-label="Chat with Lumo">
+            <img src="assets/lumo-happy.png" alt="Lumo">
+            <div class="ping-ring"></div>
+            <div class="chat-hint"><span>CHAT WITH ME!</span></div>
+        </button>
+    </div>
+    <div id="lumo-chat" class="hidden">
+        <div class="chat-header">
+            <img src="assets/lumo-happy.png" alt="Lumo">
+            <div>
+                <h3>Lumo</h3>
+                <p>YOUR READING COMPANION</p>
+            </div>
+            <button class="chat-close-btn" id="chatClose">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                    stroke-width="2" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg lumo-msg">
+                <img src="assets/lumo-happy.png" alt="">
+                <div class="bubble">Hi there! I'm Lumo 🐻 Ask me anything about the store or coins!</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <form onsubmit="return false">
+                <input id="chatInput" type="text" placeholder="Ask Lumo anything...">
+                <button id="chatSend" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                        stroke-width="2" viewBox="0 0 24 24">
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
