@@ -49,6 +49,7 @@ function setAuthMode(isLogin) {
   const authTitle = document.getElementById('auth-title');
   const authSubtitle = document.getElementById('auth-subtitle');
   const usernameField = document.getElementById('username-field');
+  const ageField = document.getElementById('birthdate-field');
   const forgotPasswordLink = document.getElementById('forgot-password-link');
   const submitText = document.getElementById('submit-text');
   const authMessage = document.getElementById('auth-message');
@@ -63,6 +64,7 @@ function setAuthMode(isLogin) {
     authTitle.textContent = "Welcome Back, Adventurer";
     authSubtitle.textContent = "Enter the library and continue your quest";
     usernameField.classList.add('hidden');
+    if (ageField) ageField.classList.add('hidden');
     forgotPasswordLink.classList.remove('hidden');
     forgotPasswordLink.classList.add('flex');
     submitText.textContent = "Enter the Library";
@@ -72,6 +74,7 @@ function setAuthMode(isLogin) {
     authTitle.textContent = "Begin Your Journey";
     authSubtitle.textContent = "Create your account and explore infinite worlds";
     usernameField.classList.remove('hidden');
+    if (ageField) ageField.classList.remove('hidden');
     forgotPasswordLink.classList.remove('flex');
     forgotPasswordLink.classList.add('hidden');
     submitText.textContent = "Start Adventure";
@@ -108,6 +111,7 @@ function setAuthMode(isLogin) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const username = document.getElementById('username') ? document.getElementById('username').value : '';
+        const birthdate = document.getElementById('birthdate') ? document.getElementById('birthdate').value : '';
 
         submitText.textContent = "Processing...";
 
@@ -129,7 +133,7 @@ function setAuthMode(isLogin) {
               submitText.textContent = "Enter the Library";
             }
           } else {
-            if (username && email && password) {
+            if (username && email && password && birthdate) {
               showAuthMessage("Account created successfully", false);
               setTimeout(() => {
                 window.location.href = 'user_page/index.html';
