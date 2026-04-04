@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&display=swap");
+
+/* ─── Design Tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --background: hsl(24, 15%, 10%);
+  --foreground: hsl(38, 50%, 90%);
+  --card: hsl(24, 20%, 14%);
+  --card-foreground: hsl(38, 50%, 90%);
+  --primary: hsl(38, 75%, 55%);
+  --primary-foreground: hsl(24, 30%, 8%);
+  --secondary: hsl(24, 25%, 20%);
+  --secondary-foreground: hsl(38, 50%, 90%);
+  --muted: hsl(24, 15%, 18%);
+  --muted-foreground: hsl(30, 20%, 55%);
+  --accent: hsl(150, 30%, 25%);
+  --accent-foreground: hsl(38, 50%, 90%);
+  --destructive: hsl(0, 62%, 50%);
+  --destructive-foreground: hsl(38, 50%, 90%);
+  --border: hsl(30, 20%, 22%);
+  --radius: 0.5rem;
+  --amber-glow: hsl(38, 90%, 60%);
+  --mahogany: hsl(12, 40%, 18%);
+  --burgundy: hsl(345, 45%, 30%);
+  --warm-shadow: hsl(24, 40%, 6%);
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Crimson Text", serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+img, video {
+  display: block;
+  max-width: 100%;
+}
+
+input, textarea {
+  font-family: inherit;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--secondary);
+  border-radius: 999px;
+  border: 2px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* ─── Font Helpers ───────────────────────────────────────────────────────────── */
+.font-display, h1, h2, h3, h4, h5, h6 {
+  font-family: "Playfair Display", serif;
+}
+.font-body {
+  font-family: "Crimson Text", serif;
+}
+.font-pixel {
+  font-family: "Press Start 2P", cursive;
+}

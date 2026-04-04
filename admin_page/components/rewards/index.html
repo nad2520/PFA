@@ -1,0 +1,85 @@
+﻿<div id="rewards-section" class="section-content hidden animate-in fade-in duration-500">
+                    <div style="margin-bottom:1.5rem">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem">
+                            <i data-lucide="coins" style="color:#D4AF37"></i>
+                            <h2 style="font-size:1.25rem;font-weight:bold;color:#F5EDD6">Rewards & Economy</h2>
+                        </div>
+                        <p style="font-size:0.85rem;color:#A08060;margin-left:2.25rem">Configure the Lexora coin and XP
+                            economy</p>
+                        <div
+                            style="margin-top:0.75rem;height:1px;background:linear-gradient(90deg, #8B7322, transparent)">
+                        </div>
+                    </div>
+
+                    <div class="grid-3" style="margin-bottom:1.5rem">
+                        <div class="mini-stat-card">
+                            <div class="icon"><i data-lucide="arrow-up" class="text-green"></i></div>
+                            <div>
+                                <p class="label">Total Coins Earned</p>
+                                <p class="val">3.2M</p>
+                            </div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="icon"><i data-lucide="arrow-down" class="text-red"></i></div>
+                            <div>
+                                <p class="label">Total Coins Spent</p>
+                                <p class="val">780K</p>
+                            </div>
+                        </div>
+                        <div class="mini-stat-card">
+                            <div class="icon"><i data-lucide="bar-chart-2" class="text-gold"></i></div>
+                            <div>
+                                <p class="label">Avg Reward / Book</p>
+                                <p class="val">45 🪙</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card" style="margin-bottom:1.5rem">
+                        <h3
+                            style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+                            <i data-lucide="trending-up" style="color:#D4AF37;width:16px"></i> 30-Day Economy Trend
+                        </h3>
+                        <div class="chart-container"><canvas id="economyLineChart"></canvas></div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="admin-card">
+                            <h3 class="card-title"
+                                style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+                                <i data-lucide="award" style="color:#D4AF37;width:16px"></i> Default Reward Settings
+                            </h3>
+                            <div class="grid-2" style="gap:1rem">
+                                <div><label class="label-xs">DEFAULT XP REWARD</label>
+                                    <div class="input-with-label"><input type="text" class="admin-input"
+                                            value="150" id="rewardDefaultXp"><span>XP</span></div>
+                                </div>
+                                <div><label class="label-xs">DEFAULT COIN REWARD</label>
+                                    <div class="input-with-label"><input type="text" class="admin-input"
+                                            value="40" id="rewardDefaultCoin"><span>🪙</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card">
+                            <h3 class="card-title"
+                                style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+                                🪔 Lamp Penalty Rules</h3>
+                            <div class="penalty-list" id="rewardPenaltyWrap">
+                                <div class="penalty-item"><span>Penalty Enabled</span>
+                                    <label class="switch"><input id="rewardPenaltyEnabled" type="checkbox"
+                                            checked><span class="slider"></span></label>
+                                </div>
+                                <div class="penalty-item"><span>🌱 Level 1–5 Penalty %</span> <input type="text"
+                                        class="admin-input sm" value="10" id="penalty_l1_5"></div>
+                                <div class="penalty-item"><span>📖 Level 6–15 Penalty %</span> <input type="text"
+                                        class="admin-input sm" value="20" id="penalty_l6_15"></div>
+                                <div class="penalty-item"><span>⚔️ Level 16–25 Penalty %</span> <input type="text"
+                                        class="admin-input sm" value="30" id="penalty_l16_25"></div>
+                                <div class="penalty-item"><span>👑 Level 26+ Penalty %</span> <input type="text"
+                                        class="admin-input sm" value="40" id="penalty_l26"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                

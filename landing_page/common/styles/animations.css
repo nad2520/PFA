@@ -1,0 +1,60 @@
+/* ─── Keyframes ──────────────────────────────────────────────────────────────── */
+@keyframes float-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lamp-glow {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 8px hsla(38, 90%, 60%, 0.4)); }
+  50%       { filter: brightness(1.1) drop-shadow(0 0 16px hsla(38, 90%, 60%, 0.6)); }
+}
+@keyframes lamp-flicker {
+  0%, 100% { opacity: 1; }
+  10%  { opacity: 0.8; }
+  20%  { opacity: 1; }
+  30%  { opacity: 0.6; }
+  50%  { opacity: 0.9; }
+  70%  { opacity: 0.5; }
+  80%  { opacity: 1; }
+  90%  { opacity: 0.7; }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.01); }
+}
+@keyframes lumo-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes steam {
+  0%   { transform: translateY(0) scaleX(1);   opacity: 0.4; }
+  50%  { transform: translateY(-8px) scaleX(1.2); opacity: 0.2; }
+  100% { transform: translateY(-16px) scaleX(0.8); opacity: 0; }
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes castle-shimmer {
+  0%, 100% { opacity: 0.45; transform: scale(1);   }
+  50%       { opacity: 0.85; transform: scale(1.05); }
+}
+@keyframes sm-ping {
+  0%   { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+@keyframes sm-float {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-15px); }
+}
+
+/* ─── Animation Utility Classes ──────────────────────────────────────────────── */
+.animate-float-up      { animation: float-up 0.6s ease-out forwards; }
+.animate-lamp-glow     { animation: lamp-glow 4s ease-in-out infinite; }
+.animate-lamp-flicker  { animation: lamp-flicker 0.8s ease-in-out infinite; }
+.animate-breathe       { animation: breathe 4s ease-in-out infinite; }
+.animate-lumo-float    { animation: lumo-float 3s ease-in-out infinite; }
+.animate-ping          { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.animate-scale-in      { animation: scale-in 0.2s ease-out; }

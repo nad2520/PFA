@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexora Admin — Kingdom Management</title>
+    <link rel="stylesheet" href="scss/main.css"> <!-- Existing global styles -->
+    <link rel="stylesheet" href="scss/admin.css"> <!-- Admin specific styles -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&display=swap');
+    </style>
+</head>
+
+<body class="admin-page">
+
+    <!-- --- SIDEBAR --- -->
+    <!-- COMPONENT: sidebar -->
+
+    <!-- --- MAIN CONTENT --- -->
+    <div class="admin-main">
+        <!-- COMPONENT: header -->
+
+        <!-- Decorative Glow -->
+        <div style="height:1px;background:linear-gradient(90deg, transparent, #8B7322, transparent)"></div>
+
+        <main class="admin-content">
+            <div style="max-width:1200px;margin:0 auto">
+
+                <!-- --- SECTION: DASHBOARD --- -->
+                <!-- COMPONENT: dashboard --><!-- Stat Cards -->
+                    <div
+                        style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1rem;margin-bottom:1.5rem">
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box"><i data-lucide="users"></i></div>
+                                <div class="stat-labels">
+                                    <h5>Total Users</h5>
+                                    <div class="value">8,241</div>
+                                    <div class="sub">+124 this week</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box" style="color:#93C5FD"><i data-lucide="book-open"></i></div>
+                                <div class="stat-labels">
+                                    <h5>Total Books</h5>
+                                    <div class="value">342</div>
+                                    <div class="sub">24 genres</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box" style="color:#86EFAC"><i data-lucide="message-square"></i></div>
+                                <div class="stat-labels">
+                                    <h5>Community Posts</h5>
+                                    <div class="value">14,890</div>
+                                    <div class="sub">Active discussions</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box" style="color:#FCA5A5"><i data-lucide="alert-triangle"></i></div>
+                                <div class="stat-labels">
+                                    <h5>Flagged by Lumo</h5>
+                                    <div class="value">23</div>
+                                    <div class="sub">Pending review</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box" style="color:#A855F7"><i data-lucide="lock"></i></div>
+                                <div class="stat-labels">
+                                    <h5>+18 Books</h5>
+                                    <div class="value">89</div>
+                                    <div class="sub">Age-restricted</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box" style="color:#22C55E"><i data-lucide="eye"></i></div>
+                                <div class="stat-labels">
+                                    <h5>Visible to -18</h5>
+                                    <div class="value">253</div>
+                                    <div class="sub">Safe content</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box"><i data-lucide="coins"></i></div>
+                                <div class="stat-labels">
+                                    <h5>Coins in Circulation</h5>
+                                    <div class="value">2.4M</div>
+                                    <div class="sub">Economy health: stable</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card stat-card">
+                            <div class="stat-header">
+                                <div class="icon-box" style="color:#F97316"><i data-lucide="flame"></i></div>
+                                <div class="stat-labels">
+                                    <h5>Active Today</h5>
+                                    <div class="value">1,832</div>
+                                    <div class="sub">Reading right now</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Charts -->
+                    <div
+                        style="display:grid;grid-template-columns:repeat(auto-fit, minmax(400px, 1fr));gap:1.5rem;margin-bottom:1.5rem">
+                        <div class="admin-card">
+                            <h3
+                                style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+                                <i data-lucide="trending-up" style="color:#D4AF37;width:16px"></i> Kingdom Growth
+                            </h3>
+                            <div style="height:200px"><canvas id="growthChart"></canvas></div>
+                        </div>
+                        <div class="admin-card">
+                            <h3
+                                style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+                                <i data-lucide="bar-chart-2" style="color:#D4AF37;width:16px"></i> Engagement by Genre
+                            </h3>
+                            <div style="height:200px"><canvas id="genreChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:1.5rem">
+                        <div class="admin-card" style="padding:1rem">
+                            <div style="display:flex;align-items:flex-start;gap:0.75rem">
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="star"></i></div>
+                                <div>
+                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Most Popular Genre</p>
+                                    <p style="font-weight:700;color:#F5EDD6;margin:0">Fantasy</p>
+                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">38% of reads</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card" style="padding:1rem">
+                            <div style="display:flex;align-items:flex-start;gap:0.75rem">
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="book-marked"></i></div>
+                                <div>
+                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Most Read Book</p>
+                                    <p style="font-weight:700;color:#F5EDD6;margin:0">Dragon's Lullaby</p>
+                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">4,210 reads</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card" style="padding:1rem">
+                            <div style="display:flex;align-items:flex-start;gap:0.75rem">
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="crown"></i></div>
+                                <div>
+                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Top Active User</p>
+                                    <p style="font-weight:700;color:#F5EDD6;margin:0">CrimsonInk</p>
+                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">Level 61 · 9,800 coins</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card" style="padding:1rem">
+                            <div style="display:flex;align-items:flex-start;gap:0.75rem">
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem;color:#EF4444"><i data-lucide="alert-triangle"></i></div>
+                                <div>
+                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Most Flagged Type</p>
+                                    <p style="font-weight:700;color:#F5EDD6;margin:0">Spoilers</p>
+                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">42% of flags</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Alerts -->
+                    <div class="admin-card" style="border-color:#6B1A2A">
+                        <h3
+                            style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+                            <i data-lucide="bell" style="color:#EF4444;width:16px"></i> Quick Alerts
+                        </h3>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem">
+                            <div
+                                style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.25);border-radius:0.75rem;font-size:0.85rem;color:#A08060">
+                                <i data-lucide="alert-triangle" style="color:#FDBA74;width:14px"></i> 5 community posts
+                                awaiting admin review
+                            </div>
+                            <div
+                                style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.25);border-radius:0.75rem;font-size:0.85rem;color:#A08060">
+                                <i data-lucide="book-open" style="color:#FDE047;width:14px"></i> 3 newly uploaded books
+                                need age classification
+                            </div>
+                            <div
+                                style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.25);border-radius:0.75rem;font-size:0.85rem;color:#A08060">
+                                <i data-lucide="coins" style="color:#22C55E;width:14px"></i> Reward settings were
+                                modified 2 hours ago
+                            </div>
+                            <div
+                                style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.25);border-radius:0.75rem;font-size:0.85rem;color:#A08060">
+                                <i data-lucide="shield" style="color:#60A5FA;width:14px"></i> Lumo AI flagged 7 new
+                                posts since midnight
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- --- SECTION: USERS --- -->
+                <!-- COMPONENT: users --><!-- Injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- --- SECTION: BOOKS --- -->
+                <!-- COMPONENT: books --><!-- Community Section -->
+                <!-- COMPONENT: community --><!-- Lumo AI Section -->
+                <!-- COMPONENT: lumo --><!-- Age Access Section -->
+                <!-- COMPONENT: age --><!-- Rewards Section -->
+                <!-- COMPONENT: rewards --><!-- Settings Section -->
+                <!-- COMPONENT: settings --></div>
+        </main>
+    </div>
+
+    <!-- --- SCRIPTS --- -->
+    <div id="modalRoot"></div>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

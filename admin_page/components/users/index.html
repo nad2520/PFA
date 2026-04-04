@@ -1,0 +1,41 @@
+﻿<div id="users-section" class="section-content hidden animate-in fade-in duration-500">
+                    <div style="margin-bottom:1.5rem">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem">
+                            <i data-lucide="users" style="color:#D4AF37"></i>
+                            <h2 style="font-size:1.25rem;font-weight:bold;color:#F5EDD6">User Management</h2>
+                        </div>
+                        <p style="font-size:0.85rem;color:#A08060;margin-left:2.25rem">Manage all Lexora kingdom members
+                        </p>
+                        <div
+                            style="margin-top:0.75rem;height:1px;background:linear-gradient(90deg, #8B7322, transparent)">
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:1rem;margin-bottom:1rem">
+                        <input type="text" placeholder="Search users..." class="admin-input" style="flex:1"
+                            data-filter="users-search">
+                        <select class="admin-input" data-filter="users-role">
+                            <option value="All">All Roles</option>
+                            <option value="Admin">Admin</option>
+                            <option value="User +18">User +18</option>
+                            <option value="User -18">User -18</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-card" style="padding:0">
+                        <div class="admin-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Avatar</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Level</th>
+                                        <th>Coins</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTbody">
+                                    

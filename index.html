@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lexora — Reading Adventure</title>
+  <meta name="description"
+    content="The most fun and immersive way to read. Track your journey, earn rewards, and explore infinite worlds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="landing_page/common/styles/lexora-bundle.css">
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════
+     SPLASH PAGE
+═══════════════════════════════════════ -->
+  <div id="splash-page">
+    <div class="ambient"></div>
+
+    <!-- Light orbs -->
+    <div class="orb"
+      style="top:15%;left:10%;width:128px;height:128px;background:hsl(38 75% 55% / 0.1);animation-delay:0s;"></div>
+    <div class="orb"
+      style="top:25%;right:15%;width:160px;height:160px;background:hsl(175 70% 45% / 0.1);filter:blur(90px);animation-delay:1s;">
+    </div>
+    <div class="orb"
+      style="bottom:20%;left:20%;width:144px;height:144px;background:hsl(270 50% 50% / 0.1);filter:blur(70px);animation-delay:2s;">
+    </div>
+    <div class="orb"
+      style="bottom:30%;right:10%;width:112px;height:112px;background:hsl(38 75% 55% / 0.08);filter:blur(60px);animation-delay:0.5s;">
+    </div>
+
+    <!-- Particles -->
+    <div class="particles" id="splash-particles"></div>
+
+    <!-- Splash image -->
+    <div class="splash-image-wrap" id="splash-img">
+      <img
+        src="landing_page/assets/img_1.png"
+        alt="Lexora — Enter the World of Reading Adventure"
+        style="width:100%;height:auto;border-radius:1rem;box-shadow:0 30px 80px rgba(0,0,0,0.5);" />
+      <div class="splash-glow-border"></div>
+      <div class="splash-bottom-glow"></div>
+    </div>
+
+    <!-- CTA text -->
+    <div class="splash-cta" id="splash-cta">
+      <h2>Enter the World of Lexora</h2>
+      <p>✦ Click anywhere to begin your adventure ✦</p>
+    </div>
+
+    <!-- Scanlines -->
+    <div class="scanlines"></div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+     MAIN PAGE
+═══════════════════════════════════════ -->
+  <div id="main-page">
+
+    <!-- ── Navbar ── -->
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <a href="#" class="navbar-logo">
+            <img
+              src="landing_page/assets/img_2.jpeg"
+              alt="Lexora" class="navbar-logo-bear-img"
+              style="width:36px;height:36px;border-radius:50%;border:2px solid hsl(38 75% 55% / 0.5);object-fit:cover;">
+            <span class="navbar-logo-text">LEXORA</span>
+          </a>
+          <div class="navbar-coins">
+            <img
+              src="landing_page/assets/img_3.png"
+              alt="coins" style="width:20px;height:20px;object-fit:contain;">
+            <span>1,250</span>
+          </div>
+        </div>
+
+        <div class="navbar-links">
+          <a href="#explore" class="navbar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+            Explore
+          </a>
+          <a href="#stats" class="navbar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="3 11 22 2 13 21 11 13 3 11" />
+            </svg>
+            Map
+          </a>
+          <a href="#how-it-works" class="navbar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+              <path d="M4 22h16" />
+              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
+            </svg>
+            Quests
+          </a>
+          <a href="#stats" class="navbar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            Community
+          </a>
+        </div>
+
+        <div class="navbar-auth">
+          <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">Log In</button>
+          <button class="btn btn-hero btn-sm" onclick="openAuthModal('signup')">Sign Up ✦</button>
+        </div>
+
+        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu">
+          <svg id="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+          <svg id="close-icon" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu-coins">
+          <img
+            src="landing_page/assets/img_3.png"
+            alt="coins" style="width:20px;height:20px;object-fit:contain;"> 1,250 Coins
+        </div>
+        <a href="#explore" class="navbar-link" onclick="closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+          Explore
+        </a>
+        <a href="#how-it-works" class="navbar-link" onclick="closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+            <path d="M4 22h16" />
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
+          </svg>
+          Quests
+        </a>
+        <a href="#stats" class="navbar-link" onclick="closeMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          Community
+        </a>
+        <div class="mobile-menu-auth">
+          <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">Log In</button>
+          <button class="btn btn-hero btn-sm" onclick="openAuthModal('signup')">Sign Up ✦</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── Hero ── -->
+    <section class="hero-section">
+      <div class="hero-video-wrap">
+        <div class="hero-fallback"></div>
+        <video autoplay muted loop playsinline
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;" id="hero-video">
+          <source src="landing_page/assets/hero-bg.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-gradient-bottom"></div>
+        <div class="hero-gradient-top"></div>
+        <div class="hero-vignette"></div>
+      </div>
+
+      <div class="particles" id="hero-particles"></div>
+
+      <div class="hero-content">
+        <p class="hero-eyebrow">Open the Book &amp; Enter</p>
+        <h1 class="hero-title">
+          Reading
+          <span>Adventure</span>
+        </h1>
+        <p class="hero-desc">
+          The most fun and immersive way to read. Track your journey, earn rewards, and explore infinite worlds. ⋆˙⟡
+        </p>
+        <div class="hero-btn-wrap">
+          <button class="btn btn-hero btn-xl" id="btn-get-started">✨ Get Started</button>
+        </div>
+      </div>
+
+      <div class="hero-glow">
+        <div class="hero-glow-inner"></div>
+      </div>
+
+      <div class="scroll-indicator">
+        <div class="scroll-indicator-track">
+          <div class="scroll-dot"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── How It Works ── -->
+    <section id="how-it-works">
+      <div class="section-inner">
+        <div class="section-title-wrap">
+          <h2 class="section-title reveal">
+            How <span class="text-primary text-glow-gold">Lexora</span> Works
+          </h2>
+          <p class="section-subtitle reveal reveal-delay-1">Your reading journey in three simple steps</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="card step-card reveal reveal-delay-1">
+            <div class="card-hover-overlay"></div>
+            <div class="step-number">01</div>
+            <div class="step-img-wrap">
+              <img
+                src="landing_page/assets/img_5.png"
+                alt="Browse" class="step-img" style="width:64px;height:64px;object-fit:contain;">
+            </div>
+            <h3 class="step-title">Browse &amp; Discover</h3>
+            <p class="step-desc">Explore our enchanted library of free and premium ebooks. Use AI-powered
+              recommendations tailored to your reading history and mood.</p>
+            <p class="step-detail">Free books can be borrowed instantly. Premium titles are available for purchase.</p>
+          </div>
+
+          <div class="card step-card reveal reveal-delay-2">
+            <div class="card-hover-overlay"></div>
+            <div class="step-number">02</div>
+            <div class="step-img-wrap">
+              <img
+                src="landing_page/assets/img_6.png"
+                alt="Buy" class="step-img" style="width:64px;height:64px;object-fit:contain;">
+            </div>
+            <h3 class="step-title">Borrow or Buy</h3>
+            <p class="step-desc">Add books to your cart, review your selections, and checkout securely. Free books go
+              straight to your library — no coins needed.</p>
+            <p class="step-detail">Purchased books stay in your library forever. Track all transactions in your history.
+            </p>
+          </div>
+
+          <div class="card step-card reveal reveal-delay-3">
+            <div class="card-hover-overlay"></div>
+            <div class="step-number">03</div>
+            <div class="step-img-wrap">
+              <img
+                src="landing_page/assets/img_7.png"
+                alt="Earn" class="step-img" style="width:64px;height:64px;object-fit:contain;">
+            </div>
+            <h3 class="step-title">Read &amp; Earn Coins</h3>
+            <p class="step-desc">Every page you read earns you coins and XP. Complete quests, maintain your streak, and
+              level up your reader profile.</p>
+            <p class="step-detail">Use coins to unlock premium books, cosmetics for your avatar, and exclusive features.
+            </p>
+          </div>
+        </div>
+
+        <!-- Coin explainer -->
+        <div class="coin-box reveal">
+          <div class="coin-img-wrap">
+            <img
+              src="landing_page/assets/img_3.png"
+              alt="Lexora Coin" style="width:96px;height:96px;object-fit:contain;" class="animate-float">
+            <div class="coin-glow"></div>
+          </div>
+          <div>
+            <h3>The Coin System</h3>
+            <p>Coins are the currency of the Reading Kingdom. Earn them by reading pages, completing quests, and
+              maintaining your daily streak. Spend them on premium books, avatar cosmetics, and exclusive features.</p>
+            <div class="coin-badges">
+              <span class="coin-badge">📖 Read 10 pages → <span class="amount">+20 coins</span></span>
+              <span class="coin-badge">🔥 Daily streak → <span class="amount">+50 coins</span></span>
+              <span class="coin-badge">⚔️ Quest complete → <span class="amount">+200 coins</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lumo guide -->
+        <div class="lumo-box reveal">
+          <img
+            src="landing_page/assets/img_9.png"
+            alt="Lumo the Bear" style="width:112px;height:112px;object-fit:contain;" class="animate-float">
+          <div>
+            <h3>Meet Lumo, Your Guide</h3>
+            <p>Lumo is your magical bear companion who tracks your reading progress. He celebrates your wins, nudges you
+              when you've been away, and helps you discover your next favorite book. Keep reading to keep Lumo's lamp
+              bright! 🔥</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Services ── -->
+    <section id="explore">
+      <div class="section-inner" style="position:relative;z-index:1;">
+        <div class="section-title-wrap">
+          <h2 class="section-title reveal">
+            Discover Our <span class="text-accent text-glow-teal">Services</span>
+          </h2>
+          <p class="section-subtitle reveal reveal-delay-1">Everything you need for the ultimate reading adventure</p>
+        </div>
+
+        <div class="services-grid">
+          <div class="card service-card reveal reveal-delay-1">
+            <div class="card-hover-overlay"></div>
+            <div class="service-header">
+              <img
+                src="landing_page/assets/img_10.png"
+                alt="Discovery" style="width:56px;height:56px;object-fit:contain;">
+              <span class="service-tag">AI-Powered</span>
+            </div>
+            <h3 class="service-title">Smart Book Discovery</h3>
+            <p class="service-desc">Advanced search, thematic browsing, and AI-driven recommendations based on your
+              behavior and preferences.</p>
+          </div>
+
+          <div class="card service-card reveal reveal-delay-2">
+            <div class="card-hover-overlay"></div>
+            <div class="service-header">
+              <img
+                src="landing_page/assets/img_11.png"
+                alt="Reading" style="width:56px;height:56px;object-fit:contain;">
+              <span class="service-tag">Flexible</span>
+            </div>
+            <h3 class="service-title">Free &amp; Premium Access</h3>
+            <p class="service-desc">Borrow free ebooks instantly or purchase premium titles. Your library grows with
+              every adventure.</p>
+          </div>
+
+          <div class="card service-card reveal reveal-delay-3">
+            <div class="card-hover-overlay"></div>
+            <div class="service-header">
+              <img
+                src="landing_page/assets/img_12.png"
+                alt="Cart" style="width:56px;height:56px;object-fit:contain;">
+              <span class="service-tag">Seamless</span>
+            </div>
+            <h3 class="service-title">Cart &amp; Checkout</h3>
+            <p class="service-desc">Add books to cart, review price and quantity, and check out securely. Access
+              purchased books permanently.</p>
+          </div>
+
+          <div class="card service-card reveal reveal-delay-1">
+            <div class="card-hover-overlay"></div>
+            <div class="service-header">
+              <img
+                src="landing_page/assets/img_13.png"
+                alt="AI" style="width:56px;height:56px;object-fit:contain;">
+              <span class="service-tag">Smart</span>
+            </div>
+            <h3 class="service-title">AI Recommendations</h3>
+            <p class="service-desc">Get personalized suggestions based on browsing history, genres, and previously read
+              books — both free and paid.</p>
+          </div>
+
+          <div class="card service-card reveal reveal-delay-2">
+            <div class="card-hover-overlay"></div>
+            <div class="service-header">
+              <img
+                src="landing_page/assets/img_14.png"
+                alt="Mood" style="width:56px;height:56px;object-fit:contain;">
+              <span class="service-tag">Personal</span>
+            </div>
+            <h3 class="service-title">Reading Moods</h3>
+            <p class="service-desc">Tell us how you feel and get book suggestions that match your mood. Budget-aware
+              picks included.</p>
+          </div>
+
+          <div class="card service-card reveal reveal-delay-3">
+            <div class="card-hover-overlay"></div>
+            <div class="service-header">
+              <img
+                src="landing_page/assets/img_15.png"
+                alt="Gamification" style="width:56px;height:56px;object-fit:contain;">
+              <span class="service-tag">Rewarding</span>
+            </div>
+            <h3 class="service-title">Gamified Progression</h3>
+            <p class="service-desc">Earn XP and coins as you read. Complete quests, unlock achievements, and watch your
+              level grow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Features ── -->
+    <section id="features">
+      <div class="section-inner">
+        <div class="section-title-wrap">
+          <h2 class="section-title reveal">
+            Your Adventure <span class="text-primary text-glow-gold">Awaits</span>
+          </h2>
+          <p class="section-subtitle reveal reveal-delay-1">Four pillars power the Lexora experience</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="card feature-card reveal reveal-delay-1">
+            <div class="card-hover-overlay"></div>
+            <div class="feature-icon-wrap"><img
+                src="landing_page/assets/img_16.png"
+                alt="Library" style="width:64px;height:64px;object-fit:contain;"></div>
+            <h3 class="feature-title">Enchanted Library</h3>
+            <p class="feature-desc">Discover thousands of books across every genre. Your personal library grows as you
+              read — watch it come alive.</p>
+          </div>
+
+          <div class="card feature-card reveal reveal-delay-2">
+            <div class="card-hover-overlay"></div>
+            <div class="feature-icon-wrap"><img
+                src="landing_page/assets/img_17.png"
+                alt="Quests" style="width:64px;height:64px;object-fit:contain;"></div>
+            <h3 class="feature-title">Quests &amp; Rewards</h3>
+            <p class="feature-desc">Complete reading quests to earn coins and XP. Level up your avatar, unlock
+              achievements, and maintain your streak.</p>
+          </div>
+
+          <div class="card feature-card reveal reveal-delay-3">
+            <div class="card-hover-overlay"></div>
+            <div class="feature-icon-wrap"><img
+                src="landing_page/assets/img_18.png"
+                alt="Map" style="width:64px;height:64px;object-fit:contain;"></div>
+            <h3 class="feature-title">Reading Kingdom Map</h3>
+            <p class="feature-desc">Explore genre regions on an interactive fantasy map. Each territory unlocks as you
+              venture deeper into new stories.</p>
+          </div>
+
+          <div class="card feature-card reveal reveal-delay-4">
+            <div class="card-hover-overlay"></div>
+            <div class="feature-icon-wrap"><img
+                src="landing_page/assets/img_19.png"
+                alt="Guild" style="width:64px;height:64px;object-fit:contain;"></div>
+            <h3 class="feature-title">Guild Community</h3>
+            <p class="feature-desc">Join book guilds, share reviews, and discuss stories with fellow adventurers.
+              Reading is better together.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ── Portals ── -->
+    <section id="portals" style="position:relative;padding:8rem 1.5rem;">
+      <div
+        style="position:absolute;inset:0;background:radial-gradient(ellipse at center, hsl(42 90% 60% / 0.12) 0%, transparent 70%);pointer-events:none;">
+      </div>
+      <div class="section-inner" style="position:relative;z-index:1;">
+        <div class="section-title-wrap">
+          <h2 class="section-title reveal">
+            Step Through the <span class="text-accent text-glow-teal">Portals</span>
+          </h2>
+          <p class="section-subtitle reveal reveal-delay-1">Each portal leads to a new genre universe waiting to be
+            explored</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;">
+
+          <div class="portal-card reveal reveal-delay-1"
+            style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
+            <div style="aspect-ratio:1;overflow:hidden;">
+              <img
+                src="landing_page/assets/img_20.jpeg"
+                alt="Fantasy Peaks" style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;"
+                class="portal-img" loading="lazy">
+            </div>
+            <div
+              style="position:absolute;inset:0;background:linear-gradient(to top, var(--background) 0%, hsl(24 15% 10% / 0.3) 50%, transparent 100%);opacity:0.85;transition:opacity 0.3s;">
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:1.25rem;">
+              <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:600;margin-bottom:4px;">Fantasy
+                Peaks</h3>
+              <p style="font-size:0.875rem;color:var(--muted-foreground);">Epic tales of magic and destiny</p>
+            </div>
+            <div
+              style="position:absolute;inset:0;border-radius:1rem;border:1px solid transparent;transition:border-color 0.3s;pointer-events:none;"
+              class="portal-border"></div>
+          </div>
+          <div class="portal-card reveal reveal-delay-2"
+            style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
+            <div style="aspect-ratio:1;overflow:hidden;">
+              <img
+                src="landing_page/assets/img_21.jpeg"
+                alt="Mystery Woods" style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;"
+                class="portal-img" loading="lazy">
+            </div>
+            <div
+              style="position:absolute;inset:0;background:linear-gradient(to top, var(--background) 0%, hsl(24 15% 10% / 0.3) 50%, transparent 100%);opacity:0.85;transition:opacity 0.3s;">
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:1.25rem;">
+              <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:600;margin-bottom:4px;">Mystery
+                Woods</h3>
+              <p style="font-size:0.875rem;color:var(--muted-foreground);">Dark forests of suspense and wonder</p>
+            </div>
+            <div
+              style="position:absolute;inset:0;border-radius:1rem;border:1px solid transparent;transition:border-color 0.3s;pointer-events:none;"
+              class="portal-border"></div>
+          </div>
+          <div class="portal-card reveal reveal-delay-3"
+            style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
+            <div style="aspect-ratio:1;overflow:hidden;">
+              <img
+                src="landing_page/assets/img_22.jpeg"
+                alt="Scholar's Archive" style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;"
+                class="portal-img" loading="lazy">
+            </div>
+            <div
+              style="position:absolute;inset:0;background:linear-gradient(to top, var(--background) 0%, hsl(24 15% 10% / 0.3) 50%, transparent 100%);opacity:0.85;transition:opacity 0.3s;">
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:1.25rem;">
+              <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:600;margin-bottom:4px;">Scholar's
+                Archive</h3>
+              <p style="font-size:0.875rem;color:var(--muted-foreground);">Ancient wisdom and discovery</p>
+            </div>
+            <div
+              style="position:absolute;inset:0;border-radius:1rem;border:1px solid transparent;transition:border-color 0.3s;pointer-events:none;"
+              class="portal-border"></div>
+          </div>
+          <div class="portal-card reveal reveal-delay-4"
+            style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
+            <div style="aspect-ratio:1;overflow:hidden;">
+              <img
+                src="landing_page/assets/img_23.jpeg"
+                alt="Traveler's Tavern" style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;"
+                class="portal-img" loading="lazy">
+            </div>
+            <div
+              style="position:absolute;inset:0;background:linear-gradient(to top, var(--background) 0%, hsl(24 15% 10% / 0.3) 50%, transparent 100%);opacity:0.85;transition:opacity 0.3s;">
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:1.25rem;">
+              <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:600;margin-bottom:4px;">Traveler's
+                Tavern</h3>
+              <p style="font-size:0.875rem;color:var(--muted-foreground);">Where readers gather and share stories</p>
+            </div>
+            <div
+              style="position:absolute;inset:0;border-radius:1rem;border:1px solid transparent;transition:border-color 0.3s;pointer-events:none;"
+              class="portal-border"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ── Stats & Leaderboard ── -->
+    <section id="stats">
+      <div class="section-inner" style="position:relative;z-index:1;">
+        <div class="section-title-wrap">
+          <h2 class="section-title reveal">
+            The Reading <span class="text-primary text-glow-gold">Kingdom</span>
+          </h2>
+          <p class="section-subtitle reveal reveal-delay-1">Explore our growing world of readers, books, and adventures
+          </p>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+          <div class="card stat-card reveal reveal-delay-1">
+            <img
+              src="landing_page/assets/img_16.png"
+              alt="" style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
+            <div class="stat-value text-primary">12,450+</div>
+            <div class="stat-label">Books Available</div>
+          </div>
+          <div class="card stat-card reveal reveal-delay-2">
+            <img
+              src="landing_page/assets/img_25.png"
+              alt="" style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
+            <div class="stat-value text-accent">38,200+</div>
+            <div class="stat-label">Active Readers</div>
+          </div>
+          <div class="card stat-card reveal reveal-delay-3">
+            <img
+              src="landing_page/assets/img_25.png"
+              alt="" style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
+            <div class="stat-value" style="color:var(--glow-purple)">4,800+</div>
+            <div class="stat-label">Children (6-12)</div>
+          </div>
+          <div class="card stat-card reveal reveal-delay-4">
+            <img
+              src="landing_page/assets/img_25.png"
+              alt="" style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
+            <div class="stat-value text-accent">33,400+</div>
+            <div class="stat-label">Adults (13+)</div>
+          </div>
+        </div>
+
+        <!-- Age categories -->
+        <h3 class="section-title reveal" style="font-size:1.75rem;margin-bottom:2rem;text-align:center;">
+          Categories by <span class="text-accent text-glow-teal">Age</span>
+        </h3>
+        <div class="age-grid">
+          <div class="card age-card reveal reveal-delay-1">
+            <div class="age-emoji">📚</div>
+            <div class="age-name">Children (6-12 ans)</div>
+            <div class="age-count">4,200 books</div>
+            <div class="age-badges">
+              <span class="age-badge">Age: 6-12</span>
+              <span class="age-badge">Parental consent required</span>
+            </div>
+          </div>
+          <div class="card age-card reveal reveal-delay-2">
+            <div class="age-emoji">🎮</div>
+            <div class="age-name">Teens (13-17 ans)</div>
+            <div class="age-count">3,650 books</div>
+            <div class="age-badges">
+              <span class="age-badge">Age: 13-17</span>
+              <span class="age-badge">Age verification</span>
+            </div>
+          </div>
+          <div class="card age-card reveal reveal-delay-3">
+            <div class="age-emoji">📖</div>
+            <div class="age-name">Adults (18+)</div>
+            <div class="age-count">4,600 books</div>
+            <div class="age-badges">
+              <span class="age-badge">Age: 18+</span>
+              <span class="age-badge">ID verification</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <h3 class="section-title reveal" style="font-size:1.75rem;margin-bottom:2rem;text-align:center;">
+          Top <span class="text-primary text-glow-gold">Readers</span> Leaderboard
+        </h3>
+        <div class="leaderboard-wrap reveal">
+          <div class="lb-header">
+            <span>Rank</span>
+            <span>Reader</span>
+            <span style="text-align:right;">Score</span>
+            <span class="lb-books-col" style="text-align:right;">Books</span>
+            <span style="text-align:right;">Level</span>
+          </div>
+
+          <div class="lb-row top3 reveal-x">
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:var(--primary)">👑</span></div>
+            <div class="lb-reader"><span class="lb-avatar">🧝‍♀️</span><span class="lb-name">Luna Starweaver</span>
+            </div>
+            <div class="lb-score"><span class="lb-score-val">98,750</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">342</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.85</span></div>
+          </div>
+
+          <div class="lb-row top3 reveal-x" style="transition-delay:80ms">
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(0,0%,60%)">🥈</span></div>
+            <div class="lb-reader"><span class="lb-avatar">🧙‍♂️</span><span class="lb-name">Atlas Bookwright</span>
+            </div>
+            <div class="lb-score"><span class="lb-score-val">87,200</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">298</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.79</span></div>
+          </div>
+
+          <div class="lb-row top3 reveal-x" style="transition-delay:160ms">
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(25,70%,50%)">🥉</span></div>
+            <div class="lb-reader"><span class="lb-avatar">🦊</span><span class="lb-name">Ember Foxley</span></div>
+            <div class="lb-score"><span class="lb-score-val">76,430</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">267</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.72</span></div>
+          </div>
+
+          <div class="lb-row reveal-x" style="transition-delay:240ms">
+            <div class="lb-rank"><span class="lb-rank-num">#4</span></div>
+            <div class="lb-reader"><span class="lb-avatar">⭐</span><span class="lb-name">Nova Pagebinder</span></div>
+            <div class="lb-score"><span class="lb-score-val">65,100</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">231</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.65</span></div>
+          </div>
+
+          <div class="lb-row reveal-x" style="transition-delay:320ms">
+            <div class="lb-rank"><span class="lb-rank-num">#5</span></div>
+            <div class="lb-reader"><span class="lb-avatar">🌿</span><span class="lb-name">Sage Willowmere</span></div>
+            <div class="lb-score"><span class="lb-score-val">58,800</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">204</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.60</span></div>
+          </div>
+
+          <div class="lb-row reveal-x" style="transition-delay:400ms">
+            <div class="lb-rank"><span class="lb-rank-num">#6</span></div>
+            <div class="lb-reader"><span class="lb-avatar">✨</span><span class="lb-name">Cleo Brightword</span></div>
+            <div class="lb-score"><span class="lb-score-val">52,340</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">189</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.56</span></div>
+          </div>
+
+          <div class="lb-row reveal-x" style="transition-delay:480ms">
+            <div class="lb-rank"><span class="lb-rank-num">#7</span></div>
+            <div class="lb-reader"><span class="lb-avatar">🐱</span><span class="lb-name">Felix Inkwell</span></div>
+            <div class="lb-score"><span class="lb-score-val">47,200</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">172</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.51</span></div>
+          </div>
+
+          <div class="lb-row reveal-x" style="transition-delay:560ms">
+            <div class="lb-rank"><span class="lb-rank-num">#8</span></div>
+            <div class="lb-reader"><span class="lb-avatar">🌸</span><span class="lb-name">Iris Storyhelm</span></div>
+            <div class="lb-score"><span class="lb-score-val">43,900</span><span class="lb-score-label">pts</span></div>
+            <div class="lb-books">158</div>
+            <div class="lb-level"><span class="lb-level-badge">Lv.48</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ── CTA ── -->
+    <section id="cta" class="cta-section">
+      <div class="cta-glow">
+        <div></div>
+      </div>
+      <div class="cta-inner">
+        <img
+          src="landing_page/assets/img_28.png"
+          alt="Lumo" class="cta-emoji reveal animate-float"
+          style="width:96px;height:96px;object-fit:contain;margin:0 auto 1.5rem;display:block;">
+        <h2 class="cta-title reveal">
+          Your Story <span class="text-primary text-glow-gold">Begins Now</span>
+        </h2>
+        <p class="cta-desc reveal reveal-delay-1">
+          Join thousands of readers in the Reading Kingdom. Sign up free, earn your first coins, and let Lumo guide you.
+        </p>
+        <div class="cta-btns reveal reveal-delay-2">
+          <button class="btn btn-hero btn-xl" onclick="openAuthModal('signup')">✨ Create Your Account</button>
+          <button class="btn btn-portal btn-lg" onclick="openAuthModal('login')">Log In</button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ── video footer ── -->
+    <section class="vf-section">
+      <video id="footer-vid" autoplay muted loop playsinline>
+        <source src="landing_page/assets/lexora-intro.mp4"
+          type="video/mp4">
+      </video>
+
+      <div class="vf-bar" id="vf-bar">
+
+        <!-- Play/Pause -->
+        <button class="vf-btn" id="vf-play" aria-label="Play/Pause" title="Play / Pause">
+          <svg id="vf-play-svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+            <path id="vf-play-path" d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+
+        <!-- Current time -->
+        <span class="vf-time" id="vf-cur">0:00</span>
+
+        <!-- Seek bar -->
+        <div class="vf-seek-wrap">
+          <div class="vf-track">
+            <div class="vf-fill" id="vf-fill"></div>
+          </div>
+          <input class="vf-seek" id="vf-seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek">
+        </div>
+
+        <!-- Duration -->
+        <span class="vf-time" id="vf-dur">0:00</span>
+
+        <!-- Mute / Volume -->
+        <button class="vf-btn" id="vf-mute" aria-label="Mute/Unmute" title="Mute / Unmute">
+          <svg id="vf-vol-svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+            <path id="vf-vol-path"
+              d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+          </svg>
+        </button>
+        <input class="vf-vol" id="vf-vol" type="range" min="0" max="1" step="0.01" value="0" aria-label="Volume">
+
+        <!-- Fullscreen -->
+        <button class="vf-btn" id="vf-fs" aria-label="Fullscreen" title="Fullscreen">
+          <svg id="vf-fs-svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+            <path id="vf-fs-path" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+          </svg>
+        </button>
+
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+
+  <!-- ═══ Get Started Video Modal ═══════════════════════════════════════════ -->
+  <div class="gs-modal" id="gs-modal" role="dialog" aria-modal="true" aria-label="Lexora Introduction Video">
+    <div class="gs-modal-backdrop" id="gs-modal-backdrop"></div>
+    <div class="gs-modal-container">
+
+      <!-- Close button -->
+      <button class="gs-modal-close" id="gs-modal-close" aria-label="Close video">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </button>
+
+      <!-- Video wrapper -->
+      <div class="gs-video-wrap">
+        <video id="gs-vid" playsinline>
+          <source src="landing_page/assets/lexora-intro.mp4" type="video/mp4">
+        </video>
+
+        <!-- Control bar -->
+        <div class="vf-bar" id="gs-bar">
+
+          <button class="vf-btn" id="gs-play" aria-label="Play/Pause">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+              <path id="gs-play-path" d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
+
+          <span class="vf-time" id="gs-cur">0:00</span>
+
+          <div class="vf-seek-wrap">
+            <div class="vf-track"><div class="vf-fill" id="gs-fill"></div></div>
+            <input class="vf-seek" id="gs-seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek">
+          </div>
+
+          <span class="vf-time" id="gs-dur">0:00</span>
+
+          <button class="vf-btn" id="gs-mute" aria-label="Mute/Unmute">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+              <path id="gs-vol-path" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+            </svg>
+          </button>
+          <input class="vf-vol" id="gs-vol" type="range" min="0" max="1" step="0.01" value="0.7" aria-label="Volume">
+
+          <button class="vf-btn" id="gs-fs" aria-label="Fullscreen">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+              <path id="gs-fs-path" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <!-- Authentication Modal -->
+  <div id="auth-modal" class="auth-overlay">
+      <!-- Particles -->
+      <div class="particles-container" id="auth-particles"></div>
+      
+      <div class="auth-modal-content">
+          <!-- Close Button -->
+          <button class="modal-close-btn" onclick="closeAuthModal()" aria-label="Close Modal">
+              <i data-lucide="x"></i>
+          </button>
+
+          <!-- Auth Card -->
+          <div class="auth-card">
+              <!-- Tab Switcher -->
+              <div class="tab-switcher">
+                  <button id="tab-login" class="tab-btn active">Log In</button>
+                  <button id="tab-signup" class="tab-btn inactive">Sign Up</button>
+              </div>
+
+              <!-- Title -->
+              <div class="auth-header">
+                  <h1 id="auth-title" class="auth-title text-gold-gradient">Welcome Back, Adventurer</h1>
+                  <p id="auth-subtitle" class="auth-subtitle">Enter the library and continue your quest</p>
+              </div>
+
+              <!-- Form -->
+              <form id="auth-form" class="auth-form">
+                  <div id="username-field" class="form-group hidden">
+                      <i data-lucide="user" class="input-icon"></i>
+                      <input type="text" id="username" placeholder="Choose your adventurer name" class="form-input" />
+                  </div>
+
+                  <div class="form-group">
+                      <i data-lucide="mail" class="input-icon"></i>
+                      <input type="email" id="email" placeholder="Your email address" class="form-input" required />
+                  </div>
+
+                  <div class="form-group">
+                      <i data-lucide="lock" class="input-icon"></i>
+                      <input type="password" id="password" placeholder="Your secret passphrase" class="form-input password-input" required />
+                      <button type="button" id="toggle-password" class="toggle-password-btn">
+                          <i data-lucide="eye" id="eye-icon" class="icon-sm"></i>
+                      </button>
+                  </div>
+
+                  <div id="forgot-password-link" class="forgot-password-wrapper flex">
+                      <button type="button" class="forgot-password-link">Forgot your passphrase?</button>
+                  </div>
+
+                  <div id="auth-message" class="auth-message hidden"></div>
+
+                  <!-- Submit Button -->
+                  <button type="submit" class="btn-auth btn-auth-primary btn-auth-full">
+                      <i data-lucide="sparkles" class="icon-sm"></i>
+                      <span id="submit-text">Enter the Library</span>
+                  </button>
+              </form>
+
+              <!-- Divider -->
+              <div class="divider">
+                  <div class="divider-line"></div>
+                  <span class="divider-text">OR</span>
+                  <div class="divider-line"></div>
+              </div>
+
+              <!-- Social Auth -->
+              <button class="btn-auth btn-auth-secondary btn-auth-full">
+                  <i data-lucide="book-open" class="icon-sm"></i>
+                  Continue with Google
+              </button>
+          </div>
+
+          <!-- Footer -->
+          <p class="auth-footer">
+              By continuing, you agree to our 
+              <span class="footer-link">Terms of Quest</span>
+              and 
+              <span class="footer-link">Privacy Scroll</span>
+          </p>
+      </div>
+  </div>
+  <!-- Modular Scripts -->
+  <script src="landing_page/components/splash/script.js"></script>
+  <script src="landing_page/components/navbar/script.js"></script>
+  <script src="landing_page/components/hero/script.js"></script>
+  <script src="landing_page/components/video-footer/script.js"></script>
+  <script src="landing_page/components/get-started-modal/script.js"></script>
+  <script src="landing_page/components/auth-modal/script.js"></script>
+  <script src="landing_page/common/scripts/global.js"></script>
+</body>
+</html>
