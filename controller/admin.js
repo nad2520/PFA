@@ -253,6 +253,8 @@ function editUserById(id) {
 }
 
 function renderUserTable() {
+    // Disabled in favor of PHP rendering
+    return;
     const tbody = document.getElementById("userTbody");
     if (!tbody) return;
     const users = filteredUsers();
@@ -394,6 +396,7 @@ function refreshBookGenreFilterOptions() {
 }
 
 function renderBookTable() {
+    return; // Disabled in favor of PHP rendering
     const tbody = document.getElementById("bookTbody");
     if (!tbody) return;
     const books = filteredBooks();
@@ -487,6 +490,7 @@ function filteredPosts() {
 }
 
 function renderCommunityTable() {
+    return; // Disabled in favor of PHP rendering
     const tbody = document.getElementById("communityTbody");
     if (!tbody) return;
     const posts = filteredPosts();
@@ -568,6 +572,7 @@ function filteredFlags() {
 }
 
 function renderLumoTable() {
+    return; // Disabled in favor of PHP rendering
     const tbody = document.getElementById("lumoTbody");
     if (!tbody) return;
     const flags = filteredFlags();

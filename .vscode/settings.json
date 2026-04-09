@@ -1,3 +1,6 @@
 {
-    "githubPullRequests.pullRequestDescription": "commit"
+    "githubPullRequests.pullRequestDescription": "commit",
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "main"
+    ]
 }

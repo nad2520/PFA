@@ -1,3 +1,15 @@
+<?php
+session_start();
+include("../config/database.php");
+
+// Default queries to get users
+$stmt = $cnx->query("SELECT * FROM users");
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Queries to get books
+$stmtBooks = $cnx->query("SELECT * FROM books");
+$books = $stmtBooks->fetchAll(PDO::FETCH_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -348,7 +360,23 @@
                                     </tr>
                                 </thead>
                                 <tbody id="userTbody">
-                                    <!-- Injected by JS -->
+                                    <?php foreach($users as $u): ?>
+                                    <tr>
+                                        <td><div class="avatar"><?= strtoupper(substr($u['nom'], 0, 2)) ?></div></td>
+                                        <td style="font-weight:bold"><?= htmlspecialchars($u['nom']) ?></td>
+                                        <td style="color:#A08060"><?= htmlspecialchars($u['email']) ?></td>
+                                        <td><span class="badge gold"><?= htmlspecialchars($u['role']) ?></span></td>
+                                        <td><span style="color:#D4AF37"><i data-lucide="zap" style="width:12px;height:12px"></i> <?= $u['level'] ?></span></td>
+                                        <td><span style="color:#D4AF37"><i data-lucide="coins" style="width:12px;height:12px"></i> <?= $u['coins'] ?></span></td>
+                                        <td style="font-size:0.7rem;color:#7A6040"><?= date('Y-m-d', strtotime($u['created_at'])) ?></td>
+                                        <td>
+                                          <div style="display:flex;gap:0.25rem">
+                                            <button class="admin-btn ghost" onclick="openEditModal(<?= $u['id'] ?>, '<?= htmlspecialchars($u['nom']) ?>', '<?= htmlspecialchars($u['email']) ?>')"><i data-lucide="edit-2" style="width:13px;height:13px"></i></button>
+                                            <a href="../controller/delete_user.php?idu=<?= $u['id'] ?>" onclick="return confirm('Are you sure you want to delete this user?');" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                          </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -401,7 +429,33 @@
                                     </tr>
                                 </thead>
                                 <tbody id="bookTbody">
-                                    <!-- Injected by JS -->
+                                    <?php foreach($books as $b): ?>
+                                    <tr>
+                                        <td style="font-size:1.5rem"><?= htmlspecialchars($b['cover_emoji']) ?></td>
+                                        <td style="font-weight:bold"><?= htmlspecialchars($b['title']) ?></td>
+                                        <td style="color:#A08060"><?= htmlspecialchars($b['author']) ?></td>
+                                        <td><span class="badge blue"><?= htmlspecialchars($b['genre']) ?></span></td>
+                                        <td><span style="color:#D4AF37"><i data-lucide="coins" style="width:12px;height:12px"></i> <?= $b['coin_cost'] ?></span></td>
+                                        <td style="font-size:0.7rem;color:#A08060">+<?= $b['xp_reward'] ?>xp / +<?= $b['coin_reward'] ?> coins</td>
+                                        <td>
+                                            <?php if($b['audience'] == 'All' || $b['audience'] == 'All Age'): ?>
+                                                <span class="badge green">All Ages</span>
+                                            <?php else: ?>
+                                                <span class="badge red">+18 Only</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?= $b['trending'] == 1 ? '<span class="badge orange">HOT</span>' : '—' ?>
+                                        </td>
+                                        <td>
+                                          <div style="display:flex;gap:0.25rem">
+                                            <button class="admin-btn ghost"><i data-lucide="eye" style="width:13px;height:13px"></i></button>
+                                            <button class="admin-btn ghost"><i data-lucide="edit-2" style="width:13px;height:13px"></i></button>
+                                            <a href="../controller/delete_book.php?id=<?= $b['id'] ?>" onclick="return confirm('Delete this book?');" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                          </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -819,6 +873,25 @@
     <div id="modalRoot"></div>
     <script src="../model/admin_data.js"></script>
     <script src="../controller/admin.js"></script>
+    <script>
+        function openEditModal(id, currentName, currentEmail) {
+            const html = `
+                <form id="phpEditUserForm" method="POST" action="../controller/update_user.php">
+                    <input type="hidden" name="idu" value="${id}">
+                    <label class="label-xs mt-3">Name</label>
+                    <input class="admin-input full" type="text" name="user_name" value="${currentName}" required>
+                    <label class="label-xs mt-3">Email</label>
+                    <input class="admin-input full" type="email" name="email" value="${currentEmail}" required>
+                    <label class="label-xs mt-3">Password (leave blank to keep current)</label>
+                    <input class="admin-input full" type="password" name="password">
+                </form>
+            `;
+            openModal("Edit User", html, () => {
+                document.getElementById('phpEditUserForm').submit();
+                return false; // let the form submit logic handle the reload
+            });
+        }
+    </script>
 </body>
 
 </html>
