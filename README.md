@@ -201,3 +201,5 @@ If you are passionate about animals, do this. But be warned: **Scenario B (Data 
 
 **Why:** It is too risky to be boring.
 Unless your **AI Description Maker** is absolutely mind-blowing, the jury will look at it and say, "Oh, another Trello clone." It requires the most effort to make it look unique.
+#   l e x o r a _ m l k _ p e r s o n a l  
+ 
