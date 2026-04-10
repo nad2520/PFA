@@ -1,0 +1,141 @@
+/* ═══ Video Footer Section Styles ════════════════════════════════════════════════ */
+.vf-section {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  min-height: 340px;
+  max-height: 560px;
+  overflow: hidden;
+  background: #000;
+  margin: 4rem 2rem 4rem;
+  width: calc(100% - 4rem);
+  border-radius: 1.25rem;
+}
+
+.vf-section video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Control bar ─────────────────────────────────────────────────────── */
+.vf-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 30;
+  box-sizing: border-box;
+}
+
+.vf-section:hover .vf-bar,
+.vf-section:focus-within .vf-bar {
+  opacity: 1;
+}
+
+/* ── Icon buttons ────────────────────────────────────────────────────── */
+.vf-btn {
+  background: none;
+  border: none;
+  padding: 5px;
+  color: hsl(38, 80%, 68%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.15s;
+  line-height: 0;
+}
+
+.vf-btn:hover {
+  color: #fff;
+  transform: scale(1.2);
+}
+
+.vf-btn:active {
+  transform: scale(0.9);
+}
+
+/* ── Time labels ─────────────────────────────────────────────────────── */
+.vf-time {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.8);
+  flex-shrink: 0;
+  min-width: 34px;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+/* ── Seek bar ────────────────────────────────────────────────────────── */
+.vf-seek-wrap {
+  flex: 1;
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.vf-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vf-fill {
+  height: 100%;
+  width: 0%;
+  background: hsl(38, 80%, 60%);
+  border-radius: 2px;
+}
+
+/* Native range — invisible, sits on top for pointer events */
+.vf-seek {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ── Volume slider ───────────────────────────────────────────────────── */
+.vf-vol {
+  width: 72px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: hsl(38, 80%, 60%);
+  height: 4px;
+}
+
+/* ── Fullscreen overrides ────────────────────────────────────────────── */
+.vf-section:fullscreen,
+.vf-section:-webkit-full-screen {
+  margin: 0;
+  width: 100%;
+  height: 100vh;
+  max-height: none;
+  border-radius: 0;
+}
+
+.vf-section:fullscreen .vf-bar,
+.vf-section:-webkit-full-screen .vf-bar {
+  opacity: 1;
+}
