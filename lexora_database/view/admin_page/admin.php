@@ -817,8 +817,8 @@
 
     <!-- --- SCRIPTS --- -->
     <div id="modalRoot"></div>
-    <script src="script/admin_page/data.js"></script>
-    <script src="script/admin_page/admin.js"></script>
+    <script src="script/admin_page/js/data.js"></script>
+    <script src="script/admin_page/js/admin.js"></script>
 </body>
 
 </html>

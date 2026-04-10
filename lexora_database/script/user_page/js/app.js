@@ -221,7 +221,7 @@ function initHeaderNavLinks() {
     if (document.getElementById('bookDetailMain')) return;
     const last = window.LexoraState.getLastBookReadId();
     if (last) {
-        el.href = `read-book.html?id=${last}`;
+        el.href = `index.php?page=user&view=read-book&id=${last}`;
         el.style.display = '';
     }
 }
@@ -230,7 +230,7 @@ function updateBookDetailHeaderNav(bookId, showLecture) {
     const navL = document.getElementById('navBackLecture');
     if (!navL) return;
     if (showLecture) {
-        navL.href = `read-book.html?id=${bookId}`;
+        navL.href = `index.php?page=user&view=read-book&id=${bookId}`;
         navL.style.display = '';
     } else {
         navL.style.display = 'none';
@@ -844,7 +844,7 @@ function initProfile() {
         if (library.length === 0) {
             libGrid.innerHTML = `<div class="empty-library-card">
         <p class="empty-library-msg">Your library is empty!</p>
-        <a href="index.html#catalog" class="btn-primary empty-library-cta">Browse the catalog ✦</a>
+        <a href="index.php?page=user" class="btn-primary empty-library-cta">Browse the catalog ✦</a>
       </div>`;
         } else {
             libGrid.innerHTML = library.map(ub => {
@@ -878,7 +878,7 @@ function initProfile() {
             libGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
                 el.addEventListener('click', () => {
                     const bid = el.getAttribute('data-book-id');
-                    if (bid) nav(`book-detail.html?id=${bid}`);
+                    if (bid) nav(`index.php?page=user&view=book-detail&id=${bid}`);
                 });
             });
         }
@@ -891,7 +891,7 @@ function initProfile() {
         if (planToRead.length === 0) {
             listGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:3rem;text-align:center">
         <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground);margin-bottom:1rem">Your list is empty!</p>
-        <a href="index.html#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Find your first book! ✦</a>
+        <a href="index.php?page=user" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Find your first book! ✦</a>
       </div>`;
         } else {
             listGrid.innerHTML = `<div class="book-grid">${planToRead.map(ub => {
@@ -913,7 +913,7 @@ function initProfile() {
             listGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
                 el.addEventListener('click', () => {
                     const bid = el.getAttribute('data-book-id');
-                    if (bid) nav(`book-detail.html?id=${bid}`);
+                    if (bid) nav(`index.php?page=user&view=book-detail&id=${bid}`);
                 });
             });
         }
@@ -1074,7 +1074,7 @@ function initBookDetail() {
   </section>`;
 
     const readCta = document.getElementById('detailReadCta');
-    readCta?.addEventListener('click', () => nav(`read-book.html?id=${book.id}`));
+    readCta?.addEventListener('click', () => nav(`index.php?page=user&view=read-book&id=${book.id}`));
 
     updateBookDetailHeaderNav(book.id, !!isReading);
 

@@ -69,10 +69,10 @@
 
     <div id="lumo-chatbot-root" data-lumo-greeting="Hi there! I'm Lumo ? enjoy your reading session!"></div>
 
-    <script src="script/user_page/data.js"></script>
-    <script src="script/user_page/lexora-state.js"></script>
-    <script src="script/user_page/lumo-chatbot.js"></script>
-    <script src="script/user_page/app.js"></script>
+    <script src="script/user_page/js/data.js"></script>
+    <script src="script/user_page/js/lexora-state.js"></script>
+    <script src="script/user_page/js/lumo-chatbot.js"></script>
+    <script src="script/user_page/js/app.js"></script>
 </body>
 
 </html>

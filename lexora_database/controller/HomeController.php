@@ -3,4 +3,4 @@
 
 // Application logic for the landing/home page
 
-include 'view/index.php';
+include __DIR__ . '/../view/index.php';

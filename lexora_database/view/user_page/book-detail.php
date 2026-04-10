@@ -34,7 +34,7 @@
           DISCONNECT
         </button>
         <div class="hover-card">
-          <button class="avatar-btn" onclick="nav('profile.html')">
+          <button class="avatar-btn" onclick="nav('index.php?page=user&view=profile')">
             <img id="avatarImg" src="view/user_page/assets/lumo-happy.png" alt="User avatar">
           </button>
           <div class="hover-card-content">
@@ -77,10 +77,10 @@
     <div id="lumo-chatbot-root"
         data-lumo-greeting="Hi there! I'm Lumo ?? Ask me about this book or anything Lexora!"></div>
 
-    <script src="script/user_page/data.js"></script>
-    <script src="script/user_page/lexora-state.js"></script>
-    <script src="script/user_page/lumo-chatbot.js"></script>
-    <script src="script/user_page/app.js"></script>
+    <script src="script/user_page/js/data.js"></script>
+    <script src="script/user_page/js/lexora-state.js"></script>
+    <script src="script/user_page/js/lumo-chatbot.js"></script>
+    <script src="script/user_page/js/app.js"></script>
 </body>
 
 </html>
