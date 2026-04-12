@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -930,25 +931,26 @@
         </div>
 
         <!-- Form -->
-        <form id="auth-form" class="auth-form">
+        <form id="auth-form" class="auth-form" method="POST" action="../controller/auth_controller.php">
+          <input type="hidden" name="action" id="auth-action" value="login" />
           <div id="username-field" class="form-group hidden">
             <i data-lucide="user" class="input-icon"></i>
-            <input type="text" id="username" placeholder="Choose your adventurer name" class="form-input" />
+            <input type="text" id="username" name="username" placeholder="Choose your adventurer name" class="form-input" />
           </div>
 
           <div class="form-group">
             <i data-lucide="mail" class="input-icon"></i>
-            <input type="email" id="email" placeholder="Your email address" class="form-input" required />
+            <input type="email" id="email" name="email" placeholder="Your email address" class="form-input" required />
           </div>
 
           <div id="birthdate-field" class="form-group hidden">
             <i data-lucide="calendar" class="input-icon"></i>
-            <input type="date" id="birthdate" class="form-input" />
+            <input type="date" id="birthdate" name="birthdate" class="form-input" />
           </div>
 
           <div class="form-group">
             <i data-lucide="lock" class="input-icon"></i>
-            <input type="password" id="password" placeholder="Your secret passphrase" class="form-input password-input"
+            <input type="password" id="password" name="password" placeholder="Your secret passphrase" class="form-input password-input"
               required />
             <button type="button" id="toggle-password" class="toggle-password-btn">
               <i data-lucide="eye" id="eye-icon" class="icon-sm"></i>
@@ -959,7 +961,15 @@
             <button type="button" class="forgot-password-link">Forgot your passphrase?</button>
           </div>
 
-          <div id="auth-message" class="auth-message hidden"></div>
+          <?php if (isset($_SESSION['auth_error'])): ?>
+            <div id="auth-message" class="auth-message error-text"><?= $_SESSION['auth_error'] ?></div>
+            <?php unset($_SESSION['auth_error']); ?>
+          <?php elseif (isset($_SESSION['auth_success'])): ?>
+            <div id="auth-message" class="auth-message success-text"><?= $_SESSION['auth_success'] ?></div>
+            <?php unset($_SESSION['auth_success']); ?>
+          <?php else: ?>
+            <div id="auth-message" class="auth-message hidden"></div>
+          <?php endif; ?>
 
           <!-- Submit Button -->
           <button type="submit" class="btn-auth btn-auth-primary btn-auth-full">

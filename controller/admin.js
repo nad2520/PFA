@@ -253,6 +253,8 @@ function editUserById(id) {
 }
 
 function renderUserTable() {
+    // Disabled in favor of PHP rendering
+    return;
     const tbody = document.getElementById("userTbody");
     if (!tbody) return;
     const users = filteredUsers();
@@ -394,6 +396,8 @@ function refreshBookGenreFilterOptions() {
 }
 
 function renderBookTable() {
+    // Disabled in favor of PHP rendering
+    return;
     const tbody = document.getElementById("bookTbody");
     if (!tbody) return;
     const books = filteredBooks();
@@ -487,6 +491,8 @@ function filteredPosts() {
 }
 
 function renderCommunityTable() {
+    // Disabled in favor of PHP rendering
+    return;
     const tbody = document.getElementById("communityTbody");
     if (!tbody) return;
     const posts = filteredPosts();
@@ -846,6 +852,24 @@ function initAdmin() {
     initLumoCharts();
     initRewardsCharts();
     lucide.createIcons();
+
+    // Handle redirection / reloading on specific tabs based on URL parameters
+    const params = new URLSearchParams(window.location.search);
+    let targetSection = "dashboard";
+    if (params.has("section")) {
+        targetSection = params.get("section");
+    } else if (window.location.search.includes("book")) {
+        targetSection = "books";
+    } else if (window.location.search.includes("post") || params.has("tab") && params.get("tab") === "community") {
+        targetSection = "community";
+    } else if (window.location.search.includes("user") || window.location.search.includes("modif") || window.location.search.includes("delete=")) {
+        targetSection = "users";
+    }
+    
+    if (targetSection !== "dashboard") {
+        const navBtn = document.querySelector(`[data-section="${targetSection}"]`);
+        if (navBtn) navBtn.click();
+    }
 }
 
 document.addEventListener("DOMContentLoaded", initAdmin);

@@ -503,7 +503,11 @@ function initCatalog() {
     readGenres.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
     const topGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]).map(([g]) => g);
     const userIds = new Set(userBooks.map(u => u.book.id));
-    const forYouBooks = books.filter(b => topGenres.includes(b.genre) && !userIds.has(b.id)).slice(0, 4);
+    let forYouBooks = books.filter(b => topGenres.includes(b.genre) && !userIds.has(b.id));
+    if (window.LX_USER_ROLE === 'User -18') {
+        forYouBooks = forYouBooks.filter(b => b.audience !== '+18 Only');
+    }
+    forYouBooks = forYouBooks.slice(0, 4);
 
     if (searchInput) {
         searchInput.addEventListener('input', () => { searchQuery = searchInput.value; visibleCount = ITEMS; render(); });
@@ -521,6 +525,10 @@ function initCatalog() {
         }
         if (activeFilter === 'trending') result = result.filter(b => b.trending);
         else result = result.filter(b => b.genre === activeFilter);
+        
+        if (window.LX_USER_ROLE === 'User -18') {
+            result = result.filter(b => b.audience !== '+18 Only');
+        }
 
         const visible = result.slice(0, visibleCount);
         grid.innerHTML = visible.map((b, i) => buildCatalogBookCardHTML(b, i)).join('');

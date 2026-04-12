@@ -1,3 +1,19 @@
+<?php
+session_start();
+include("../config/database.php");
+
+// Default queries to get users
+$stmt = $cnx->query("SELECT * FROM users ORDER BY id DESC");
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Default queries to get books
+$stmtBooks = $cnx->query("SELECT * FROM books ORDER BY id DESC");
+$books = $stmtBooks->fetchAll(PDO::FETCH_ASSOC);
+
+// Default queries to get posts
+$stmtPosts = $cnx->query("SELECT * FROM posts ORDER BY id DESC");
+$posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -348,7 +364,23 @@
                                     </tr>
                                 </thead>
                                 <tbody id="userTbody">
-                                    <!-- Injected by JS -->
+                                    <?php foreach($users as $u): ?>
+                                    <tr>
+                                        <td><div class="avatar"><?= strtoupper(substr($u['nom'], 0, 2)) ?></div></td>
+                                        <td style="font-weight:bold"><?= htmlspecialchars($u['nom']) ?></td>
+                                        <td style="color:#A08060"><?= htmlspecialchars($u['email']) ?></td>
+                                        <td><span class="badge gold"><?= htmlspecialchars($u['role']) ?></span></td>
+                                        <td><span style="color:#D4AF37"><i data-lucide="zap" style="width:12px;height:12px"></i> <?= $u['level'] ?></span></td>
+                                        <td><span style="color:#D4AF37"><i data-lucide="coins" style="width:12px;height:12px"></i> <?= $u['coins'] ?></span></td>
+                                        <td style="font-size:0.7rem;color:#7A6040"><?= date('Y-m-d', strtotime($u['created_at'])) ?></td>
+                                        <td>
+                                          <div style="display:flex;gap:0.25rem">
+                                            <button class="admin-btn ghost" onclick="openEditModal(<?= $u['id'] ?>, '<?= htmlspecialchars($u['nom']) ?>', '<?= htmlspecialchars($u['email']) ?>')"><i data-lucide="edit-2" style="width:13px;height:13px"></i></button>
+                                            <a href="../controller/delete_user.php?idu=<?= $u['id'] ?>" onclick="return confirm('Are you sure you want to delete this user?');" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                          </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -380,7 +412,7 @@
                             <option value="+18 Only">+18 Only</option>
                             <option value="All">All Ages</option>
                         </select>
-                        <button class="admin-btn primary" data-action="book-add"><i data-lucide="plus"></i> Add
+                        <button class="admin-btn primary" onclick="openAddBookModal()"><i data-lucide="plus"></i> Add
                             Book</button>
                     </div>
 
@@ -401,7 +433,24 @@
                                     </tr>
                                 </thead>
                                 <tbody id="bookTbody">
-                                    <!-- Injected by JS -->
+                                    <?php foreach($books as $b): ?>
+                                    <tr>
+                                        <td style="font-size:1.5rem"><?= htmlspecialchars($b['cover'] ?? '📖') ?></td>
+                                        <td style="font-weight:bold"><?= htmlspecialchars($b['title']) ?></td>
+                                        <td style="color:#A08060"><?= htmlspecialchars($b['author']) ?></td>
+                                        <td><span class="badge blue"><?= htmlspecialchars($b['genre']) ?></span></td>
+                                        <td><span style="color:#D4AF37"><i data-lucide="coins" style="width:12px;height:12px"></i> <?= $b['coinCost'] ?></span></td>
+                                        <td style="font-size:0.7rem;color:#A08060">+<?= $b['xpReward'] ?>xp / +<?= $b['coinReward'] ?> coins</td>
+                                        <td><span class="badge <?= $b['audience'] === 'All' ? 'green' : 'red' ?>"><?= $b['audience'] === 'All' ? 'All Ages' : '+18 Only' ?></span></td>
+                                        <td><?= $b['trending'] ? '<span class="badge orange">HOT</span>' : '—' ?></td>
+                                        <td>
+                                          <div style="display:flex;gap:0.25rem">
+                                            <button class="admin-btn ghost" onclick="openEditBookModal(<?= $b['id'] ?>, '<?= addslashes(htmlspecialchars($b['title'])) ?>', '<?= addslashes(htmlspecialchars($b['author'])) ?>', '<?= addslashes(htmlspecialchars($b['genre'])) ?>', '<?= addslashes(htmlspecialchars($b['cover'])) ?>', <?= $b['coinCost'] ?>, <?= $b['xpReward'] ?>, <?= $b['coinReward'] ?>, '<?= addslashes(htmlspecialchars($b['audience'])) ?>', <?= $b['trending'] ?>)"><i data-lucide="edit-2" style="width:13px;height:13px"></i></button>
+                                            <a href="../controller/delete_book.php?idb=<?= $b['id'] ?>" onclick="return confirm('Are you sure you want to delete this book?');" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                          </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -457,7 +506,38 @@
                                     </tr>
                                 </thead>
                                 <tbody id="communityTbody">
-                                    <!-- Injected by JS -->
+                                    <?php foreach ($posts as $p): 
+                                        $statusColor = 'blue';
+                                        if ($p['status'] == 'Clean') $statusColor = 'green';
+                                        elseif ($p['status'] == 'Flagged by Lumo') $statusColor = 'red';
+                                        elseif ($p['status'] == 'Pending Admin Review') $statusColor = 'orange';
+
+                                        $tagColor = 'blue';
+                                        if ($p['tag'] == 'review') $tagColor = 'green';
+                                        elseif ($p['tag'] == 'theory') $tagColor = 'purple';
+                                        elseif ($p['tag'] == 'spoiler') $tagColor = 'red';
+                                    ?>
+                                        <tr>
+                                            <td style="max-width:220px"><p style="color:#F5EDD6;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?= htmlspecialchars($p['title']) ?></p></td>
+                                            <td><?= htmlspecialchars($p['author']) ?></td>
+                                            <td style="font-size:0.75rem;color:var(--admin-text-dim)"><?= htmlspecialchars($p['book']) ?></td>
+                                            <td><span class="badge <?= $tagColor ?>"><?= htmlspecialchars($p['tag']) ?></span></td>
+                                            <td style="color:#D4AF37"><?= htmlspecialchars($p['upvotes']) ?></td>
+                                            <td style="color:#A08060"><?= htmlspecialchars($p['comments']) ?></td>
+                                            <td><span class="badge <?= $statusColor ?>"><?= htmlspecialchars($p['status']) ?></span></td>
+                                            <td>
+                                                <div style="display:flex;gap:0.25rem">
+                                                    <a href="#" class="admin-btn ghost" onclick="alert('Post preview is visual-only in parity mode.')"><i data-lucide="eye" style="width:13px;height:13px"></i></a>
+                                                    <a href="../controller/update_post.php?id=<?= $p['id'] ?>&action=review" class="admin-btn ghost"><i data-lucide="check" style="width:13px;height:13px"></i></a>
+                                                    <a href="../controller/update_post.php?id=<?= $p['id'] ?>&action=tag" class="admin-btn ghost"><i data-lucide="tag" style="width:13px;height:13px"></i></a>
+                                                    <a href="../controller/delete_post.php?id=<?= $p['id'] ?>" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <?php if(empty($posts)): ?>
+                                        <tr><td colspan="8" style="text-align:center;color:#A08060;padding:2rem">No posts found.</td></tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -819,6 +899,96 @@
     <div id="modalRoot"></div>
     <script src="../model/admin_data.js"></script>
     <script src="../controller/admin.js"></script>
+    <script>
+        function openEditModal(id, currentName, currentEmail) {
+            const html = `
+                <form id="phpEditUserForm" method="POST" action="../controller/update_user.php">
+                    <input type="hidden" name="idu" value="${id}">
+                    <label class="label-xs mt-3">Name</label>
+                    <input class="admin-input full" type="text" name="user_name" value="${currentName}" required>
+                    <label class="label-xs mt-3">Email</label>
+                    <input class="admin-input full" type="email" name="email" value="${currentEmail}" required>
+                    <label class="label-xs mt-3">Password (leave blank to keep current)</label>
+                    <input class="admin-input full" type="password" name="password">
+                </form>
+            `;
+            openModal("Edit User", html, () => {
+                document.getElementById('phpEditUserForm').submit();
+                return false; // let the form submit logic handle the reload
+            });
+        }
+
+        function openAddBookModal() {
+            const html = `
+                <form id="phpAddBookForm" method="POST" action="../controller/add_book.php">
+                    <label class="label-xs">Title</label><input name="title" class="admin-input full" required>
+                    <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" required>
+                    <div class="grid-2 mt-3" style="gap:1rem">
+                        <div><label class="label-xs">Genre</label><input name="genre" class="admin-input full" required></div>
+                        <div><label class="label-xs">Cover Emoji</label><input name="cover" class="admin-input full" value="📖"></div>
+                    </div>
+                    <div class="grid-3 mt-3" style="gap:1rem">
+                        <div><label class="label-xs">Coin Cost</label><input name="coinCost" type="number" class="admin-input full" value="100"></div>
+                        <div><label class="label-xs">XP Reward</label><input name="xpReward" type="number" class="admin-input full" value="150"></div>
+                        <div><label class="label-xs">Coin Reward</label><input name="coinReward" type="number" class="admin-input full" value="40"></div>
+                    </div>
+                    <div class="grid-2 mt-3" style="gap:1rem">
+                        <div>
+                        <label class="label-xs">Audience</label>
+                        <select name="audience" class="admin-input full">
+                            <option value="All">All Ages</option>
+                            <option value="+18 Only">+18 Only</option>
+                        </select>
+                        </div>
+                        <div style="display:flex;align-items:end;gap:.5rem">
+                        <label class="switch"><input name="trending" type="checkbox"><span class="slider"></span></label>
+                        <span style="font-size:.8rem;color:#A08060">Trending badge</span>
+                        </div>
+                    </div>
+                </form>
+            `;
+            openModal("Add New Book", html, () => {
+                document.getElementById('phpAddBookForm').submit();
+                return false;
+            });
+        }
+
+        function openEditBookModal(id, title, author, genre, cover, coinCost, xpReward, coinReward, audience, trending) {
+            const html = `
+                <form id="phpEditBookForm" method="POST" action="../controller/update_book.php">
+                    <input type="hidden" name="idb" value="${id}">
+                    <label class="label-xs">Title</label><input name="title" class="admin-input full" value="${title}" required>
+                    <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" value="${author}" required>
+                    <div class="grid-2 mt-3" style="gap:1rem">
+                        <div><label class="label-xs">Genre</label><input name="genre" class="admin-input full" value="${genre}" required></div>
+                        <div><label class="label-xs">Cover Emoji</label><input name="cover" class="admin-input full" value="${cover}"></div>
+                    </div>
+                    <div class="grid-3 mt-3" style="gap:1rem">
+                        <div><label class="label-xs">Coin Cost</label><input name="coinCost" type="number" class="admin-input full" value="${coinCost}"></div>
+                        <div><label class="label-xs">XP Reward</label><input name="xpReward" type="number" class="admin-input full" value="${xpReward}"></div>
+                        <div><label class="label-xs">Coin Reward</label><input name="coinReward" type="number" class="admin-input full" value="${coinReward}"></div>
+                    </div>
+                    <div class="grid-2 mt-3" style="gap:1rem">
+                        <div>
+                        <label class="label-xs">Audience</label>
+                        <select name="audience" class="admin-input full">
+                            <option value="All" ${audience === 'All' ? 'selected' : ''}>All Ages</option>
+                            <option value="+18 Only" ${audience === '+18 Only' ? 'selected' : ''}>+18 Only</option>
+                        </select>
+                        </div>
+                        <div style="display:flex;align-items:end;gap:.5rem">
+                        <label class="switch"><input name="trending" type="checkbox" ${trending ? 'checked' : ''}><span class="slider"></span></label>
+                        <span style="font-size:.8rem;color:#A08060">Trending badge</span>
+                        </div>
+                    </div>
+                </form>
+            `;
+            openModal("Edit Book", html, () => {
+                document.getElementById('phpEditBookForm').submit();
+                return false;
+            });
+        }
+    </script>
 </body>
 
 </html>

@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,6 +12,9 @@
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&display=swap');
   </style>
   <link rel="stylesheet" href="../user_scss/main.css">
+  <script>
+    window.LX_USER_ROLE = "<?php echo isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user'; ?>";
+  </script>
 </head>
 
 <body>

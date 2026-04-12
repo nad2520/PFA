@@ -59,6 +59,7 @@ function setAuthMode(isLogin) {
   if (authMessage) authMessage.classList.add('hidden');
 
   if (isLoginMode) {
+    document.getElementById('auth-action').value = 'login';
     tabLogin.className = "tab-btn active";
     tabSignup.className = "tab-btn inactive";
     authTitle.textContent = "Welcome Back, Adventurer";
@@ -69,6 +70,7 @@ function setAuthMode(isLogin) {
     forgotPasswordLink.classList.add('flex');
     submitText.textContent = "Enter the Library";
   } else {
+    document.getElementById('auth-action').value = 'signup';
     tabSignup.className = "tab-btn active";
     tabLogin.className = "tab-btn inactive";
     authTitle.textContent = "Begin Your Journey";
@@ -105,46 +107,7 @@ function setAuthMode(isLogin) {
     }
 
     if (authForm) {
-      authForm.onsubmit = async (e) => {
-        e.preventDefault();
-        const submitText = document.getElementById('submit-text');
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const username = document.getElementById('username') ? document.getElementById('username').value : '';
-        const birthdate = document.getElementById('birthdate') ? document.getElementById('birthdate').value : '';
-
-        submitText.textContent = "Processing...";
-
-        // Mock authentication for static template
-        setTimeout(() => {
-          if (isLoginMode) {
-            if (email === 'lexora25@gmail.com' && password === 'lexora25') {
-              showAuthMessage("Welcome, Administrator", false);
-              setTimeout(() => {
-                window.location.href = 'admin_page/admin.html';
-              }, 1000);
-            } else if (email && password) {
-              showAuthMessage("Login successful", false);
-              setTimeout(() => {
-                window.location.href = 'user_page/index.html';
-              }, 1000);
-            } else {
-              showAuthMessage("Email and password are required.", true);
-              submitText.textContent = "Enter the Library";
-            }
-          } else {
-            if (username && email && password && birthdate) {
-              showAuthMessage("Account created successfully", false);
-              setTimeout(() => {
-                window.location.href = 'user_page/index.html';
-              }, 1000);
-            } else {
-              showAuthMessage("Please fill in all fields.", true);
-              submitText.textContent = "Start Adventure";
-            }
-          }
-        }, 800);
-      };
+      // PHP handles the authentication now via standard form submission.
     }
 
     if (window.lucide) lucide.createIcons();
