@@ -18,9 +18,9 @@ if(isset($_POST['title'])){
     $resultat = $stmt->execute([$title, $author, $genre, $cover, $coinCost, $xpReward, $coinReward, $audience, $trending]);
 
     if ($resultat){
-        header('location:../view/admin.php?addbook=ok');
+        header('location:../index.php?view=admin&addbook=ok');
     } else {
-        header('location:../view/admin.php?addbook=error');
+        header('location:../index.php?view=admin&addbook=error');
     }
 }
 ?>

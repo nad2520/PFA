@@ -11,7 +11,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&display=swap');
   </style>
-  <link rel="stylesheet" href="../user_scss/main.css">
+  <link rel="stylesheet" href="view/user_scss/main.css">
   <script>
     window.LX_USER_ROLE = "<?php echo isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user'; ?>";
   </script>
@@ -22,15 +22,15 @@
   <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="index.html" class="logo">?? LEXORA</a>
+      <a href="index.php" class="logo">?? LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="read-book.html" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
           lecture</a>
-        <a href="index.html" class="header-nav-link header-nav-active">My Home</a>
-        <a href="store.html" class="header-nav-link">My Store</a>
+        <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
+        <a href="?view=store" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
-        <button type="button" class="btn-disconnect" onclick="window.location.href='../index.html'">
+        <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -40,11 +40,11 @@
           DISCONNECT
         </button>
         <div class="hover-card">
-          <button class="avatar-btn" onclick="nav('profile.html')">
-            <img id="avatarImg" src="../../assets/lumo-happy.png" alt="User avatar">
+          <button class="avatar-btn" onclick="nav('?view=profile')">
+            <img id="avatarImg" src="assets/lumo-happy.png" alt="User avatar">
           </button>
           <div class="hover-card-content">
-            <img src="../../assets/lumo-happy.png" alt="Lumo">
+            <img src="assets/lumo-happy.png" alt="Lumo">
             <div style="text-align:center">
               <p style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700">Eleanor Vance</p>
               <p
@@ -69,8 +69,8 @@
   <!-- --- Hero Section -------------------------------------------------------- -->
   <section class="hero-section">
     <div class="hero-media">
-      <video autoplay loop muted playsinline poster="../../assets/hero-library.png">
-        <source src="../../assets/hero-library.mp4" type="video/mp4">
+      <video autoplay loop muted playsinline poster="assets/hero-library.png">
+        <source src="assets/hero-library.mp4" type="video/mp4">
       </video>
     </div>
     <div class="hero-vignette"></div>
@@ -138,7 +138,7 @@
       </button>
       <div class="reading-kingdom-map-wrap">
         <div class="reading-kingdom-badge">? YOUR READING KINGDOM ?</div>
-        <img src="../../assets/reading-kingdom-map.png" alt="Reading Kingdom Map" class="reading-kingdom-map-img"
+        <img src="assets/reading-kingdom-map.png" alt="Reading Kingdom Map" class="reading-kingdom-map-img"
           draggable="false">
         <div id="genreOverlay" class="reading-kingdom-regions"></div>
         <div class="castle-shimmer" aria-hidden="true"></div>
@@ -157,7 +157,7 @@
         </svg>
       </button>
       <div class="lumo-welcome">
-        <img src="../../assets/lumo-happy.png" alt="Lumo the bear" class="animate-breathe">
+        <img src="assets/lumo-happy.png" alt="Lumo the bear" class="animate-breathe">
         <h2>? LUMO'S BOUNTY BOARD ?</h2>
         <p class="sub">Complete these quests to level up and unlock new map regions!</p>
         <div class="bounty-list">
@@ -199,13 +199,13 @@
     </div>
   </div>
 
-  <!-- Lumo Chatbot (shared markup: ../../controller/lumo-chatbot.js) -->
+  <!-- Lumo Chatbot (shared markup: controller/lumo-chatbot.js) -->
   <div id="lumo-chatbot-root"></div>
 
-  <script src="../../model/user_data.js"></script>
-  <script src="../../model/lexora-state.js"></script>
-  <script src="../../controller/lumo-chatbot.js"></script>
-  <script src="../../controller/user_app.js"></script>
+  <script src="model/user_data.js"></script>
+  <script src="model/lexora-state.js"></script>
+  <script src="controller/lumo-chatbot.js"></script>
+  <script src="controller/user_app.js"></script>
 </body>
 
 </html>

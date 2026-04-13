@@ -9,9 +9,9 @@ if(isset($_GET['idb'])){
     $resultat = $stmt->execute([$id_book]);
 
     if ($resultat){
-        header('location:../view/admin.php?deletebook=ok');
+        header('location:../index.php?view=admin&deletebook=ok');
     } else {
-        header('location:../view/admin.php?deletebook=error');
+        header('location:../index.php?view=admin&deletebook=error');
     }
 }
 ?>

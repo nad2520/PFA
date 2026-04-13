@@ -14,15 +14,15 @@
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="index.html" class="logo">?? LEXORA</a>
+      <a href="index.php" class="logo">?? LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="read-book.html" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
           lecture</a>
-        <a href="index.html" class="header-nav-link header-nav-active">My Home</a>
-        <a href="store.html" class="header-nav-link">My Store</a>
+        <a href="index.php" class="header-nav-link header-nav-active">My Home</a>
+        <a href="?view=store" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
-        <button type="button" class="btn-disconnect" onclick="window.location.href='../index.html'">
+        <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -32,11 +32,11 @@
           DISCONNECT
         </button>
         <div class="hover-card">
-          <button class="avatar-btn" onclick="nav('profile.html')">
-            <img id="avatarImg" src="../../assets/lumo-happy.png" alt="User avatar">
+          <button class="avatar-btn" onclick="nav('?view=profile')">
+            <img id="avatarImg" src="assets/lumo-happy.png" alt="User avatar">
           </button>
           <div class="hover-card-content">
-            <img src="../../assets/lumo-happy.png" alt="Lumo">
+            <img src="assets/lumo-happy.png" alt="Lumo">
             <div style="text-align:center">
               <p style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700">Eleanor Vance</p>
               <p
@@ -65,7 +65,7 @@
             <p style="font-size:1.1rem;color:var(--muted-foreground);max-width:28rem">
                 Looks like this page wandered off into the Reading Kingdom. Let's get you back to familiar territory.
             </p>
-            <a href="index.html" class="btn-primary">Return Home ?</a>
+            <a href="index.php" class="btn-primary">Return Home ?</a>
         </div>
 
         <footer class="site-footer">

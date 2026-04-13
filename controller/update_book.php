@@ -19,9 +19,9 @@ if(isset($_POST['idb'])){
     $resultat = $stmt->execute([$title, $author, $genre, $cover, $coinCost, $xpReward, $coinReward, $audience, $trending, $idb]);
 
     if ($resultat){
-        header('location:../view/admin.php?editbook=ok');
+        header('location:../index.php?view=admin&editbook=ok');
     } else {
-        header('location:../view/admin.php?editbook=error');
+        header('location:../index.php?view=admin&editbook=error');
     }
 }
 ?>

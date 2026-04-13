@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Footer Fragment - Lexora</title>
-    <link rel="stylesheet" href="../../common/styles/global.css">
+    <link rel="stylesheet" href="view/landing/common/styles/global.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <section class="vf-section">
       <video id="footer-vid" autoplay muted loop playsinline>
-        <source src="../../assets/videos/hero-bg.mp4" type="video/mp4">
+        <source src="assets/videos/hero-bg.mp4" type="video/mp4">
       </video>
 
       <div class="vf-bar" id="vf-bar">

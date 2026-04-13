@@ -154,7 +154,7 @@ function setupNavigation() {
         item.addEventListener("click", () => {
             const section = item.dataset.section;
             if (section === "logout") {
-                window.location.href = "../index.html";
+                window.location.href = "/lexora_mlk/logout.php";
                 return;
             }
             AdminState.activeSection = section;
@@ -865,7 +865,7 @@ function initAdmin() {
     } else if (window.location.search.includes("user") || window.location.search.includes("modif") || window.location.search.includes("delete=")) {
         targetSection = "users";
     }
-    
+
     if (targetSection !== "dashboard") {
         const navBtn = document.querySelector(`[data-section="${targetSection}"]`);
         if (navBtn) navBtn.click();

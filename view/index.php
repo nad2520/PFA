@@ -14,8 +14,8 @@
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap"
     rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="landing/common/styles/lexora-bundle.css">
-  <link rel="stylesheet" href="landing/components/footer/style.css">
+  <link rel="stylesheet" href="view/landing/common/styles/lexora-bundle.css">
+  <link rel="stylesheet" href="view/landing/components/footer/style.css">
 </head>
 
 <body>
@@ -44,7 +44,7 @@
 
     <!-- Splash image -->
     <div class="splash-image-wrap" id="splash-img">
-      <img src="../assets/img_1.png" alt="Lexora — Enter the World of Reading Adventure"
+      <img src="assets/img_1.png" alt="Lexora — Enter the World of Reading Adventure"
         style="width:100%;height:auto;border-radius:1rem;box-shadow:0 30px 80px rgba(0,0,0,0.5);" />
       <div class="splash-glow-border"></div>
       <div class="splash-bottom-glow"></div>
@@ -71,12 +71,12 @@
       <div class="navbar-inner">
         <div style="display:flex;align-items:center;gap:1rem;">
           <a href="#" class="navbar-logo">
-            <img src="../assets/img_2.jpeg" alt="Lexora" class="navbar-logo-bear-img"
+            <img src="assets/img_2.jpeg" alt="Lexora" class="navbar-logo-bear-img"
               style="width:36px;height:36px;border-radius:50%;border:2px solid hsl(38 75% 55% / 0.5);object-fit:cover;">
             <span class="navbar-logo-text">LEXORA</span>
           </a>
           <div class="navbar-coins">
-            <img src="../assets/img_3.png" alt="coins" style="width:20px;height:20px;object-fit:contain;">
+            <img src="assets/img_3.png" alt="coins" style="width:20px;height:20px;object-fit:contain;">
             <span>1,250</span>
           </div>
         </div>
@@ -138,7 +138,7 @@
 
       <div class="mobile-menu" id="mobile-menu">
         <div class="mobile-menu-coins">
-          <img src="../assets/img_3.png" alt="coins" style="width:20px;height:20px;object-fit:contain;"> 1,250
+          <img src="assets/img_3.png" alt="coins" style="width:20px;height:20px;object-fit:contain;"> 1,250
           Coins
         </div>
         <a href="#explore" class="navbar-link" onclick="closeMobileMenu()">
@@ -181,7 +181,7 @@
         <div class="hero-fallback"></div>
         <video autoplay muted loop playsinline
           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;" id="hero-video">
-          <source src="../assets/hero-bg.mp4" type="video/mp4" />
+          <source src="assets/hero-bg.mp4" type="video/mp4" />
         </video>
         <div class="hero-gradient-bottom"></div>
         <div class="hero-gradient-top"></div>
@@ -230,7 +230,7 @@
             <div class="card-hover-overlay"></div>
             <div class="step-number">01</div>
             <div class="step-img-wrap">
-              <img src="../assets/img_5.png" alt="Browse" class="step-img"
+              <img src="assets/img_5.png" alt="Browse" class="step-img"
                 style="width:64px;height:64px;object-fit:contain;">
             </div>
             <h3 class="step-title">Browse &amp; Discover</h3>
@@ -243,7 +243,7 @@
             <div class="card-hover-overlay"></div>
             <div class="step-number">02</div>
             <div class="step-img-wrap">
-              <img src="../assets/img_6.png" alt="Buy" class="step-img"
+              <img src="assets/img_6.png" alt="Buy" class="step-img"
                 style="width:64px;height:64px;object-fit:contain;">
             </div>
             <h3 class="step-title">Borrow or Buy</h3>
@@ -257,7 +257,7 @@
             <div class="card-hover-overlay"></div>
             <div class="step-number">03</div>
             <div class="step-img-wrap">
-              <img src="../assets/img_7.png" alt="Earn" class="step-img"
+              <img src="assets/img_7.png" alt="Earn" class="step-img"
                 style="width:64px;height:64px;object-fit:contain;">
             </div>
             <h3 class="step-title">Read &amp; Earn Coins</h3>
@@ -271,7 +271,7 @@
         <!-- Coin explainer -->
         <div class="coin-box reveal">
           <div class="coin-img-wrap">
-            <img src="../assets/img_3.png" alt="Lexora Coin" style="width:96px;height:96px;object-fit:contain;"
+            <img src="assets/img_3.png" alt="Lexora Coin" style="width:96px;height:96px;object-fit:contain;"
               class="animate-float">
             <div class="coin-glow"></div>
           </div>
@@ -289,7 +289,7 @@
 
         <!-- Lumo guide -->
         <div class="lumo-box reveal">
-          <img src="../assets/img_9.png" alt="Lumo the Bear" style="width:112px;height:112px;object-fit:contain;"
+          <img src="assets/img_9.png" alt="Lumo the Bear" style="width:112px;height:112px;object-fit:contain;"
             class="animate-float">
           <div>
             <h3>Meet Lumo, Your Guide</h3>
@@ -315,7 +315,7 @@
           <div class="card service-card reveal reveal-delay-1">
             <div class="card-hover-overlay"></div>
             <div class="service-header">
-              <img src="../assets/img_10.png" alt="Discovery" style="width:56px;height:56px;object-fit:contain;">
+              <img src="assets/img_10.png" alt="Discovery" style="width:56px;height:56px;object-fit:contain;">
               <span class="service-tag">AI-Powered</span>
             </div>
             <h3 class="service-title">Smart Book Discovery</h3>
@@ -326,7 +326,7 @@
           <div class="card service-card reveal reveal-delay-2">
             <div class="card-hover-overlay"></div>
             <div class="service-header">
-              <img src="../assets/img_11.png" alt="Reading" style="width:56px;height:56px;object-fit:contain;">
+              <img src="assets/img_11.png" alt="Reading" style="width:56px;height:56px;object-fit:contain;">
               <span class="service-tag">Flexible</span>
             </div>
             <h3 class="service-title">Free &amp; Premium Access</h3>
@@ -337,7 +337,7 @@
           <div class="card service-card reveal reveal-delay-3">
             <div class="card-hover-overlay"></div>
             <div class="service-header">
-              <img src="../assets/img_12.png" alt="Cart" style="width:56px;height:56px;object-fit:contain;">
+              <img src="assets/img_12.png" alt="Cart" style="width:56px;height:56px;object-fit:contain;">
               <span class="service-tag">Seamless</span>
             </div>
             <h3 class="service-title">Cart &amp; Checkout</h3>
@@ -348,7 +348,7 @@
           <div class="card service-card reveal reveal-delay-1">
             <div class="card-hover-overlay"></div>
             <div class="service-header">
-              <img src="../assets/img_13.png" alt="AI" style="width:56px;height:56px;object-fit:contain;">
+              <img src="assets/img_13.png" alt="AI" style="width:56px;height:56px;object-fit:contain;">
               <span class="service-tag">Smart</span>
             </div>
             <h3 class="service-title">AI Recommendations</h3>
@@ -359,7 +359,7 @@
           <div class="card service-card reveal reveal-delay-2">
             <div class="card-hover-overlay"></div>
             <div class="service-header">
-              <img src="../assets/img_14.png" alt="Mood" style="width:56px;height:56px;object-fit:contain;">
+              <img src="assets/img_14.png" alt="Mood" style="width:56px;height:56px;object-fit:contain;">
               <span class="service-tag">Personal</span>
             </div>
             <h3 class="service-title">Reading Moods</h3>
@@ -370,7 +370,7 @@
           <div class="card service-card reveal reveal-delay-3">
             <div class="card-hover-overlay"></div>
             <div class="service-header">
-              <img src="../assets/img_15.png" alt="Gamification" style="width:56px;height:56px;object-fit:contain;">
+              <img src="assets/img_15.png" alt="Gamification" style="width:56px;height:56px;object-fit:contain;">
               <span class="service-tag">Rewarding</span>
             </div>
             <h3 class="service-title">Gamified Progression</h3>
@@ -394,7 +394,7 @@
         <div class="features-grid">
           <div class="card feature-card reveal reveal-delay-1">
             <div class="card-hover-overlay"></div>
-            <div class="feature-icon-wrap"><img src="../assets/img_16.png" alt="Library"
+            <div class="feature-icon-wrap"><img src="assets/img_16.png" alt="Library"
                 style="width:64px;height:64px;object-fit:contain;"></div>
             <h3 class="feature-title">Enchanted Library</h3>
             <p class="feature-desc">Discover thousands of books across every genre. Your personal library grows as you
@@ -403,7 +403,7 @@
 
           <div class="card feature-card reveal reveal-delay-2">
             <div class="card-hover-overlay"></div>
-            <div class="feature-icon-wrap"><img src="../assets/img_17.png" alt="Quests"
+            <div class="feature-icon-wrap"><img src="assets/img_17.png" alt="Quests"
                 style="width:64px;height:64px;object-fit:contain;"></div>
             <h3 class="feature-title">Quests &amp; Rewards</h3>
             <p class="feature-desc">Complete reading quests to earn coins and XP. Level up your avatar, unlock
@@ -412,7 +412,7 @@
 
           <div class="card feature-card reveal reveal-delay-3">
             <div class="card-hover-overlay"></div>
-            <div class="feature-icon-wrap"><img src="../assets/img_18.png" alt="Map"
+            <div class="feature-icon-wrap"><img src="assets/img_18.png" alt="Map"
                 style="width:64px;height:64px;object-fit:contain;"></div>
             <h3 class="feature-title">Reading Kingdom Map</h3>
             <p class="feature-desc">Explore genre regions on an interactive fantasy map. Each territory unlocks as you
@@ -421,7 +421,7 @@
 
           <div class="card feature-card reveal reveal-delay-4">
             <div class="card-hover-overlay"></div>
-            <div class="feature-icon-wrap"><img src="../assets/img_19.png" alt="Guild"
+            <div class="feature-icon-wrap"><img src="assets/img_19.png" alt="Guild"
                 style="width:64px;height:64px;object-fit:contain;"></div>
             <h3 class="feature-title">Guild Community</h3>
             <p class="feature-desc">Join book guilds, share reviews, and discuss stories with fellow adventurers.
@@ -450,7 +450,7 @@
           <div class="portal-card reveal reveal-delay-1"
             style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
             <div style="aspect-ratio:1;overflow:hidden;">
-              <img src="../assets/img_20.jpeg" alt="Fantasy Peaks"
+              <img src="assets/img_20.jpeg" alt="Fantasy Peaks"
                 style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;" class="portal-img"
                 loading="lazy">
             </div>
@@ -469,7 +469,7 @@
           <div class="portal-card reveal reveal-delay-2"
             style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
             <div style="aspect-ratio:1;overflow:hidden;">
-              <img src="../assets/img_21.jpeg" alt="Mystery Woods"
+              <img src="assets/img_21.jpeg" alt="Mystery Woods"
                 style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;" class="portal-img"
                 loading="lazy">
             </div>
@@ -488,7 +488,7 @@
           <div class="portal-card reveal reveal-delay-3"
             style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
             <div style="aspect-ratio:1;overflow:hidden;">
-              <img src="../assets/img_22.jpeg" alt="Scholar's Archive"
+              <img src="assets/img_22.jpeg" alt="Scholar's Archive"
                 style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;" class="portal-img"
                 loading="lazy">
             </div>
@@ -507,7 +507,7 @@
           <div class="portal-card reveal reveal-delay-4"
             style="position:relative;border-radius:1rem;overflow:hidden;cursor:pointer;transition:transform 0.3s;">
             <div style="aspect-ratio:1;overflow:hidden;">
-              <img src="../assets/img_23.jpeg" alt="Traveler's Tavern"
+              <img src="assets/img_23.jpeg" alt="Traveler's Tavern"
                 style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;" class="portal-img"
                 loading="lazy">
             </div>
@@ -540,25 +540,25 @@
         <!-- Stats grid -->
         <div class="stats-grid">
           <div class="card stat-card reveal reveal-delay-1">
-            <img src="../assets/img_16.png" alt=""
+            <img src="assets/img_16.png" alt=""
               style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
             <div class="stat-value text-primary">12,450+</div>
             <div class="stat-label">Books Available</div>
           </div>
           <div class="card stat-card reveal reveal-delay-2">
-            <img src="../assets/img_25.png" alt=""
+            <img src="assets/img_25.png" alt=""
               style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
             <div class="stat-value text-accent">38,200+</div>
             <div class="stat-label">Active Readers</div>
           </div>
           <div class="card stat-card reveal reveal-delay-3">
-            <img src="../assets/img_25.png" alt=""
+            <img src="assets/img_25.png" alt=""
               style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
             <div class="stat-value" style="color:var(--glow-purple)">4,800+</div>
             <div class="stat-label">Children (6-12)</div>
           </div>
           <div class="card stat-card reveal reveal-delay-4">
-            <img src="../assets/img_25.png" alt=""
+            <img src="assets/img_25.png" alt=""
               style="width:2rem;height:2rem;object-fit:contain;margin:0 auto 0.75rem;display:block;">
             <div class="stat-value text-accent">33,400+</div>
             <div class="stat-label">Adults (13+)</div>
@@ -689,7 +689,7 @@
         <div></div>
       </div>
       <div class="cta-inner">
-        <img src="../assets/img_28.png" alt="Lumo" class="cta-emoji reveal animate-float"
+        <img src="assets/img_28.png" alt="Lumo" class="cta-emoji reveal animate-float"
           style="width:96px;height:96px;object-fit:contain;margin:0 auto 1.5rem;display:block;">
         <h2 class="cta-title reveal">
           Your Story <span class="text-primary text-glow-gold">Begins Now</span>
@@ -708,7 +708,7 @@
     <!-- ── video footer ── -->
     <section class="vf-section">
       <video id="footer-vid" autoplay muted loop playsinline>
-        <source src="../assets/lexora-intro.mp4" type="video/mp4">
+        <source src="assets/lexora-intro.mp4" type="video/mp4">
       </video>
 
       <div class="vf-bar" id="vf-bar">
@@ -859,7 +859,7 @@
       <!-- Video wrapper -->
       <div class="gs-video-wrap">
         <video id="gs-vid" playsinline>
-          <source src="../assets/lexora-intro.mp4" type="video/mp4">
+          <source src="assets/lexora-intro.mp4" type="video/mp4">
         </video>
 
         <!-- Control bar -->
@@ -931,7 +931,7 @@
         </div>
 
         <!-- Form -->
-        <form id="auth-form" class="auth-form" method="POST" action="../controller/auth_controller.php">
+        <form id="auth-form" class="auth-form" method="POST" action="controller/auth_controller.php">
           <input type="hidden" name="action" id="auth-action" value="login" />
           <div id="username-field" class="form-group hidden">
             <i data-lucide="user" class="input-icon"></i>
@@ -1002,14 +1002,14 @@
     </div>
   </div>
   <!-- Modular Scripts -->
-  <script src="landing/components/splash/script.js"></script>
-  <script src="landing/components/navbar/script.js"></script>
-  <script src="landing/components/hero/script.js"></script>
-  <script src="landing/components/video-footer/script.js"></script>
-  <script src="landing/components/get-started-modal/script.js"></script>
-  <script src="landing/components/auth-modal/script.js"></script>
-  <script src="landing/components/footer/script.js"></script>
-  <script src="landing/common/scripts/global.js"></script>
+  <script src="view/landing/components/splash/script.js"></script>
+  <script src="view/landing/components/navbar/script.js"></script>
+  <script src="view/landing/components/hero/script.js"></script>
+  <script src="view/landing/components/video-footer/script.js"></script>
+  <script src="view/landing/components/get-started-modal/script.js"></script>
+  <script src="view/landing/components/auth-modal/script.js"></script>
+  <script src="view/landing/components/footer/script.js"></script>
+  <script src="view/landing/common/scripts/global.js"></script>
 </body>
 
 </html>

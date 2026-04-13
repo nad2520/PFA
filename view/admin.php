@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../config/database.php");
+include("config/database.php");
 
 // Default queries to get users
 $stmt = $cnx->query("SELECT * FROM users ORDER BY id DESC");
@@ -21,8 +21,8 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexora Admin � Kingdom Management</title>
-    <link rel="stylesheet" href="admin_scss/main.css">
-    <link rel="stylesheet" href="admin_scss/admin.css">
+    <link rel="stylesheet" href="view/admin_scss/main.css">
+    <link rel="stylesheet" href="view/admin_scss/admin.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -78,7 +78,8 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                 <span class="nav-label">Settings</span>
             </button>
             <div style="flex:1"></div>
-            <button class="nav-item logout" data-section="logout" onclick="window.location.href='index.php'">
+            <button class="nav-item logout" data-section="logout"
+                onclick="window.location.href='/lexora_mlk/logout.php'">
                 <i data-lucide="log-out"></i>
                 <span class="nav-label">Logout</span>
             </button>
@@ -249,12 +250,16 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
 
-                    <div class="grid-2" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:1.5rem">
+                    <div class="grid-2"
+                        style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:1.5rem">
                         <div class="admin-card" style="padding:1rem">
                             <div style="display:flex;align-items:flex-start;gap:0.75rem">
-                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="star"></i></div>
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="star"></i>
+                                </div>
                                 <div>
-                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Most Popular Genre</p>
+                                    <p
+                                        style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">
+                                        Most Popular Genre</p>
                                     <p style="font-weight:700;color:#F5EDD6;margin:0">Fantasy</p>
                                     <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">38% of reads</p>
                                 </div>
@@ -262,9 +267,12 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="admin-card" style="padding:1rem">
                             <div style="display:flex;align-items:flex-start;gap:0.75rem">
-                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="book-marked"></i></div>
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i
+                                        data-lucide="book-marked"></i></div>
                                 <div>
-                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Most Read Book</p>
+                                    <p
+                                        style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">
+                                        Most Read Book</p>
                                     <p style="font-weight:700;color:#F5EDD6;margin:0">Dragon's Lullaby</p>
                                     <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">4,210 reads</p>
                                 </div>
@@ -272,19 +280,26 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="admin-card" style="padding:1rem">
                             <div style="display:flex;align-items:flex-start;gap:0.75rem">
-                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="crown"></i></div>
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem"><i data-lucide="crown"></i>
+                                </div>
                                 <div>
-                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Top Active User</p>
+                                    <p
+                                        style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">
+                                        Top Active User</p>
                                     <p style="font-weight:700;color:#F5EDD6;margin:0">CrimsonInk</p>
-                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">Level 61 � 9,800 coins</p>
+                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">Level 61 � 9,800 coins
+                                    </p>
                                 </div>
                             </div>
                         </div>
                         <div class="admin-card" style="padding:1rem">
                             <div style="display:flex;align-items:flex-start;gap:0.75rem">
-                                <div class="icon-box" style="width:2.2rem;height:2.2rem;color:#EF4444"><i data-lucide="alert-triangle"></i></div>
+                                <div class="icon-box" style="width:2.2rem;height:2.2rem;color:#EF4444"><i
+                                        data-lucide="alert-triangle"></i></div>
                                 <div>
-                                    <p style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">Most Flagged Type</p>
+                                    <p
+                                        style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">
+                                        Most Flagged Type</p>
                                     <p style="font-weight:700;color:#F5EDD6;margin:0">Spoilers</p>
                                     <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">42% of flags</p>
                                 </div>
@@ -364,22 +379,34 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                                     </tr>
                                 </thead>
                                 <tbody id="userTbody">
-                                    <?php foreach($users as $u): ?>
-                                    <tr>
-                                        <td><div class="avatar"><?= strtoupper(substr($u['nom'], 0, 2)) ?></div></td>
-                                        <td style="font-weight:bold"><?= htmlspecialchars($u['nom']) ?></td>
-                                        <td style="color:#A08060"><?= htmlspecialchars($u['email']) ?></td>
-                                        <td><span class="badge gold"><?= htmlspecialchars($u['role']) ?></span></td>
-                                        <td><span style="color:#D4AF37"><i data-lucide="zap" style="width:12px;height:12px"></i> <?= $u['level'] ?></span></td>
-                                        <td><span style="color:#D4AF37"><i data-lucide="coins" style="width:12px;height:12px"></i> <?= $u['coins'] ?></span></td>
-                                        <td style="font-size:0.7rem;color:#7A6040"><?= date('Y-m-d', strtotime($u['created_at'])) ?></td>
-                                        <td>
-                                          <div style="display:flex;gap:0.25rem">
-                                            <button class="admin-btn ghost" onclick="openEditModal(<?= $u['id'] ?>, '<?= htmlspecialchars($u['nom']) ?>', '<?= htmlspecialchars($u['email']) ?>')"><i data-lucide="edit-2" style="width:13px;height:13px"></i></button>
-                                            <a href="../controller/delete_user.php?idu=<?= $u['id'] ?>" onclick="return confirm('Are you sure you want to delete this user?');" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
-                                          </div>
-                                        </td>
-                                    </tr>
+                                    <?php foreach ($users as $u): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="avatar"><?= strtoupper(substr($u['nom'], 0, 2)) ?></div>
+                                            </td>
+                                            <td style="font-weight:bold"><?= htmlspecialchars($u['nom']) ?></td>
+                                            <td style="color:#A08060"><?= htmlspecialchars($u['email']) ?></td>
+                                            <td><span class="badge gold"><?= htmlspecialchars($u['role']) ?></span></td>
+                                            <td><span style="color:#D4AF37"><i data-lucide="zap"
+                                                        style="width:12px;height:12px"></i> <?= $u['level'] ?></span></td>
+                                            <td><span style="color:#D4AF37"><i data-lucide="coins"
+                                                        style="width:12px;height:12px"></i> <?= $u['coins'] ?></span></td>
+                                            <td style="font-size:0.7rem;color:#7A6040">
+                                                <?= date('Y-m-d', strtotime($u['created_at'])) ?>
+                                            </td>
+                                            <td>
+                                                <div style="display:flex;gap:0.25rem">
+                                                    <button class="admin-btn ghost"
+                                                        onclick="openEditModal(<?= $u['id'] ?>, '<?= htmlspecialchars($u['nom']) ?>', '<?= htmlspecialchars($u['email']) ?>')"><i
+                                                            data-lucide="edit-2"
+                                                            style="width:13px;height:13px"></i></button>
+                                                    <a href="controller/delete_user.php?idu=<?= $u['id'] ?>"
+                                                        onclick="return confirm('Are you sure you want to delete this user?');"
+                                                        class="admin-btn ghost" style="color:#EF4444"><i
+                                                            data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -433,23 +460,34 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                                     </tr>
                                 </thead>
                                 <tbody id="bookTbody">
-                                    <?php foreach($books as $b): ?>
-                                    <tr>
-                                        <td style="font-size:1.5rem"><?= htmlspecialchars($b['cover'] ?? '📖') ?></td>
-                                        <td style="font-weight:bold"><?= htmlspecialchars($b['title']) ?></td>
-                                        <td style="color:#A08060"><?= htmlspecialchars($b['author']) ?></td>
-                                        <td><span class="badge blue"><?= htmlspecialchars($b['genre']) ?></span></td>
-                                        <td><span style="color:#D4AF37"><i data-lucide="coins" style="width:12px;height:12px"></i> <?= $b['coinCost'] ?></span></td>
-                                        <td style="font-size:0.7rem;color:#A08060">+<?= $b['xpReward'] ?>xp / +<?= $b['coinReward'] ?> coins</td>
-                                        <td><span class="badge <?= $b['audience'] === 'All' ? 'green' : 'red' ?>"><?= $b['audience'] === 'All' ? 'All Ages' : '+18 Only' ?></span></td>
-                                        <td><?= $b['trending'] ? '<span class="badge orange">HOT</span>' : '—' ?></td>
-                                        <td>
-                                          <div style="display:flex;gap:0.25rem">
-                                            <button class="admin-btn ghost" onclick="openEditBookModal(<?= $b['id'] ?>, '<?= addslashes(htmlspecialchars($b['title'])) ?>', '<?= addslashes(htmlspecialchars($b['author'])) ?>', '<?= addslashes(htmlspecialchars($b['genre'])) ?>', '<?= addslashes(htmlspecialchars($b['cover'])) ?>', <?= $b['coinCost'] ?>, <?= $b['xpReward'] ?>, <?= $b['coinReward'] ?>, '<?= addslashes(htmlspecialchars($b['audience'])) ?>', <?= $b['trending'] ?>)"><i data-lucide="edit-2" style="width:13px;height:13px"></i></button>
-                                            <a href="../controller/delete_book.php?idb=<?= $b['id'] ?>" onclick="return confirm('Are you sure you want to delete this book?');" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
-                                          </div>
-                                        </td>
-                                    </tr>
+                                    <?php foreach ($books as $b): ?>
+                                        <tr>
+                                            <td style="font-size:1.5rem"><?= htmlspecialchars($b['cover'] ?? '📖') ?></td>
+                                            <td style="font-weight:bold"><?= htmlspecialchars($b['title']) ?></td>
+                                            <td style="color:#A08060"><?= htmlspecialchars($b['author']) ?></td>
+                                            <td><span class="badge blue"><?= htmlspecialchars($b['genre']) ?></span></td>
+                                            <td><span style="color:#D4AF37"><i data-lucide="coins"
+                                                        style="width:12px;height:12px"></i> <?= $b['coinCost'] ?></span>
+                                            </td>
+                                            <td style="font-size:0.7rem;color:#A08060">+<?= $b['xpReward'] ?>xp /
+                                                +<?= $b['coinReward'] ?> coins</td>
+                                            <td><span
+                                                    class="badge <?= $b['audience'] === 'All' ? 'green' : 'red' ?>"><?= $b['audience'] === 'All' ? 'All Ages' : '+18 Only' ?></span>
+                                            </td>
+                                            <td><?= $b['trending'] ? '<span class="badge orange">HOT</span>' : '—' ?></td>
+                                            <td>
+                                                <div style="display:flex;gap:0.25rem">
+                                                    <button class="admin-btn ghost"
+                                                        onclick="openEditBookModal(<?= $b['id'] ?>, '<?= addslashes(htmlspecialchars($b['title'])) ?>', '<?= addslashes(htmlspecialchars($b['author'])) ?>', '<?= addslashes(htmlspecialchars($b['genre'])) ?>', '<?= addslashes(htmlspecialchars($b['cover'])) ?>', <?= $b['coinCost'] ?>, <?= $b['xpReward'] ?>, <?= $b['coinReward'] ?>, '<?= addslashes(htmlspecialchars($b['audience'])) ?>', <?= $b['trending'] ?>)"><i
+                                                            data-lucide="edit-2"
+                                                            style="width:13px;height:13px"></i></button>
+                                                    <a href="controller/delete_book.php?idb=<?= $b['id'] ?>"
+                                                        onclick="return confirm('Are you sure you want to delete this book?');"
+                                                        class="admin-btn ghost" style="color:#EF4444"><i
+                                                            data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -506,37 +544,65 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                                     </tr>
                                 </thead>
                                 <tbody id="communityTbody">
-                                    <?php foreach ($posts as $p): 
+                                    <?php foreach ($posts as $p):
                                         $statusColor = 'blue';
-                                        if ($p['status'] == 'Clean') $statusColor = 'green';
-                                        elseif ($p['status'] == 'Flagged by Lumo') $statusColor = 'red';
-                                        elseif ($p['status'] == 'Pending Admin Review') $statusColor = 'orange';
+                                        if ($p['status'] == 'Clean')
+                                            $statusColor = 'green';
+                                        elseif ($p['status'] == 'Flagged by Lumo')
+                                            $statusColor = 'red';
+                                        elseif ($p['status'] == 'Pending Admin Review')
+                                            $statusColor = 'orange';
 
                                         $tagColor = 'blue';
-                                        if ($p['tag'] == 'review') $tagColor = 'green';
-                                        elseif ($p['tag'] == 'theory') $tagColor = 'purple';
-                                        elseif ($p['tag'] == 'spoiler') $tagColor = 'red';
-                                    ?>
+                                        if ($p['tag'] == 'review')
+                                            $tagColor = 'green';
+                                        elseif ($p['tag'] == 'theory')
+                                            $tagColor = 'purple';
+                                        elseif ($p['tag'] == 'spoiler')
+                                            $tagColor = 'red';
+                                        ?>
                                         <tr>
-                                            <td style="max-width:220px"><p style="color:#F5EDD6;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?= htmlspecialchars($p['title']) ?></p></td>
+                                            <td style="max-width:220px">
+                                                <p
+                                                    style="color:#F5EDD6;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                                    <?= htmlspecialchars($p['title']) ?>
+                                                </p>
+                                            </td>
                                             <td><?= htmlspecialchars($p['author']) ?></td>
-                                            <td style="font-size:0.75rem;color:var(--admin-text-dim)"><?= htmlspecialchars($p['book']) ?></td>
-                                            <td><span class="badge <?= $tagColor ?>"><?= htmlspecialchars($p['tag']) ?></span></td>
+                                            <td style="font-size:0.75rem;color:var(--admin-text-dim)">
+                                                <?= htmlspecialchars($p['book']) ?>
+                                            </td>
+                                            <td><span
+                                                    class="badge <?= $tagColor ?>"><?= htmlspecialchars($p['tag']) ?></span>
+                                            </td>
                                             <td style="color:#D4AF37"><?= htmlspecialchars($p['upvotes']) ?></td>
                                             <td style="color:#A08060"><?= htmlspecialchars($p['comments']) ?></td>
-                                            <td><span class="badge <?= $statusColor ?>"><?= htmlspecialchars($p['status']) ?></span></td>
+                                            <td><span
+                                                    class="badge <?= $statusColor ?>"><?= htmlspecialchars($p['status']) ?></span>
+                                            </td>
                                             <td>
                                                 <div style="display:flex;gap:0.25rem">
-                                                    <a href="#" class="admin-btn ghost" onclick="alert('Post preview is visual-only in parity mode.')"><i data-lucide="eye" style="width:13px;height:13px"></i></a>
-                                                    <a href="../controller/update_post.php?id=<?= $p['id'] ?>&action=review" class="admin-btn ghost"><i data-lucide="check" style="width:13px;height:13px"></i></a>
-                                                    <a href="../controller/update_post.php?id=<?= $p['id'] ?>&action=tag" class="admin-btn ghost"><i data-lucide="tag" style="width:13px;height:13px"></i></a>
-                                                    <a href="../controller/delete_post.php?id=<?= $p['id'] ?>" class="admin-btn ghost" style="color:#EF4444"><i data-lucide="trash-2" style="width:13px;height:13px"></i></a>
+                                                    <a href="#" class="admin-btn ghost"
+                                                        onclick="alert('Post preview is visual-only in parity mode.')"><i
+                                                            data-lucide="eye" style="width:13px;height:13px"></i></a>
+                                                    <a href="controller/update_post.php?id=<?= $p['id'] ?>&action=review"
+                                                        class="admin-btn ghost"><i data-lucide="check"
+                                                            style="width:13px;height:13px"></i></a>
+                                                    <a href="controller/update_post.php?id=<?= $p['id'] ?>&action=tag"
+                                                        class="admin-btn ghost"><i data-lucide="tag"
+                                                            style="width:13px;height:13px"></i></a>
+                                                    <a href="controller/delete_post.php?id=<?= $p['id'] ?>"
+                                                        class="admin-btn ghost" style="color:#EF4444"><i
+                                                            data-lucide="trash-2" style="width:13px;height:13px"></i></a>
                                                 </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
-                                    <?php if(empty($posts)): ?>
-                                        <tr><td colspan="8" style="text-align:center;color:#A08060;padding:2rem">No posts found.</td></tr>
+                                    <?php if (empty($posts)): ?>
+                                        <tr>
+                                            <td colspan="8" style="text-align:center;color:#A08060;padding:2rem">No posts
+                                                found.</td>
+                                        </tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -568,8 +634,8 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                                     <p style="font-size:0.7rem;color:#A08060">Processing signals at 14ms latency</p>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:0.5rem">
-                                    <label class="switch"><input id="lumoActiveToggle" type="checkbox"
-                                            checked><span class="slider"></span></label>
+                                    <label class="switch"><input id="lumoActiveToggle" type="checkbox" checked><span
+                                            class="slider"></span></label>
                                     <span class="badge green">OPERATIONAL</span>
                                 </div>
                             </div>
@@ -672,22 +738,22 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                             <div class="age-card-body">
                                 <div class="toggle-row"><span>About Section</span> <label class="switch"><input
                                             type="checkbox" checked data-age-group="plus18" data-age-key="about"><span
-                                                class="slider"></span></label></div>
+                                            class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Store</span> <label class="switch"><input type="checkbox"
                                             checked data-age-group="plus18" data-age-key="store"><span
-                                                class="slider"></span></label></div>
+                                            class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Lamp of Knowledge</span> <label class="switch"><input
                                             type="checkbox" checked data-age-group="plus18" data-age-key="lamp"><span
-                                                class="slider"></span></label></div>
+                                            class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Community</span> <label class="switch"><input
-                                            type="checkbox" checked data-age-group="plus18" data-age-key="community"><span
-                                                class="slider"></span></label></div>
+                                            type="checkbox" checked data-age-group="plus18"
+                                            data-age-key="community"><span class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Lumo's Bounty Board</span> <label class="switch"><input
-                                            type="checkbox" checked data-age-group="plus18" data-age-key="bountyBoard"><span
-                                                class="slider"></span></label></div>
+                                            type="checkbox" checked data-age-group="plus18"
+                                            data-age-key="bountyBoard"><span class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Show +18 Books</span> <label class="switch"><input
-                                            type="checkbox" checked data-age-group="plus18" data-age-key="plus18Books"><span
-                                                class="slider"></span></label></div>
+                                            type="checkbox" checked data-age-group="plus18"
+                                            data-age-key="plus18Books"><span class="slider"></span></label></div>
                             </div>
                         </div>
                         <div class="age-card green">
@@ -702,22 +768,22 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                             <div class="age-card-body">
                                 <div class="toggle-row"><span>About Section</span> <label class="switch"><input
                                             type="checkbox" data-age-group="minus18" data-age-key="about"><span
-                                                class="slider"></span></label></div>
-                                <div class="toggle-row"><span>Store</span> <label class="switch"><input
-                                            type="checkbox" data-age-group="minus18" data-age-key="store"><span
-                                                class="slider"></span></label></div>
+                                            class="slider"></span></label></div>
+                                <div class="toggle-row"><span>Store</span> <label class="switch"><input type="checkbox"
+                                            data-age-group="minus18" data-age-key="store"><span
+                                            class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Lamp of Knowledge</span> <label class="switch"><input
                                             type="checkbox" data-age-group="minus18" data-age-key="lamp"><span
-                                                class="slider"></span></label></div>
+                                            class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Community</span> <label class="switch"><input
-                                            type="checkbox" checked data-age-group="minus18" data-age-key="community"><span
-                                                class="slider"></span></label></div>
+                                            type="checkbox" checked data-age-group="minus18"
+                                            data-age-key="community"><span class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Lumo's Bounty Board</span> <label class="switch"><input
-                                            type="checkbox" checked data-age-group="minus18" data-age-key="bountyBoard"><span
-                                                class="slider"></span></label></div>
+                                            type="checkbox" checked data-age-group="minus18"
+                                            data-age-key="bountyBoard"><span class="slider"></span></label></div>
                                 <div class="toggle-row"><span>Show +18 Books</span> <label class="switch"><input
                                             type="checkbox" data-age-group="minus18" data-age-key="plus18Books"><span
-                                                class="slider"></span></label></div>
+                                            class="slider"></span></label></div>
                             </div>
                         </div>
                     </div>
@@ -777,12 +843,12 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                             </h3>
                             <div class="grid-2" style="gap:1rem">
                                 <div><label class="label-xs">DEFAULT XP REWARD</label>
-                                    <div class="input-with-label"><input type="text" class="admin-input"
-                                            value="150" id="rewardDefaultXp"><span>XP</span></div>
+                                    <div class="input-with-label"><input type="text" class="admin-input" value="150"
+                                            id="rewardDefaultXp"><span>XP</span></div>
                                 </div>
                                 <div><label class="label-xs">DEFAULT COIN REWARD</label>
-                                    <div class="input-with-label"><input type="text" class="admin-input"
-                                            value="40" id="rewardDefaultCoin"><span>🪙</span></div>
+                                    <div class="input-with-label"><input type="text" class="admin-input" value="40"
+                                            id="rewardDefaultCoin"><span>🪙</span></div>
                                 </div>
                             </div>
                         </div>
@@ -792,8 +858,8 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                                 🪔 Lamp Penalty Rules</h3>
                             <div class="penalty-list" id="rewardPenaltyWrap">
                                 <div class="penalty-item"><span>Penalty Enabled</span>
-                                    <label class="switch"><input id="rewardPenaltyEnabled" type="checkbox"
-                                            checked><span class="slider"></span></label>
+                                    <label class="switch"><input id="rewardPenaltyEnabled" type="checkbox" checked><span
+                                            class="slider"></span></label>
                                 </div>
                                 <div class="penalty-item"><span>🌱 Level 1–5 Penalty %</span> <input type="text"
                                         class="admin-input sm" value="10" id="penalty_l1_5"></div>
@@ -825,7 +891,8 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                     <div class="admin-card" style="margin-bottom:1.5rem">
                         <h3 class="card-title"
                             style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
-                            <i data-lucide="book-marked" style="color:#D4AF37;width:16px"></i> Platform Identity</h3>
+                            <i data-lucide="book-marked" style="color:#D4AF37;width:16px"></i> Platform Identity
+                        </h3>
                         <div style="display:flex;flex-direction:column;gap:1.25rem">
                             <div><label class="label-xs">SITE NAME</label><input type="text" class="admin-input full"
                                     value="Lexora" id="settingSiteName"></div>
@@ -841,7 +908,8 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                     <div class="admin-card" style="margin-bottom:1.5rem">
                         <h3 class="card-title"
                             style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
-                            <i data-lucide="sparkles" style="color:#D4AF37;width:16px"></i> Feature Toggles</h3>
+                            <i data-lucide="sparkles" style="color:#D4AF37;width:16px"></i> Feature Toggles
+                        </h3>
                         <div class="toggle-list">
                             <div class="toggle-item">
                                 <div class="info"><span>🔥 Enable Trending Badge</span>
@@ -870,7 +938,8 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
                     <div class="admin-card" style="margin-bottom:1.5rem">
                         <h3 class="card-title"
                             style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
-                            <i data-lucide="bar-chart-2" style="color:#D4AF37;width:16px"></i> Display Settings</h3>
+                            <i data-lucide="bar-chart-2" style="color:#D4AF37;width:16px"></i> Display Settings
+                        </h3>
                         <div><label class="label-xs">DEFAULT BOOKS PER PAGE</label>
                             <select class="admin-input" style="max-width:180px" id="settingBooksPerPage">
                                 <option value="6">6 books</option>
@@ -897,12 +966,12 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- --- SCRIPTS --- -->
     <div id="modalRoot"></div>
-    <script src="../model/admin_data.js"></script>
-    <script src="../controller/admin.js"></script>
+    <script src="model/admin_data.js"></script>
+    <script src="controller/admin.js"></script>
     <script>
         function openEditModal(id, currentName, currentEmail) {
             const html = `
-                <form id="phpEditUserForm" method="POST" action="../controller/update_user.php">
+                <form id="phpEditUserForm" method="POST" action="controller/update_user.php">
                     <input type="hidden" name="idu" value="${id}">
                     <label class="label-xs mt-3">Name</label>
                     <input class="admin-input full" type="text" name="user_name" value="${currentName}" required>
@@ -920,7 +989,7 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
 
         function openAddBookModal() {
             const html = `
-                <form id="phpAddBookForm" method="POST" action="../controller/add_book.php">
+                <form id="phpAddBookForm" method="POST" action="controller/add_book.php">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" required>
                     <div class="grid-2 mt-3" style="gap:1rem">
@@ -955,7 +1024,7 @@ $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
 
         function openEditBookModal(id, title, author, genre, cover, coinCost, xpReward, coinReward, audience, trending) {
             const html = `
-                <form id="phpEditBookForm" method="POST" action="../controller/update_book.php">
+                <form id="phpEditBookForm" method="POST" action="controller/update_book.php">
                     <input type="hidden" name="idb" value="${id}">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" value="${title}" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" value="${author}" required>

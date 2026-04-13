@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading ? Lexora</title>
     <meta name="description" content="Continue reading your book on Lexora.">
-    <link rel="stylesheet" href="../user_scss/main.css">
+    <link rel="stylesheet" href="view/user_scss/main.css">
 </head>
 
 <body class="read-book-page">
@@ -69,10 +69,10 @@
 
     <div id="lumo-chatbot-root" data-lumo-greeting="Hi there! I'm Lumo ? enjoy your reading session!"></div>
 
-    <script src="../../model/user_data.js"></script>
-    <script src="../../model/lexora-state.js"></script>
-    <script src="../../controller/lumo-chatbot.js"></script>
-    <script src="../../controller/user_app.js"></script>
+    <script src="model/user_data.js"></script>
+    <script src="model/lexora-state.js"></script>
+    <script src="controller/lumo-chatbot.js"></script>
+    <script src="controller/user_app.js"></script>
 </body>
 
 </html>

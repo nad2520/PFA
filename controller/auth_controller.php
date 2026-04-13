@@ -11,19 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $email = trim($_POST['email']);
         $password = trim($_POST['password']);
         $birthdate = isset($_POST['birthdate']) ? trim($_POST['birthdate']) : null;
-        
+
         if (!empty($username) && !empty($email) && !empty($password)) {
             // Check if email already exists
             $stmt = $cnx->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->rowCount() > 0) {
                 $_SESSION['auth_error'] = "Email already exists.";
-                header("Location: ../view/index.php#auth-modal");
+                header("Location: ../index.php#auth-modal");
                 exit;
             }
 
             $hashed_password = md5($password);
-            
+
             $role = 'user';
             if (!empty($birthdate)) {
                 try {
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     // Ignore date parsing errors
                 }
             }
-            
+
             $req = "INSERT INTO users(nom, email, password, role, birthdate) VALUES (?, ?, ?, ?, ?)";
             $stmt = $cnx->prepare($req);
             $res = $stmt->execute([$username, $email, $hashed_password, $role, !empty($birthdate) ? $birthdate : null]);
@@ -51,19 +51,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['user_role'] = $role;
 
                 if ($email == 'lexora25@gmail.com' || $role == 'admin') {
-                    header("Location: ../view/admin.php");
+                    header("Location: ../index.php?view=admin");
                 } else {
-                    header("Location: ../view/user/index.php");
+                    header("Location: ../index.php?view=user");
                 }
                 exit;
             } else {
                 $_SESSION['auth_error'] = "Error creating account.";
-                header("Location: ../view/index.php#auth-modal");
+                header("Location: ../index.php#auth-modal");
                 exit;
             }
         } else {
             $_SESSION['auth_error'] = "Please fill in all required fields.";
-            header("Location: ../view/index.php#auth-modal");
+            header("Location: ../index.php#auth-modal");
             exit;
         }
 
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $hashed_password = md5($password);
             $stmt = $cnx->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
             $stmt->execute([$email, $hashed_password]);
-            
+
             if ($stmt->rowCount() > 0) {
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 $_SESSION['user_id'] = $user['id'];
@@ -84,23 +84,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 // Temporary logic: if email is admin, go to admin page, else user page
                 if ($email == 'lexora25@gmail.com' || $user['role'] == 'admin') {
-                    header("Location: ../view/admin.php");
+                    header("Location: ../index.php?view=admin");
                 } else {
-                    header("Location: ../view/user/index.php");
+                    header("Location: ../index.php?view=user");
                 }
                 exit;
             } else {
                 $_SESSION['auth_error'] = "Invalid email or password.";
-                header("Location: ../view/index.php#auth-modal");
+                header("Location: ../index.php#auth-modal");
                 exit;
             }
         } else {
             $_SESSION['auth_error'] = "Please enter email and password.";
-            header("Location: ../view/index.php#auth-modal");
+            header("Location: ../index.php#auth-modal");
             exit;
         }
     }
+} elseif (isset($_GET['action']) && $_GET['action'] == 'logout') {
+    session_destroy();
+    header("Location: ../index.php");
+    exit;
 }
-header("Location: ../view/index.php");
+header("Location: ../index.php");
 exit;
 ?>

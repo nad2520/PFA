@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Navbar Fragment - Lexora</title>
-    <link rel="stylesheet" href="../../common/styles/global.css">
+    <link rel="stylesheet" href="view/landing/common/styles/global.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,14 +13,14 @@
         <div style="display:flex;align-items:center;gap:1rem;">
           <a href="#" class="navbar-logo">
             <img
-              src="../../assets/img_2.jpeg"
+              src="assets/img_2.jpeg"
               alt="Lexora" class="navbar-logo-bear-img"
               style="width:36px;height:36px;border-radius:50%;border:2px solid hsl(38 75% 55% / 0.5);object-fit:cover;">
             <span class="navbar-logo-text">LEXORA</span>
           </a>
           <div class="navbar-coins">
             <img
-              src="../../assets/img_3.png"
+              src="assets/img_3.png"
               alt="coins" style="width:20px;height:20px;object-fit:contain;">
             <span>1,250</span>
           </div>
@@ -84,7 +84,7 @@
       <div class="mobile-menu" id="mobile-menu">
         <div class="mobile-menu-coins">
           <img
-            src="../../assets/img_3.png"
+            src="assets/img_3.png"
             alt="coins" style="width:20px;height:20px;object-fit:contain;"> 1,250 Coins
         </div>
         <a href="#explore" class="navbar-link" onclick="closeMobileMenu()">
@@ -121,7 +121,7 @@
       </div>
     </nav>
 
-    <script src="../../common/scripts/global.js"></script>
+    <script src="view/landing/common/scripts/global.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hero Fragment - Lexora</title>
-    <link rel="stylesheet" href="../../common/styles/global.css">
+    <link rel="stylesheet" href="view/landing/common/styles/global.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
         <div class="hero-fallback"></div>
         <video autoplay muted loop playsinline
           style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;" id="hero-video">
-          <source src="../../assets/videos/hero-bg.mp4" type="video/mp4" />
+          <source src="assets/videos/hero-bg.mp4" type="video/mp4" />
         </video>
         <div class="hero-gradient-bottom"></div>
         <div class="hero-gradient-top"></div>
@@ -47,7 +47,7 @@
       </div>
     </section>
 
-    <script src="../../common/scripts/global.js"></script>
+    <script src="view/landing/common/scripts/global.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

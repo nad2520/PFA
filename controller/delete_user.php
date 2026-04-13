@@ -9,9 +9,9 @@ if(isset($_GET['idu'])){
     $resultat = $stmt->execute([$id_user]);
 
     if ($resultat){
-        header('location:../view/admin.php?delete=ok');
+        header('location:../index.php?view=admin&delete=ok');
     } else {
-        header('location:../view/admin.php?delete=error');
+        header('location:../index.php?view=admin&delete=error');
     }
 }
 ?>

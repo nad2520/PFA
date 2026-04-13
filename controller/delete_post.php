@@ -9,11 +9,11 @@ if(isset($_GET['id'])){
     $resultat = $stmt->execute([$id]);
 
     if ($resultat){
-        header('location:../view/admin.php?tab=community&deletepost=ok');
+        header('location:../index.php?view=admin&tab=community&deletepost=ok');
     } else {
-        header('location:../view/admin.php?tab=community&deletepost=error');
+        header('location:../index.php?view=admin&tab=community&deletepost=error');
     }
 } else {
-    header('location:../view/admin.php?tab=community');
+    header('location:../index.php?view=admin&tab=community');
 }
 ?>
