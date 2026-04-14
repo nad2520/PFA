@@ -1,12 +1,12 @@
 RewriteEngine On
-RewriteBase /
+RewriteBase /hh/
 
 # Keep requests for static assets and project internals untouched
 RewriteRule ^(assets|config|controller|model|view|\.git)(/.*|$) - [L,NC]
+RewriteRule ^(assets|config|controller|model|view|\.git)(/.*|$) - [L,NC]
 RewriteRule \.(css|js|png|jpg|jpeg|gif|svg|ico|webp|mp4|json|woff|woff2|ttf|eot)$ - [L,NC]
 
-# Route HTML page requests through the PHP router without changing browser URL
-RewriteRule ^(.*\.html)$ index.php [L,QSA]
-
-# Route root requests to the PHP router
-RewriteRule ^$ index.php [L,QSA]
+# Route requests for missing files and directories through the PHP router
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]

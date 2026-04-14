@@ -121,12 +121,12 @@ function setAuthMode(isLogin) {
             if (email === 'lexora25@gmail.com' && password === 'lexora25') {
               showAuthMessage("Welcome, Administrator", false);
               setTimeout(() => {
-                window.location.href = 'admin_page/admin.html';
+                window.location.href = '/hh/admin';
               }, 1000);
             } else if (email && password) {
               showAuthMessage("Login successful", false);
               setTimeout(() => {
-                window.location.href = 'user_page/index.html';
+                window.location.href = '/hh/user_page/index.html';
               }, 1000);
             } else {
               showAuthMessage("Email and password are required.", true);

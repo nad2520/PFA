@@ -41,8 +41,14 @@ class Router
             case '/user_page/read-book.html':
                 (new UserController())->readBook();
                 return;
-            case '/admin_page/admin.html':
+            case '/admin':
                 (new AdminController())->index();
+                return;
+            case '/admin/users':
+                (new AdminController())->users();
+                return;
+            case '/admin/books':
+                (new AdminController())->books();
                 return;
             case '/landing_page/index.html':
                 (new HomeController())->index();
