@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /
+
+# Keep requests for static assets and project internals untouched
+RewriteRule ^(assets|config|controller|model|view|\.git)(/.*|$) - [L,NC]
+RewriteRule \.(css|js|png|jpg|jpeg|gif|svg|ico|webp|mp4|json|woff|woff2|ttf|eot)$ - [L,NC]
+
+# Route HTML page requests through the PHP router without changing browser URL
+RewriteRule ^(.*\.html)$ index.php [L,QSA]
+
+# Route root requests to the PHP router
+RewriteRule ^$ index.php [L,QSA]
