@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Set the base path
+    RewriteBase /lexora/public/
+    
+    # Don't rewrite if the request is for a real file (css, js, images, etc)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Rewrite all requests to index.php
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>
+
+# Disable directory listing
+Options -Indexes

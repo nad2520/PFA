@@ -1,0 +1,209 @@
+/* ─── Splash Page Styles ────────────────────────── */
+#splash-page {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--darker-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#splash-page.exiting {
+  opacity: 0;
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+#splash-page .ambient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, hsl(42 90% 60% / 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+#splash-page .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: glow-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.splash-image-wrap {
+  position: relative;
+  z-index: 10;
+  width: min(92vw, 900px);
+  opacity: 0;
+  animation: scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  transition: transform 1s ease, opacity 1s ease;
+}
+
+.splash-image-wrap.exiting {
+  transform: scale(1.2);
+  opacity: 0;
+}
+
+/* Splash placeholder image */
+.splash-placeholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, hsl(24 25% 10%) 0%, hsl(24 20% 16%) 40%, hsl(38 30% 14%) 70%, hsl(24 22% 10%) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  border: 2px solid hsl(38 75% 55% / 0.3);
+  box-shadow: 0 0 60px hsl(42 90% 60% / 0.2), 0 30px 80px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.splash-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, hsl(42 90% 60% / 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, hsl(175 70% 45% / 0.06) 0%, transparent 50%);
+}
+
+.splash-placeholder .bear-emoji {
+  font-size: clamp(4rem, 10vw, 8rem);
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 20px hsl(42 90% 60% / 0.4));
+}
+
+.splash-placeholder .splash-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 4rem);
+  font-weight: 700;
+  color: var(--primary);
+  text-shadow: 0 0 30px hsl(42 90% 60% / 0.6), 0 0 60px hsl(42 90% 60% / 0.3);
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.1em;
+}
+
+.splash-placeholder .splash-sub {
+  font-family: var(--font-body);
+  font-size: clamp(0.75rem, 2vw, 1.1rem);
+  color: hsl(38 50% 90% / 0.5);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.splash-glow-border {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  border: 2px solid hsl(38 75% 55% / 0.3);
+  pointer-events: none;
+}
+
+.splash-bottom-glow {
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 4rem;
+  background: hsl(38 75% 55% / 0.15);
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.splash-cta {
+  position: relative;
+  z-index: 10;
+  margin-top: 2.5rem;
+  text-align: center;
+  opacity: 0;
+  animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+  transition: opacity 0.7s, transform 0.7s;
+}
+
+.splash-cta.exiting {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.splash-cta h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--primary);
+  text-shadow: 0 0 20px hsl(42 90% 60% / 0.6), 0 0 40px hsl(42 90% 60% / 0.3);
+}
+
+.splash-cta p {
+  margin-top: 0.75rem;
+  font-size: clamp(0.7rem, 1.5vw, 0.875rem);
+  color: hsl(38 50% 90% / 0.5);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Magic burst on click */
+.magic-burst {
+  position: absolute;
+  z-index: 50;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: magic-burst 1.2s ease-out forwards;
+}
+
+.magic-burst .burst-core {
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: hsl(38 75% 55% / 0.4);
+  filter: blur(120px);
+}
+
+.magic-burst .burst-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.magic-burst .burst-inner div {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: hsl(42 90% 60% / 0.6);
+  filter: blur(60px);
+}
+
+.sparkle-ray {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  background: hsl(38 75% 55% / 0.8);
+  border-radius: 2px;
+  transform-origin: bottom center;
+  animation: sparkle-ray 0.8s ease-out forwards;
+}
+
+/* Scanlines */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.3) 2px, rgba(0, 0, 0, 0.3) 4px);
+}

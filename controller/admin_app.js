@@ -189,7 +189,7 @@ function initChatbot() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//  BOOK CATALOG  (index.html)
+//  BOOK CATALOG  (index.php)
 // ═══════════════════════════════════════════════════════════════════════════════
 function buildBookCardHTML(book, index, flip = true) {
     const cover = genreCovers[book.genre];
@@ -200,7 +200,7 @@ function buildBookCardHTML(book, index, flip = true) {
 
     if (flip) {
         return `
-    <div class="book-card-container animate-float-up" style="animation-delay:${index * 0.05}s" onclick="nav('book-detail.html?id=${book.id}')">
+    <div class="book-card-container animate-float-up" style="animation-delay:${index * 0.05}s" onclick="nav('?view=book-detail&id=${book.id}')">
       <div class="book-card-inner" style="min-height:320px">
         <div class="book-card-front">
           <div class="cover-wrap">
@@ -322,7 +322,7 @@ function initCatalog() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//  READING KINGDOM MAP MODAL  (index.html)
+//  READING KINGDOM MAP MODAL  (index.php)
 // ═══════════════════════════════════════════════════════════════════════════════
 function initMapModal() {
     const mapBtn = document.getElementById('mapBtn');
@@ -373,7 +373,7 @@ function initMapModal() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//  LUMO WELCOME MODAL  (index.html hero)
+//  LUMO WELCOME MODAL  (index.php hero)
 // ═══════════════════════════════════════════════════════════════════════════════
 function initLumoWelcomeModal() {
     const getStartedBtn = document.getElementById('getStartedBtn');
@@ -416,7 +416,7 @@ function initAuth() {
     }
 
     toggleBtn?.addEventListener('click', () => { isSignUp = !isSignUp; updateUI(); });
-    form.addEventListener('submit', e => { e.preventDefault(); nav('index.html'); });
+    form.addEventListener('submit', e => { e.preventDefault(); nav('index.php'); });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -522,7 +522,7 @@ function initProfile() {
         if (planToRead.length === 0) {
             listGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:3rem;text-align:center">
         <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground);margin-bottom:1rem">Your list is empty!</p>
-        <a href="index.html#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Find your first book! ✦</a>
+        <a href="index.php#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Find your first book! ✦</a>
       </div>`;
         } else {
             listGrid.innerHTML = `<div class="book-grid">${planToRead.map(ub => {
@@ -565,7 +565,7 @@ function initBookDetail() {
     if (!book) {
         mainEl.innerHTML = `<div style="min-height:60vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;text-align:center">
       <h1 style="font-size:2rem">Book not found</h1>
-      <a href="index.html" class="btn-outline">Return Home</a>
+      <a href="index.php" class="btn-outline">Return Home</a>
     </div>`;
         return;
     }

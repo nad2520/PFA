@@ -10,7 +10,7 @@ if(isset($_GET['id']) && isset($_GET['action'])){
     } elseif ($action == 'tag') {
         $requete = "UPDATE posts SET status='Flagged by Lumo', tag='spoiler' WHERE id=?";
     } else {
-        header('location:../view/admin.php?tab=community');
+        header('location:../index.php?view=admin&tab=community');
         exit;
     }
 
@@ -18,11 +18,11 @@ if(isset($_GET['id']) && isset($_GET['action'])){
     $resultat = $stmt->execute([$id]);
 
     if ($resultat){
-        header('location:../view/admin.php?tab=community&updatepost=ok');
+        header('location:../index.php?view=admin&tab=community&updatepost=ok');
     } else {
-        header('location:../view/admin.php?tab=community&updatepost=error');
+        header('location:../index.php?view=admin&tab=community&updatepost=error');
     }
 } else {
-    header('location:../view/admin.php?tab=community');
+    header('location:../index.php?view=admin&tab=community');
 }
 ?>

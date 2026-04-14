@@ -24,9 +24,9 @@ if(isset($_POST['idu'])){
     $resultat = $stmt->execute([$user_name, $email, $password, $user_id]);
 
     if ($resultat){
-        header('location:../view/admin.php?modif=ok');
+        header('location:../index.php?view=admin&modif=ok');
     } else {
-        header('location:../view/admin.php?modif=error');
+        header('location:../index.php?view=admin&modif=error');
     }
 }
 ?>
