@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reading ? Lexora</title>
+    <title>Reading Lexora</title>
     <meta name="description" content="Continue reading your book on Lexora.">
     <link rel="stylesheet" href="public/assets/css/user/main.css">
 </head>
@@ -41,7 +41,7 @@
 
         <main class="read-main">
             <div class="read-page-card">
-                <p class="read-page-kicker" id="readPageKicker">? PAGE 1 ?</p>
+                <p class="read-page-kicker" id="readPageKicker"> PAGE 1 </p>
                 <div class="read-page-body font-body" id="readPageBody"></div>
             </div>
         </main>

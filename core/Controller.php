@@ -3,9 +3,9 @@ abstract class Controller
 {
     protected function baseUrl(): string
     {
-        // This project is served from http://localhost/lexora_mlk/
+        // This project is served from http://localhost/PFA/
         // Keep it centralized to avoid accidental redirects to /dashboard.
-        return '/lexora_mlk';
+        return '/PFA';
     }
 
     protected function render(string $viewPath, array $data = [], ?string $layout = 'layouts/main'): void

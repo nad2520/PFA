@@ -15,10 +15,10 @@
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="?view=user" class="logo">?? LEXORA</a>
+      <a href="?view=user" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none"> Back to
           lecture</a>
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
@@ -76,9 +76,9 @@
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     <polyline points="9 12 11 14 15 10" />
                 </svg>
-                <span>Secure Checkout ? Your payment is encrypted and safe</span>
+                <span>Secure Checkout  Your payment is encrypted and safe</span>
             </div>
-            <p>? LEXORA ? A cozy corner for readers ?</p>
+            <p> LEXORA A cozy corner for readers </p>
         </footer>
 
     </div>

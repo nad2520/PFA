@@ -40,8 +40,7 @@ if ($view !== null) {
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// If hosted at /lexora_mlk, strip that base prefix for route matching.
-$basePrefix = '/lexora_mlk';
+$basePrefix = '/PFA';
 if (strncmp($path, $basePrefix . '/', strlen($basePrefix) + 1) === 0) {
     $path = substr($path, strlen($basePrefix));
 }

@@ -24,7 +24,7 @@ if (!isset($users, $books, $posts)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexora Admin � Kingdom Management</title>
+    <title>Lexora Admin Kingdom Management</title>
     <link rel="stylesheet" href="public/assets/css/admin/main.css">
     <link rel="stylesheet" href="public/assets/css/admin/admin.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -83,7 +83,7 @@ if (!isset($users, $books, $posts)) {
             </button>
             <div style="flex:1"></div>
             <button class="nav-item logout" data-section="logout"
-                onclick="window.location.href='/lexora_mlk/logout'">
+                onclick="window.location.href='/PFA/logout'">
                 <i data-lucide="log-out"></i>
                 <span class="nav-label">Logout</span>
             </button>
@@ -126,7 +126,7 @@ if (!isset($users, $books, $posts)) {
                         <div class="notif-footer">View All Chronicles</div>
                     </div>
                 </div>
-                <div class="user-avatar">AL</div>
+                <div class="user-avatar"></div>
             </div>
         </header>
 
@@ -291,7 +291,7 @@ if (!isset($users, $books, $posts)) {
                                         style="font-size:0.65rem;letter-spacing:.05em;color:#A08060;text-transform:uppercase;margin:0 0 .2rem 0">
                                         Top Active User</p>
                                     <p style="font-weight:700;color:#F5EDD6;margin:0">CrimsonInk</p>
-                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">Level 61 � 9,800 coins
+                                    <p style="font-size:.72rem;color:#7A6040;margin:.2rem 0 0 0">Level 61  9,800 coins
                                     </p>
                                 </div>
                             </div>
@@ -404,7 +404,7 @@ if (!isset($users, $books, $posts)) {
                                                         onclick="openEditModal(<?= $u['id'] ?>, '<?= htmlspecialchars($u['nom']) ?>', '<?= htmlspecialchars($u['email']) ?>')"><i
                                                             data-lucide="edit-2"
                                                             style="width:13px;height:13px"></i></button>
-                                                    <a href="/lexora_mlk/admin/users/delete?idu=<?= $u['id'] ?>"
+                                                    <a href="/PFA/admin/users/delete?idu=<?= $u['id'] ?>"
                                                         onclick="return confirm('Are you sure you want to delete this user?');"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
@@ -485,7 +485,7 @@ if (!isset($users, $books, $posts)) {
                                                         onclick="openEditBookModal(<?= $b['id'] ?>, '<?= addslashes(htmlspecialchars($b['title'])) ?>', '<?= addslashes(htmlspecialchars($b['author'])) ?>', '<?= addslashes(htmlspecialchars($b['genre'])) ?>', '<?= addslashes(htmlspecialchars($b['cover'])) ?>', <?= $b['coinCost'] ?>, <?= $b['xpReward'] ?>, <?= $b['coinReward'] ?>, '<?= addslashes(htmlspecialchars($b['audience'])) ?>', <?= $b['trending'] ?>)"><i
                                                             data-lucide="edit-2"
                                                             style="width:13px;height:13px"></i></button>
-                                                    <a href="/lexora_mlk/admin/books/delete?idb=<?= $b['id'] ?>"
+                                                    <a href="/PFA/admin/books/delete?idb=<?= $b['id'] ?>"
                                                         onclick="return confirm('Are you sure you want to delete this book?');"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
@@ -589,13 +589,13 @@ if (!isset($users, $books, $posts)) {
                                                     <a href="#" class="admin-btn ghost"
                                                         onclick="alert('Post preview is visual-only in parity mode.')"><i
                                                             data-lucide="eye" style="width:13px;height:13px"></i></a>
-                                                    <a href="/lexora_mlk/admin/posts/update?id=<?= $p['id'] ?>&action=review"
+                                                    <a href="/PFA/admin/posts/update?id=<?= $p['id'] ?>&action=review"
                                                         class="admin-btn ghost"><i data-lucide="check"
                                                             style="width:13px;height:13px"></i></a>
-                                                    <a href="/lexora_mlk/admin/posts/update?id=<?= $p['id'] ?>&action=tag"
+                                                    <a href="/PFA/admin/posts/update?id=<?= $p['id'] ?>&action=tag"
                                                         class="admin-btn ghost"><i data-lucide="tag"
                                                             style="width:13px;height:13px"></i></a>
-                                                    <a href="/lexora_mlk/admin/posts/delete?id=<?= $p['id'] ?>"
+                                                    <a href="/PFA/admin/posts/delete?id=<?= $p['id'] ?>"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
                                                 </div>
@@ -859,19 +859,19 @@ if (!isset($users, $books, $posts)) {
                         <div class="admin-card">
                             <h3 class="card-title"
                                 style="font-size:0.85rem;font-weight:bold;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
-                                🪔 Lamp Penalty Rules</h3>
+                                 Lamp Penalty Rules</h3>
                             <div class="penalty-list" id="rewardPenaltyWrap">
                                 <div class="penalty-item"><span>Penalty Enabled</span>
                                     <label class="switch"><input id="rewardPenaltyEnabled" type="checkbox" checked><span
                                             class="slider"></span></label>
                                 </div>
-                                <div class="penalty-item"><span>🌱 Level 1–5 Penalty %</span> <input type="text"
+                                <div class="penalty-item"><span> Level 1–5 Penalty %</span> <input type="text"
                                         class="admin-input sm" value="10" id="penalty_l1_5"></div>
-                                <div class="penalty-item"><span>📖 Level 6–15 Penalty %</span> <input type="text"
+                                <div class="penalty-item"><span> Level 6–15 Penalty %</span> <input type="text"
                                         class="admin-input sm" value="20" id="penalty_l6_15"></div>
-                                <div class="penalty-item"><span>⚔️ Level 16–25 Penalty %</span> <input type="text"
+                                <div class="penalty-item"><span> Level 16–25 Penalty %</span> <input type="text"
                                         class="admin-input sm" value="30" id="penalty_l16_25"></div>
-                                <div class="penalty-item"><span>👑 Level 26+ Penalty %</span> <input type="text"
+                                <div class="penalty-item"><span> Level 26+ Penalty %</span> <input type="text"
                                         class="admin-input sm" value="40" id="penalty_l26"></div>
                             </div>
                         </div>
@@ -916,21 +916,21 @@ if (!isset($users, $books, $posts)) {
                         </h3>
                         <div class="toggle-list">
                             <div class="toggle-item">
-                                <div class="info"><span>🔥 Enable Trending Badge</span>
+                                <div class="info"><span>Enable Trending Badge</span>
                                     <p>Show hot/trending labels on popular books</p>
                                 </div>
                                 <label class="switch"><input type="checkbox" checked id="setting_trendingBadge"><span
                                         class="slider"></span></label>
                             </div>
                             <div class="toggle-item">
-                                <div class="info"><span>🛡️ Enable Lumo AI Moderation</span>
+                                <div class="info"><span> Enable Lumo AI Moderation</span>
                                     <p>Automatic content moderation engine</p>
                                 </div>
                                 <label class="switch"><input type="checkbox" checked id="setting_lumoModeration"><span
                                         class="slider"></span></label>
                             </div>
                             <div class="toggle-item">
-                                <div class="info"><span>🤖 Enable Lumo Chatbot</span>
+                                <div class="info"><span>Enable Lumo Chatbot</span>
                                     <p>Show the AI chat assistant on all pages</p>
                                 </div>
                                 <label class="switch"><input type="checkbox" checked id="setting_lumoChatbot"><span
@@ -975,7 +975,7 @@ if (!isset($users, $books, $posts)) {
     <script>
         function openEditModal(id, currentName, currentEmail) {
             const html = `
-                <form id="phpEditUserForm" method="POST" action="/lexora_mlk/admin/users/update">
+                <form id="phpEditUserForm" method="POST" action="/PFA/admin/users/update">
                     <input type="hidden" name="idu" value="${id}">
                     <label class="label-xs mt-3">Name</label>
                     <input class="admin-input full" type="text" name="user_name" value="${currentName}" required>
@@ -993,7 +993,7 @@ if (!isset($users, $books, $posts)) {
 
         function openAddBookModal() {
             const html = `
-                <form id="phpAddBookForm" method="POST" action="/lexora_mlk/admin/books/create">
+                <form id="phpAddBookForm" method="POST" action="/PFA/admin/books/create">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" required>
                     <div class="grid-2 mt-3" style="gap:1rem">
@@ -1028,7 +1028,7 @@ if (!isset($users, $books, $posts)) {
 
         function openEditBookModal(id, title, author, genre, cover, coinCost, xpReward, coinReward, audience, trending) {
             const html = `
-                <form id="phpEditBookForm" method="POST" action="/lexora_mlk/admin/books/update">
+                <form id="phpEditBookForm" method="POST" action="/PFA/admin/books/update">
                     <input type="hidden" name="idb" value="${id}">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" value="${title}" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" value="${author}" required>

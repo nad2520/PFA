@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lexora ? Your Cozy Reading Sanctuary</title>
+  <title>Lexora  Your Cozy Reading Sanctuary</title>
   <meta name="description"
     content="Lexora is a cozy corner for readers. Discover books, track your reading, earn coins, and explore the Reading Kingdom.">
   <style>
@@ -22,11 +22,10 @@
   <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="index.php" class="logo">?? LEXORA</a>
+      <a href="index.php" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
-          lecture</a>
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">Back to lecture</a>
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
@@ -78,7 +77,7 @@
     <div class="hero-content">
       <h1 class="text-golden animate-float-up">Lexora</h1>
       <div class="animate-float-up" style="animation-delay:.15s">
-        <button id="getStartedBtn" class="btn-primary">Get Started ?</button>
+        <button id="getStartedBtn" class="btn-primary">Get Started </button>
       </div>
     </div>
   </section>
@@ -87,7 +86,7 @@
   <div id="catalog">
     <section class="catalog-section">
       <div class="catalog-header">
-        <h2 class="font-display">?? Book Catalog</h2>
+        <h2 class="font-display"> Book Catalog</h2>
         <div class="search-wrap" style="width:100%;max-width:18rem">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
             stroke-width="2" viewBox="0 0 24 24">
@@ -103,7 +102,7 @@
 
       <!-- For You -->
       <div id="forYouSection" style="margin-top:2rem;margin-bottom:1.5rem">
-        <h3 class="font-display" style="font-size:1.5rem;font-weight:700;margin-bottom:1rem">? For You</h3>
+        <h3 class="font-display" style="font-size:1.5rem;font-weight:700;margin-bottom:1rem"> For You</h3>
         <div id="forYouGrid"></div>
       </div>
       <div id="catalogDivider" style="border-top:1px solid var(--border);margin:1.5rem 0"></div>
@@ -113,7 +112,7 @@
         <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground)">No books found</p>
       </div>
       <div style="display:flex;justify-content:center;margin-top:2.5rem">
-        <button id="exploreMore" class="btn-primary" style="display:none">Explore More ?</button>
+        <button id="exploreMore" class="btn-primary" style="display:none">Explore More </button>
       </div>
     </section>
   </div>
@@ -122,7 +121,7 @@
 
   <!-- --- Footer -------------------------------------------------------------- -->
   <footer class="site-footer">
-    <p>? LEXORA ? A cozy corner for readers ?</p>
+    <p> LEXORA A cozy corner for readers </p>
   </footer>
 
   <!-- --- Reading Kingdom Map Modal ------------------------------------------ -->
@@ -137,7 +136,7 @@
         </svg>
       </button>
       <div class="reading-kingdom-map-wrap">
-        <div class="reading-kingdom-badge">? YOUR READING KINGDOM ?</div>
+        <div class="reading-kingdom-badge">YOUR READING KINGDOM </div>
         <img src="public/assets/images/reading-kingdom-map.png" alt="Reading Kingdom Map" class="reading-kingdom-map-img"
           draggable="false">
         <div id="genreOverlay" class="reading-kingdom-regions"></div>
@@ -158,7 +157,7 @@
       </button>
       <div class="lumo-welcome">
         <img src="public/assets/images/lumo-happy.png" alt="Lumo the bear" class="animate-breathe">
-        <h2>? LUMO'S BOUNTY BOARD ?</h2>
+        <h2> LUMO'S BOUNTY BOARD </h2>
         <p class="sub">Complete these quests to level up and unlock new map regions!</p>
         <div class="bounty-list">
           <div class="bounty-item">
@@ -194,7 +193,7 @@
             </div>
           </div>
         </div>
-        <button id="acceptBounties" class="btn-pixel" style="width:100%;padding:.75rem">ACCEPT BOUNTIES ?</button>
+        <button id="acceptBounties" class="btn-pixel" style="width:100%;padding:.75rem">ACCEPT BOUNTIES </button>
       </div>
     </div>
   </div>

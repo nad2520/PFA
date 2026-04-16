@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Detail ? Lexora</title>
+    <title>Book Detail Lexora</title>
     <meta name="description"
         content="Read more about this book, see your progress, and join the community discussion on Lexora.">
     <link rel="stylesheet" href="public/assets/css/user/main.css">
@@ -16,10 +16,10 @@
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="?view=user" class="logo">?? LEXORA</a>
+      <a href="?view=user" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">Back to
           lecture</a>
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
@@ -64,13 +64,13 @@
         <main class="detail-wrap" id="bookDetailMain">
             <!-- Filled by app.js initBookDetail() -->
             <div style="display:flex;align-items:center;justify-content:center;min-height:40vh">
-                <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground)">Loading?</p>
+                <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground)">Loading...</p>
             </div>
         </main>
 
         <!-- Footer -->
         <footer class="site-footer">
-            <p>? LEXORA ? THE READING KINGDOM</p>
+            <p> LEXORA THE READING KINGDOM</p>
         </footer>
     </div>
 

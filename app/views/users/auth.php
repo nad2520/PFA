@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In ? Lexora</title>
+    <title>Sign In Lexora</title>
     <meta name="description" content="Sign in to your Lexora account and continue your reading journey.">
     <link rel="stylesheet" href="public/assets/css/user/main.css">
 </head>
@@ -18,7 +18,7 @@
       <a href="?view=user" class="logo">?? LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none"> Back to
           lecture</a>
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
@@ -63,7 +63,7 @@
             <div class="auth-card">
                 <div class="auth-title">
                     <h1 class="text-golden">Lexora</h1>
-                    <p>? YOUR COZY READING SANCTUARY ?</p>
+                    <p>YOUR COZY READING SANCTUARY </p>
                 </div>
 
                 <div class="auth-box">
@@ -118,8 +118,8 @@
                     </form>
 
                     <div class="auth-toggle">
-                        <button id="authToggle">? Register</button>
-                        <span id="forgotLink">?? Forgot Password?</span>
+                        <button id="authToggle"> Register</button>
+                        <span id="forgotLink"> Forgot Password</span>
                     </div>
                 </div>
             </div>

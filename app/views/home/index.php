@@ -75,10 +75,10 @@
               style="width:36px;height:36px;border-radius:50%;border:2px solid hsl(38 75% 55% / 0.5);object-fit:cover;">
             <span class="navbar-logo-text">LEXORA</span>
           </a>
-          <div class="navbar-coins">
+          <!-- <div class="navbar-coins">
             <img src="public/assets/images/img_3.png" alt="coins" style="width:20px;height:20px;object-fit:contain;">
             <span>1,250</span>
-          </div>
+          </div> -->
         </div>
 
         <div class="navbar-links">
@@ -200,7 +200,7 @@
           The most fun and immersive way to read. Track your journey, earn rewards, and explore infinite worlds. ⋆˙⟡
         </p>
         <div class="hero-btn-wrap">
-          <button class="btn btn-hero btn-xl" id="btn-get-started">✨ Get Started</button>
+          <button class="btn btn-hero btn-xl" id="btn-get-started"> Get Started</button>
         </div>
       </div>
 
@@ -295,7 +295,7 @@
             <h3>Meet Lumo, Your Guide</h3>
             <p>Lumo is your magical bear companion who tracks your reading progress. He celebrates your wins, nudges you
               when you've been away, and helps you discover your next favorite book. Keep reading to keep Lumo's lamp
-              bright! 🔥</p>
+              bright!</p>
           </div>
         </div>
       </div>
@@ -571,7 +571,7 @@
         </h3>
         <div class="age-grid">
           <div class="card age-card reveal reveal-delay-1">
-            <div class="age-emoji">📚</div>
+            <div class="age-emoji"></div>
             <div class="age-name">Children (6-12 ans)</div>
             <div class="age-count">4,200 books</div>
             <div class="age-badges">
@@ -580,7 +580,7 @@
             </div>
           </div>
           <div class="card age-card reveal reveal-delay-2">
-            <div class="age-emoji">🎮</div>
+            <div class="age-emoji"></div>
             <div class="age-name">Teens (13-17 ans)</div>
             <div class="age-count">3,650 books</div>
             <div class="age-badges">
@@ -589,7 +589,7 @@
             </div>
           </div>
           <div class="card age-card reveal reveal-delay-3">
-            <div class="age-emoji">📖</div>
+            <div class="age-emoji"></div>
             <div class="age-name">Adults (18+)</div>
             <div class="age-count">4,600 books</div>
             <div class="age-badges">
@@ -613,8 +613,8 @@
           </div>
 
           <div class="lb-row top3 reveal-x">
-            <div class="lb-rank"><span class="lb-rank-icon" style="color:var(--primary)">👑</span></div>
-            <div class="lb-reader"><span class="lb-avatar">🧝‍♀️</span><span class="lb-name">Luna Starweaver</span>
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:var(--primary)"></span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Luna Starweaver</span>
             </div>
             <div class="lb-score"><span class="lb-score-val">98,750</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">342</div>
@@ -622,8 +622,8 @@
           </div>
 
           <div class="lb-row top3 reveal-x" style="transition-delay:80ms">
-            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(0,0%,60%)">🥈</span></div>
-            <div class="lb-reader"><span class="lb-avatar">🧙‍♂️</span><span class="lb-name">Atlas Bookwright</span>
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(0,0%,60%)"></span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Atlas Bookwright</span>
             </div>
             <div class="lb-score"><span class="lb-score-val">87,200</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">298</div>
@@ -631,8 +631,8 @@
           </div>
 
           <div class="lb-row top3 reveal-x" style="transition-delay:160ms">
-            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(25,70%,50%)">🥉</span></div>
-            <div class="lb-reader"><span class="lb-avatar">🦊</span><span class="lb-name">Ember Foxley</span></div>
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(25,70%,50%)"></span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Ember Foxley</span></div>
             <div class="lb-score"><span class="lb-score-val">76,430</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">267</div>
             <div class="lb-level"><span class="lb-level-badge">Lv.72</span></div>
@@ -640,7 +640,7 @@
 
           <div class="lb-row reveal-x" style="transition-delay:240ms">
             <div class="lb-rank"><span class="lb-rank-num">#4</span></div>
-            <div class="lb-reader"><span class="lb-avatar">⭐</span><span class="lb-name">Nova Pagebinder</span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Nova Pagebinder</span></div>
             <div class="lb-score"><span class="lb-score-val">65,100</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">231</div>
             <div class="lb-level"><span class="lb-level-badge">Lv.65</span></div>
@@ -648,7 +648,7 @@
 
           <div class="lb-row reveal-x" style="transition-delay:320ms">
             <div class="lb-rank"><span class="lb-rank-num">#5</span></div>
-            <div class="lb-reader"><span class="lb-avatar">🌿</span><span class="lb-name">Sage Willowmere</span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Sage Willowmere</span></div>
             <div class="lb-score"><span class="lb-score-val">58,800</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">204</div>
             <div class="lb-level"><span class="lb-level-badge">Lv.60</span></div>
@@ -656,7 +656,7 @@
 
           <div class="lb-row reveal-x" style="transition-delay:400ms">
             <div class="lb-rank"><span class="lb-rank-num">#6</span></div>
-            <div class="lb-reader"><span class="lb-avatar">✨</span><span class="lb-name">Cleo Brightword</span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Cleo Brightword</span></div>
             <div class="lb-score"><span class="lb-score-val">52,340</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">189</div>
             <div class="lb-level"><span class="lb-level-badge">Lv.56</span></div>
@@ -664,7 +664,7 @@
 
           <div class="lb-row reveal-x" style="transition-delay:480ms">
             <div class="lb-rank"><span class="lb-rank-num">#7</span></div>
-            <div class="lb-reader"><span class="lb-avatar">🐱</span><span class="lb-name">Felix Inkwell</span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Felix Inkwell</span></div>
             <div class="lb-score"><span class="lb-score-val">47,200</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">172</div>
             <div class="lb-level"><span class="lb-level-badge">Lv.51</span></div>
@@ -672,7 +672,7 @@
 
           <div class="lb-row reveal-x" style="transition-delay:560ms">
             <div class="lb-rank"><span class="lb-rank-num">#8</span></div>
-            <div class="lb-reader"><span class="lb-avatar">🌸</span><span class="lb-name">Iris Storyhelm</span></div>
+            <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Iris Storyhelm</span></div>
             <div class="lb-score"><span class="lb-score-val">43,900</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">158</div>
             <div class="lb-level"><span class="lb-level-badge">Lv.48</span></div>
@@ -698,7 +698,7 @@
           Join thousands of readers in the Reading Kingdom. Sign up free, earn your first coins, and let Lumo guide you.
         </p>
         <div class="cta-btns reveal reveal-delay-2">
-          <button class="btn btn-hero btn-xl" onclick="openAuthModal('signup')">✨ Create Your Account</button>
+          <button class="btn btn-hero btn-xl" onclick="openAuthModal('signup')">Create Your Account</button>
           <button class="btn btn-portal btn-lg" onclick="openAuthModal('login')">Log In</button>
         </div>
       </div>
@@ -827,8 +827,8 @@
             <a href="#">Privacy Policy</a>
           </div>
           <div class="footer-social">
-            <a href="#" class="social-btn" aria-label="Facebook">f</a>
-            <a href="#" class="social-btn" aria-label="Instagram">📷</a>
+            <a href="#" class="social-btn" aria-label="Facebook">ⓕ</a>
+            <a href="#" class="social-btn" aria-label="Instagram">🅾</a>
             <a href="#" class="social-btn" aria-label="X">𝕏</a>
             <a href="#" class="social-btn" aria-label="Email">✉</a>
           </div>
@@ -931,7 +931,7 @@
         </div>
 
         <!-- Form -->
-        <form id="auth-form" class="auth-form" method="POST" action="/lexora_mlk/auth">
+        <form id="auth-form" class="auth-form" method="POST" action="/PFA/auth">
           <input type="hidden" name="action" id="auth-action" value="login" />
           <div id="username-field" class="form-group hidden">
             <i data-lucide="user" class="input-icon"></i>

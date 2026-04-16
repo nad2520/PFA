@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile ? Lexora</title>
+    <title>Profile  Lexora</title>
     <meta name="description"
-        content="Your Lexora reading profile ? track progress, view your library, and explore the Scholar's Map.">
+        content="Your Lexora reading profile  track progress, view your library, and explore the Scholar's Map.">
     <link rel="stylesheet" href="public/assets/css/user/main.css">
 </head>
 
@@ -16,10 +16,10 @@
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="?view=user" class="logo">?? LEXORA</a>
+      <a href="?view=user" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none"> Back to
           lecture</a>
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
@@ -120,7 +120,7 @@
             <!-- Lamp of Knowledge -->
             <section class="lamp-of-knowledge" aria-labelledby="lamp-heading">
                 <div class="lamp-card-head">
-                    <h2 id="lamp-heading" class="font-display lamp-card-title">?? Lamp of Knowledge</h2>
+                    <h2 id="lamp-heading" class="font-display lamp-card-title"> Lamp of Knowledge</h2>
                     <span class="lamp-demo-badge">DEMO CONTROL</span>
                 </div>
                 <div class="lamp-card-body">
@@ -145,8 +145,8 @@
             <!-- Scholar's Map -->
             <div class="scholars-map" id="scholarsMapSection">
                 <div class="scholars-map__head">
-                    <h2 class="font-display">??? Scholar's Map</h2>
-                    <p>Level up to unlock new regions ? scroll to explore your journey</p>
+                    <h2 class="font-display"> Scholar's Map</h2>
+                    <p>Level up to unlock new regions scroll to explore your journey</p>
                 </div>
                 <div class="scholars-map__scroll" id="scholarsMapScroll">
                     <div class="scholars-map__canvas" id="scholarsMapCanvas"></div>
@@ -170,7 +170,7 @@
 
             <!-- My List -->
             <section style="display:flex;flex-direction:column;gap:1rem">
-                <h2 class="font-display" style="font-size:1.5rem;font-weight:700">?? My List</h2>
+                <h2 class="font-display" style="font-size:1.5rem;font-weight:700"> My List</h2>
                 <div id="planGrid"></div>
             </section>
 
@@ -178,12 +178,12 @@
 
         <!-- Footer -->
         <footer class="site-footer">
-            <p>? LEXORA ? A cozy corner for readers ?</p>
+            <p> LEXORA A cozy corner for readers </p>
         </footer>
     </div>
 
     <div id="lumo-chatbot-root" data-asset-base="public/assets/images/"
-        data-lumo-greeting="Hi there! I'm Lumo ?? Ask me about your progress or book recommendations!"></div>
+        data-lumo-greeting="Hi there! I'm Lumo Ask me about your progress or book recommendations!"></div>
 
     <script src="public/assets/js/models/user_data.js"></script>
     <script src="public/assets/js/models/lexora-state.js"></script>
