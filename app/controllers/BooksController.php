@@ -1,61 +1,69 @@
 <?php
-require_once __DIR__ . '/../../core/Controller.php';
-require_once __DIR__ . '/../models/BookModel.php';
+include_once __DIR__ . '/../../config/database.php';
+include_once __DIR__ . '/../models/Book.php';
+include_once __DIR__ . '/../models/Post.php';
 
-class BooksController extends Controller
-{
-    public function create(): void
+
+    function AddBook($cnx,$data): bool
     {
-        if (!isset($_POST['title'])) {
-            $this->redirectBack('index.php?view=admin&addbook=error');
+        $req = "INSERT INTO books (title, author, genre, cover, coinCost, xpReward, coinReward, audience, trending) VALUES ('".$data['title']."', '".$data['author']."', '".$data['genre']."', '".$data['cover']."', '".$data['coinCost']."', '".$data['xpReward']."', '".$data['coinReward']."', '".$data['audience']."', '".$data['trending']."')";
+        $res=$cnx->query($req);
+        if($res) {
+            echo "<script>console.log('Book added successfully');</script>";
+            return true;
+        } else {
+            return false;
         }
-
-        $data = [
-            'title' => trim((string)$_POST['title']),
-            'author' => trim((string)($_POST['author'] ?? '')),
-            'genre' => trim((string)($_POST['genre'] ?? '')),
-            'cover' => trim((string)($_POST['cover'] ?? '')),
-            'coinCost' => (int)($_POST['coinCost'] ?? 0),
-            'xpReward' => (int)($_POST['xpReward'] ?? 0),
-            'coinReward' => (int)($_POST['coinReward'] ?? 0),
-            'audience' => (string)($_POST['audience'] ?? 'All'),
-            'trending' => isset($_POST['trending']) ? 1 : 0,
-        ];
-        if ($data['cover'] === '') $data['cover'] = '📖';
-
-        $ok = BookModel::create($data);
-        $this->redirectBack('index.php?view=admin&addbook=' . ($ok ? 'ok' : 'error'));
     }
-
-    public function update(): void
+    function UpdateBook($cnx,$data): void
     {
-        if (!isset($_POST['idb'])) {
-            $this->redirectBack('index.php?view=admin&editbook=error');
+        if(isset($_POST['idb'])) {
+            $book = new Book($_POST['title'], $_POST['author'], $_POST['genre']);
+            $book->id = $_POST['idb'];
+            $reqOld = "SELECT cover FROM books WHERE id = '" . $book->id . "'";
+            $resOld = $cnx->query($reqOld);
+            $OldData = $resOld->fetch();
+            if($book->cover !== $OldData['cover']) {
+                $cover = "'".$book->cover."'";
+            } else {
+                $cover = $OldData['cover'];
+            }
+            $req = "UPDATE books SET title='".$book->title."', author='".$book->author."', genre='".$book->genre."', cover='".$cover."', coinCost='".$book->coinCost."', xpReward='".$book->xpReward."', coinReward='".$book->coinReward."', audience='".$book->audience."', trending='".$book->trending."' WHERE id='".$book->id."' where cover is not null";
+            $res=$cnx->query($req);
+            if($res) {
+                header("Location: index.php?view=admin&editbook=ok");
+            } else {
+                echo "Error updating book";
+            }
         }
-        $id = (int)$_POST['idb'];
-
-        $data = [
-            'title' => trim((string)$_POST['title']),
-            'author' => trim((string)($_POST['author'] ?? '')),
-            'genre' => trim((string)($_POST['genre'] ?? '')),
-            'cover' => trim((string)($_POST['cover'] ?? '')),
-            'coinCost' => (int)($_POST['coinCost'] ?? 0),
-            'xpReward' => (int)($_POST['xpReward'] ?? 0),
-            'coinReward' => (int)($_POST['coinReward'] ?? 0),
-            'audience' => (string)($_POST['audience'] ?? 'All'),
-            'trending' => isset($_POST['trending']) ? 1 : 0,
-        ];
-        if ($data['cover'] === '') $data['cover'] = '📖';
-
-        $ok = BookModel::update($id, $data);
-        $this->redirectBack('index.php?view=admin&editbook=' . ($ok ? 'ok' : 'error'));
     }
-
-    public function delete(): void
+    function DeleteBook($cnx,$id): void
     {
-        $id = isset($_GET['idb']) ? (int)$_GET['idb'] : 0;
-        $ok = $id > 0 ? BookModel::delete($id) : false;
-        $this->redirectBack('index.php?view=admin&deletebook=' . ($ok ? 'ok' : 'error'));
+        if(isset($_GET['idb'])) {
+            $id_book = $_GET['idb'];
+            $req = "DELETE FROM books WHERE id = '" . $id_book . "'";
+            $res=$cnx->query($req);
+            if($res) {
+                header("Location: index.php?view=admin&deletebook=ok");
+            } else {
+                echo "Error deleting book";
+            }
+        }
+    } 
+    function SearchBook($cnx,$data): array
+    {
+        $req = "SELECT * FROM books WHERE title LIKE '%".$data['title']."%' OR author LIKE '%".$data['author']."%' OR genre LIKE '%".$data['genre']."%'";
+        $res=$cnx->query($req);
+        $rows=$res->fetchAll();
+        $books=[];
+        foreach($rows as $row) {
+            $book = new Book($row['title'], $row['author'], $row['genre'], $row['cover'], $row['coinCost'], $row['xpReward'], $row['coinReward'], $row['audience'], $row['trending']);
+            $book->id = $row['id'];
+            $books[] = $book;
+        }
+        return $books;
     }
-}
+
+    
+
 

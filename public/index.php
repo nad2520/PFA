@@ -23,7 +23,17 @@ $view = $_GET['view'] ?? null;
 if ($view !== null) {
     if ($view === 'admin') {
         require APP_PATH . '/controllers/AdminController.php';
-        (new AdminController())->index();
+        require CONFIG_PATH . '/database.php';
+
+        $usersSearch = trim((string)($_GET['users_search'] ?? ''));
+        $booksSearch = trim((string)($_GET['books_search'] ?? ''));
+        $postsSearch = trim((string)($_GET['posts_search'] ?? ''));
+
+        $users = $usersSearch !== '' ? searchUsers($cnx, $usersSearch) : getAllUsers($cnx);
+        $books = $booksSearch !== '' ? searchBooks($cnx, $booksSearch) : getAllBooks($cnx);
+        $posts = $postsSearch !== '' ? searchPosts($cnx, $postsSearch) : getAllPosts($cnx);
+
+        require APP_PATH . '/views/admin/legacy.php';
         exit;
     }
     $allowedUserViews = ['user', 'profile', 'store', 'book-detail', 'read-book'];

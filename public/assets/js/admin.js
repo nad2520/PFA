@@ -862,7 +862,12 @@ function initAdmin() {
         targetSection = "books";
     } else if (window.location.search.includes("post") || params.has("tab") && params.get("tab") === "community") {
         targetSection = "community";
-    } else if (window.location.search.includes("user") || window.location.search.includes("modif") || window.location.search.includes("delete=")) {
+    } else if (
+        window.location.search.includes("user") ||
+        window.location.search.includes("modif") ||
+        window.location.search.includes("deleteuser=") ||
+        window.location.search.includes("deletepost=")
+    ) {
         targetSection = "users";
     }
 

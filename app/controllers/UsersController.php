@@ -1,47 +1,60 @@
 <?php
-require_once __DIR__ . '/../../core/Controller.php';
-require_once __DIR__ . '/../models/UserModel.php';
+include_once __DIR__ . '/../models/User.php';
+include_once __DIR__ . '/../../config/database.php';
+include_once __DIR__ . '/../models/UserModel.php';
 
-class UsersController extends Controller
-{
-    private function hashPassword(string $plain): string
-    {
-        return md5($plain);
-    }
 
-    public function update(): void
-    {
-        if (!isset($_POST['idu'])) {
-            $this->redirectBack('index.php?view=admin&modif=error');
+    function AddUser($cnx,$data): bool
+     {
+        $password=md5($data['password']);
+        $req = "INSERT INTO users (nom, email, password, role) VALUES ('".$data['nom']."', '".$data['email']."', '".$password."', '".$data['role']."')";
+        $res=$cnx->query($req);
+        if($res) {
+            echo "<script>console.log('User added successfully');</script>";
+            return true;
+        } else {
+           return false;
         }
+     }
+    function update(): void
+    {
+        global $cnx;
+        if (isset($_POST['idu'])) {
+            $user = new User($_POST['user_name'], $_POST['email'], $_POST['password']);
+            $user->id = $_POST['idu'];
+            $reqOld = "SELECT password FROM users WHERE id = '" . $user->id . "'";
+            $resOld = $cnx->query($reqOld);
+            $OldData = $resOld->fetch();
 
-        $id = (int)$_POST['idu'];
-        $name = trim((string)($_POST['user_name'] ?? ''));
-        $email = trim((string)($_POST['email'] ?? ''));
-        $passwordInput = trim((string)($_POST['password'] ?? ''));
-
-        $oldHash = UserModel::findPasswordById($id);
-        if ($oldHash === null) {
-            $this->redirectBack('index.php?view=admin&modif=error');
-        }
-
-        $hash = $oldHash;
-        if ($passwordInput !== '') {
-            $newHash = $this->hashPassword($passwordInput);
-            if ($newHash !== $oldHash) {
-                $hash = $newHash;
+            if($user->password !== $OldData['password']) {
+                $password=md5($user->password);
+            } else {
+                $password=$OldData['password'];
+            }
+            $req="UPDATE users SET nom='".$user->nom."', email='".$user->email."', password='".$password."' WHERE id=".$user->id;
+            $res=$cnx->query($req);
+            if($res) {
+                header("Location: index.php?view=admin&modif=ok");
+            } else {
+                echo "Error updating user";
             }
         }
-
-        $ok = UserModel::update($id, $name, $email, $hash);
-        $this->redirectBack('index.php?view=admin&modif=' . ($ok ? 'ok' : 'error'));
     }
 
-    public function delete(): void
+    function delete(): void
     {
-        $id = isset($_GET['idu']) ? (int)$_GET['idu'] : 0;
-        $ok = $id > 0 ? UserModel::delete($id) : false;
-        $this->redirectBack('index.php?view=admin&deleteuser=' . ($ok ? 'ok' : 'error'));
+    global $cnx;
+    if (isset($_GET['idu'])) {
+        $id_user = $_GET['idu'];
+
+        $res = $cnx->query("DELETE FROM users WHERE id = " . $id_user);
+        if ($res) {
+            header("Location: index.php?view=admin&deleteuser=ok");
+        } else {
+            header("Location: index.php?view=admin&deleteuser=error");
+        }
     }
 }
+
+    
 

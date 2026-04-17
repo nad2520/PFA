@@ -1,129 +1,121 @@
 <?php
-require_once __DIR__ . '/../../core/Controller.php';
-require_once __DIR__ . '/../../core/Database.php';
+include_once __DIR__ . '/../models/UserModel.php';
+include_once __DIR__ . '/../../config/database.php';
+include_once __DIR__ . '/../models/User.php';
 
-class AuthController extends Controller
+function handleAuth(): void
 {
-    private function hashPassword(string $plain): string
-    {
-        // Backward-compatible with current DB contents.
-        return md5($plain);
-    }
+    session_start();
 
-    public function handle(): void
-    {
-        session_start();
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $action = $_POST['action'] ?? '';
-            if ($action === 'signup') {
-                $this->signup();
-                return;
-            }
-            if ($action === 'login') {
-                $this->login();
-                return;
-            }
-        }
-
-        if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-            $this->logout();
+    if (isset($_POST['action'])) {
+        $action = $_POST['action'];
+        if ($action == 'signup') {
+            signup();
             return;
         }
-
-        $this->redirect('index.php');
+        if ($action == 'login') {
+            login();
+            return;
+        }
     }
 
-    private function signup(): void
-    {
-        $pdo = Database::pdo();
-
-        $username = trim((string)($_POST['username'] ?? ''));
-        $email = trim((string)($_POST['email'] ?? ''));
-        $password = trim((string)($_POST['password'] ?? ''));
-        $birthdate = isset($_POST['birthdate']) ? trim((string)$_POST['birthdate']) : null;
-
-        if ($username === '' || $email === '' || $password === '') {
-            $_SESSION['auth_error'] = "Please fill in all required fields.";
-            $this->redirect('index.php#auth-modal');
-        }
-
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        if ($stmt->fetch()) {
-            $_SESSION['auth_error'] = "Email already exists.";
-            $this->redirect('index.php#auth-modal');
-        }
-
-        $role = 'user';
-        if (!empty($birthdate)) {
-            try {
-                $bday = new DateTime($birthdate);
-                $today = new DateTime('today');
-                $age = $bday->diff($today)->y;
-                $role = ($age < 18) ? 'User -18' : 'User +18';
-            } catch (Exception $e) {
-                // Ignore parsing errors; keep default role.
-            }
-        }
-
-        $hashed = $this->hashPassword($password);
-        $req = "INSERT INTO users(nom, email, password, role, birthdate) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $pdo->prepare($req);
-        $ok = $stmt->execute([$username, $email, $hashed, $role, $birthdate ?: null]);
-
-        if (!$ok) {
-            $_SESSION['auth_error'] = "Error creating account.";
-            $this->redirect('index.php#auth-modal');
-        }
-
-        $_SESSION['user_id'] = (int)$pdo->lastInsertId();
-        $_SESSION['user_name'] = $username;
-        $_SESSION['user_role'] = $role;
-
-        if ($email === 'lexora25@gmail.com' || $role === 'admin') {
-            $this->redirect('index.php?view=admin');
-        }
-        $this->redirect('index.php?view=user');
+    if (isset($_GET['action']) && $_GET['action'] == 'logout') {
+        logout();
+        return;
     }
 
-    private function login(): void
-    {
-        $pdo = Database::pdo();
+    header("Location: index.php");
+}
 
-        $email = trim((string)($_POST['email'] ?? ''));
-        $password = trim((string)($_POST['password'] ?? ''));
+function signup(): void
+{
+    require __DIR__ . '/../../config/database.php';
+    $username = trim((string)($_POST['username'] ?? ""));
+    $email = trim((string)($_POST['email'] ?? ""));
+    $password = trim((string)($_POST['password'] ?? ""));
+    $birthdate = isset($_POST['birthdate']) ? trim((string)$_POST['birthdate']) : null;
 
-        if ($email === '' || $password === '') {
-            $_SESSION['auth_error'] = "Please enter email and password.";
-            $this->redirect('index.php#auth-modal');
-        }
-
-        $hashed = $this->hashPassword($password);
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
-        $stmt->execute([$email, $hashed]);
-        $user = $stmt->fetch();
-
-        if (!$user) {
-            $_SESSION['auth_error'] = "Invalid email or password.";
-            $this->redirect('index.php#auth-modal');
-        }
-
-        $_SESSION['user_id'] = (int)$user['id'];
-        $_SESSION['user_name'] = (string)$user['nom'];
-        $_SESSION['user_role'] = (string)$user['role'];
-
-        if ($email === 'lexora25@gmail.com' || $user['role'] === 'admin') {
-            $this->redirect('index.php?view=admin');
-        }
-        $this->redirect('index.php?view=user');
+    if ($username == '' || $email == '' || $password == '') {
+        $_SESSION['auth_error'] = "Please fill in all required fields.";
+        header("Location: index.php#auth-modal");
+        return;
     }
 
-    public function logout(): void
-    {
+    if (UserModel::emailExists($cnx, $email)) {
+        $_SESSION['auth_error'] = "Email already exists.";
+        header("Location: index.php#auth-modal");
+        return;
+    }
+
+    $role = 'user';
+    if (!empty($birthdate)) {
+        try {
+            $bday = new DateTime($birthdate);
+            $today = new DateTime('today');
+            $age = $bday->diff($today)->y;
+            $role = ($age < 18) ? 'User -18' : 'User +18';
+        } catch (Exception $e) {
+        }
+    }
+
+    $hashed = md5($password);
+    $ok = UserModel::createUser($cnx, $username, $email, $hashed, $role, $birthdate ?: null);
+
+    if (!$ok) {
+        $_SESSION['auth_error'] = "Error creating account.";
+        header("Location: index.php#auth-modal");
+        return;
+    }
+
+    $_SESSION['user_id'] = (int)$cnx->lastInsertId();
+    $_SESSION['user_name'] = $username;
+    $_SESSION['user_role'] = $role;
+
+    if ($email === 'lexora25@gmail.com' || $role === 'admin') {
+        header("Location: index.php?view=admin");
+        return;
+    }
+    header("Location: index.php?view=user");
+}
+
+function login(): void
+{
+    require __DIR__ . '/../../config/database.php';
+    $email = trim((string)($_POST['email'] ?? ""));
+    $password = trim((string)($_POST['password'] ?? ""));
+
+    if ($email == '' || $password == '') {
+        $_SESSION['auth_error'] = "Please enter email and password.";
+        header("Location: index.php#auth-modal");
+        return;
+    }
+
+    $hashed = md5($password);
+    $user = UserModel::findByEmailAndPassword($cnx, $email, $hashed);
+
+    if (!$user) {
+        $_SESSION['auth_error'] = "Invalid email or password.";
+        header("Location: index.php#auth-modal");
+        return;
+    }
+
+    $_SESSION['user_id'] = (int)$user['id'];
+    $_SESSION['user_name'] = (string)$user['nom'];
+    $_SESSION['user_role'] = (string)$user['role'];
+
+    if ($email === 'lexora25@gmail.com' || $user['role'] === 'admin') {
+        header("Location: index.php?view=admin");
+        return;
+    }
+    header("Location: index.php?view=user");
+}
+
+function logout(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start();
-        session_destroy();
-        $this->redirect('index.php');
     }
+    session_destroy();
+    header("Location: index.php");
 }
 

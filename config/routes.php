@@ -20,49 +20,80 @@ return function (Router $router): void {
     // Simple path aliases (optional)
     $router->get('/admin', function () {
         require APP_PATH . '/controllers/AdminController.php';
-        (new AdminController())->index();
+        require CONFIG_PATH . '/database.php';
+
+        $usersSearch = trim((string)($_GET['users_search'] ?? ''));
+        $booksSearch = trim((string)($_GET['books_search'] ?? ''));
+        $postsSearch = trim((string)($_GET['posts_search'] ?? ''));
+
+        $users = $usersSearch !== '' ? searchUsers($cnx, $usersSearch) : getAllUsers($cnx);
+        $books = $booksSearch !== '' ? searchBooks($cnx, $booksSearch) : getAllBooks($cnx);
+        $posts = $postsSearch !== '' ? searchPosts($cnx, $postsSearch) : getAllPosts($cnx);
+
+        require APP_PATH . '/views/admin/legacy.php';
     });
 
     // Auth
     $router->post('/auth', function () {
         require APP_PATH . '/controllers/AuthController.php';
-        (new AuthController())->handle();
+        handleAuth();
     });
     $router->get('/logout', function () {
         require APP_PATH . '/controllers/AuthController.php';
-        (new AuthController())->logout();
+        logout();
     });
 
     // Admin actions (keep simple, no JS/HTML here)
     $router->post('/admin/users/update', function () {
         require APP_PATH . '/controllers/UsersController.php';
-        (new UsersController())->update();
+        update();
     });
     $router->get('/admin/users/delete', function () {
         require APP_PATH . '/controllers/UsersController.php';
-        (new UsersController())->delete();
+        delete();
     });
 
     $router->post('/admin/books/create', function () {
         require APP_PATH . '/controllers/BooksController.php';
-        (new BooksController())->create();
+        require CONFIG_PATH . '/database.php';
+        AddBook($cnx, $_POST);
+        header("Location: /lexora_mlk/index.php?view=admin&addbook=ok");
     });
     $router->post('/admin/books/update', function () {
         require APP_PATH . '/controllers/BooksController.php';
-        (new BooksController())->update();
+        require CONFIG_PATH . '/database.php';
+        UpdateBook($cnx, $_POST);
     });
     $router->get('/admin/books/delete', function () {
         require APP_PATH . '/controllers/BooksController.php';
-        (new BooksController())->delete();
+        require CONFIG_PATH . '/database.php';
+        DeleteBook($cnx, $_GET['idb'] ?? null);
     });
 
     $router->get('/admin/posts/update', function () {
         require APP_PATH . '/controllers/PostsController.php';
-        (new PostsController())->update();
+        require CONFIG_PATH . '/database.php';
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $action = $_GET['action'] ?? '';
+        if ($id > 0 && $action === 'review') {
+            $cnx->query("UPDATE posts SET status = 'Reviewed' WHERE id = " . $id);
+            header("Location: /lexora_mlk/index.php?view=admin&post=ok");
+            return;
+        }
+        if ($id > 0 && $action === 'tag') {
+            $cnx->query("UPDATE posts SET status = 'Pending Admin Review' WHERE id = " . $id);
+            header("Location: /lexora_mlk/index.php?view=admin&post=ok");
+            return;
+        }
+        header("Location: /lexora_mlk/index.php?view=admin&post=error");
     });
     $router->get('/admin/posts/delete', function () {
         require APP_PATH . '/controllers/PostsController.php';
-        (new PostsController())->delete();
+        if (isset($_GET['id']) && !isset($_GET['idp'])) {
+            $_GET['idp'] = $_GET['id'];
+        }
+        require CONFIG_PATH . '/database.php';
+        DeletePost($cnx, $_GET['idp'] ?? null);
     });
 };
 

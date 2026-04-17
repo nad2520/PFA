@@ -6,7 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // MVC path: controllers should provide $users, $books, $posts.
 // Legacy fallback: if not provided, load from DB here (kept temporarily for compatibility).
 if (!isset($users, $books, $posts)) {
-    include("config/database.php");
+    include(__DIR__ . "/../../../config/database.php");
 
     $stmt = $cnx->query("SELECT * FROM users ORDER BY id DESC");
     $users = $stmt->fetchAll();
@@ -358,7 +358,8 @@ if (!isset($users, $books, $posts)) {
 
                     <div style="display:flex;gap:1rem;margin-bottom:1rem">
                         <input type="text" placeholder="Search users..." class="admin-input" style="flex:1"
-                            data-filter="users-search">
+                            data-filter="users-search" data-server-search="users_search"
+                            value="<?= htmlspecialchars((string)($_GET['users_search'] ?? '')) ?>">
                         <select class="admin-input" data-filter="users-role">
                             <option value="All">All Roles</option>
                             <option value="Admin">Admin</option>
@@ -434,7 +435,8 @@ if (!isset($users, $books, $posts)) {
 
                     <div style="display:flex;gap:1rem;margin-bottom:1rem">
                         <input type="text" placeholder="Search books..." class="admin-input" style="flex:1"
-                            data-filter="books-search">
+                            data-filter="books-search" data-server-search="books_search"
+                            value="<?= htmlspecialchars((string)($_GET['books_search'] ?? '')) ?>">
                         <select class="admin-input" style="min-width:140px" data-filter="books-genre">
                             <option value="All">All Genres</option>
                         </select>
@@ -515,7 +517,8 @@ if (!isset($users, $books, $posts)) {
 
                     <div style="display:flex;gap:1.5rem;margin-bottom:1.5rem">
                         <input type="text" placeholder="Search posts..." class="admin-input" style="flex:1"
-                            data-filter="community-search">
+                            data-filter="community-search" data-server-search="posts_search"
+                            value="<?= htmlspecialchars((string)($_GET['posts_search'] ?? '')) ?>">
                         <select class="admin-input" style="min-width:160px" data-filter="community-tag">
                             <option value="All">All Tags</option>
                             <option value="discussion">Discussion</option>
@@ -973,6 +976,84 @@ if (!isset($users, $books, $posts)) {
     <script src="public/assets/js/models/admin_data.js"></script>
     <script src="public/assets/js/admin.js"></script>
     <script>
+        function wireServerSearchInputs() {
+            const tableMap = {
+                users_search: 'userTbody',
+                books_search: 'bookTbody',
+                posts_search: 'communityTbody'
+            };
+            const initialRows = {};
+
+            Object.keys(tableMap).forEach((key) => {
+                const tbody = document.getElementById(tableMap[key]);
+                if (tbody) initialRows[key] = tbody.innerHTML;
+            });
+
+            function setQueryParam(key, value) {
+                const url = new URL(window.location.href);
+                if (value === '') url.searchParams.delete(key);
+                else url.searchParams.set(key, value);
+                window.history.replaceState({}, '', url.toString());
+                return url.toString();
+            }
+
+            function updateTableFromResponse(key, htmlText) {
+                const targetId = tableMap[key];
+                if (!targetId) return;
+                const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+                const nextTbody = doc.getElementById(targetId);
+                const currentTbody = document.getElementById(targetId);
+                if (nextTbody && currentTbody) {
+                    currentTbody.innerHTML = nextTbody.innerHTML;
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
+                }
+            }
+
+            async function runServerSearch(key, value) {
+                const url = setQueryParam(key, value);
+                if (value === '') {
+                    const tbody = document.getElementById(tableMap[key]);
+                    if (tbody && initialRows[key] !== undefined) {
+                        tbody.innerHTML = initialRows[key];
+                        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                            window.lucide.createIcons();
+                        }
+                    }
+                    return;
+                }
+                try {
+                    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    const html = await res.text();
+                    updateTableFromResponse(key, html);
+                } catch (e) {
+                    // Keep current rows if fetch fails.
+                }
+            }
+
+            const inputs = document.querySelectorAll('[data-server-search]');
+            inputs.forEach((input) => {
+                let timer = null;
+                input.addEventListener('input', () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        const key = input.getAttribute('data-server-search');
+                        const value = input.value.trim();
+                        runServerSearch(key, value);
+                    }, 350);
+                });
+
+                input.addEventListener('blur', () => {
+                    const key = input.getAttribute('data-server-search');
+                    const value = input.value.trim();
+                    if (value === '') runServerSearch(key, '');
+                });
+            });
+        }
+
+        wireServerSearchInputs();
+
         function openEditModal(id, currentName, currentEmail) {
             const html = `
                 <form id="phpEditUserForm" method="POST" action="/lexora_mlk/admin/users/update">
