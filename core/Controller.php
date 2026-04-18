@@ -5,7 +5,7 @@ abstract class Controller
     {
         // This project is served from http://localhost/lexora_mlk/
         // Keep it centralized to avoid accidental redirects to /dashboard.
-        return '/lexora_mlk';
+        return '/PFA';
     }
 
     protected function render(string $viewPath, array $data = [], ?string $layout = 'layouts/main'): void

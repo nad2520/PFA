@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In ? Lexora</title>
+    <title>Sign In Lexora</title>
     <meta name="description" content="Sign in to your Lexora account and continue your reading journey.">
     <link rel="stylesheet" href="public/assets/css/user/main.css">
 </head>
@@ -15,10 +15,10 @@
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="?view=user" class="logo">?? LEXORA</a>
+      <a href="?view=user" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none"> Back to
           lecture</a>
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
@@ -51,7 +51,7 @@
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <path d="M12 17h.01" />
               </svg>
-              <span id="coinCount">1,350</span> COINS
+              <!-- <span id="coinCount">1,350</span> COINS -->
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 ? Page Not Found ? Lexora</title>
+    <title>404 Page Not Found Lexora</title>
     <link rel="stylesheet" href="public/assets/css/user/main.css">
 </head>
 
@@ -14,10 +14,10 @@
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="index.php" class="logo">?? LEXORA</a>
+      <a href="index.php" class="logo">LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">Back to
           lecture</a>
         <a href="index.php" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
@@ -50,7 +50,7 @@
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <path d="M12 17h.01" />
               </svg>
-              <span id="coinCount">1,350</span> COINS
+              <!-- <span id="coinCount">1,350</span> COINS -->
             </div>
           </div>
         </div>
@@ -65,11 +65,11 @@
             <p style="font-size:1.1rem;color:var(--muted-foreground);max-width:28rem">
                 Looks like this page wandered off into the Reading Kingdom. Let's get you back to familiar territory.
             </p>
-            <a href="index.php" class="btn-primary">Return Home ?</a>
+            <a href="index.php" class="btn-primary">Return Home </a>
         </div>
 
         <footer class="site-footer">
-            <p>? LEXORA ? A cozy corner for readers ?</p>
+            <p> LEXORA A cozy corner for readers </p>
         </footer>
     </div>
 

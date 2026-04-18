@@ -24,7 +24,7 @@ if (!isset($users, $books, $posts)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexora Admin � Kingdom Management</title>
+    <title>Lexora Admin Kingdom Management</title>
     <link rel="stylesheet" href="public/assets/css/admin/main.css">
     <link rel="stylesheet" href="public/assets/css/admin/admin.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -83,7 +83,7 @@ if (!isset($users, $books, $posts)) {
             </button>
             <div style="flex:1"></div>
             <button class="nav-item logout" data-section="logout"
-                onclick="window.location.href='/lexora_mlk/logout'">
+                onclick="window.location.href='/PFA/logout'">
                 <i data-lucide="log-out"></i>
                 <span class="nav-label">Logout</span>
             </button>
@@ -158,8 +158,8 @@ if (!isset($users, $books, $posts)) {
                                 <div class="icon-box"><i data-lucide="users"></i></div>
                                 <div class="stat-labels">
                                     <h5>Total Users</h5>
-                                    <div class="value">8,241</div>
-                                    <div class="sub">+124 this week</div>
+                                    <div class="value" id="statTotalUsers"><?= count($users) ?></div>
+                                    <div class="sub">registered members</div>
                                 </div>
                             </div>
                         </div>
@@ -168,8 +168,9 @@ if (!isset($users, $books, $posts)) {
                                 <div class="icon-box" style="color:#93C5FD"><i data-lucide="book-open"></i></div>
                                 <div class="stat-labels">
                                     <h5>Total Books</h5>
-                                    <div class="value">342</div>
-                                    <div class="sub">24 genres</div>
+                                    <?php $genreCount = count(array_unique(array_column($books, 'genre'))); ?>
+                                    <div class="value" id="statTotalBooks"><?= count($books) ?></div>
+                                    <div class="sub"><?= $genreCount ?> genres</div>
                                 </div>
                             </div>
                         </div>
@@ -178,7 +179,7 @@ if (!isset($users, $books, $posts)) {
                                 <div class="icon-box" style="color:#86EFAC"><i data-lucide="message-square"></i></div>
                                 <div class="stat-labels">
                                     <h5>Community Posts</h5>
-                                    <div class="value">14,890</div>
+                                    <div class="value" id="statTotalPosts"><?= count($posts) ?></div>
                                     <div class="sub">Active discussions</div>
                                 </div>
                             </div>
@@ -404,7 +405,7 @@ if (!isset($users, $books, $posts)) {
                                                         onclick="openEditModal(<?= $u['id'] ?>, '<?= htmlspecialchars($u['nom']) ?>', '<?= htmlspecialchars($u['email']) ?>')"><i
                                                             data-lucide="edit-2"
                                                             style="width:13px;height:13px"></i></button>
-                                                    <a href="/lexora_mlk/admin/users/delete?idu=<?= $u['id'] ?>"
+                                                    <a href="/PFA/admin/users/delete?idu=<?= $u['id'] ?>"
                                                         onclick="return confirm('Are you sure you want to delete this user?');"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
@@ -437,11 +438,17 @@ if (!isset($users, $books, $posts)) {
                             data-filter="books-search">
                         <select class="admin-input" style="min-width:140px" data-filter="books-genre">
                             <option value="All">All Genres</option>
+                            <?php
+                            $genres = array_unique(array_column($books, 'genre'));
+                            sort($genres);
+                            foreach ($genres as $g): ?>
+                                <option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option>
+                            <?php endforeach; ?>
                         </select>
                         <select class="admin-input" style="min-width:160px" data-filter="books-audience">
                             <option value="All">All Audiences</option>
                             <option value="+18 Only">+18 Only</option>
-                            <option value="All">All Ages</option>
+                            <option value="all-ages">All Ages</option>
                         </select>
                         <button class="admin-btn primary" onclick="openAddBookModal()"><i data-lucide="plus"></i> Add
                             Book</button>
@@ -485,7 +492,7 @@ if (!isset($users, $books, $posts)) {
                                                         onclick="openEditBookModal(<?= $b['id'] ?>, '<?= addslashes(htmlspecialchars($b['title'])) ?>', '<?= addslashes(htmlspecialchars($b['author'])) ?>', '<?= addslashes(htmlspecialchars($b['genre'])) ?>', '<?= addslashes(htmlspecialchars($b['cover'])) ?>', <?= $b['coinCost'] ?>, <?= $b['xpReward'] ?>, <?= $b['coinReward'] ?>, '<?= addslashes(htmlspecialchars($b['audience'])) ?>', <?= $b['trending'] ?>)"><i
                                                             data-lucide="edit-2"
                                                             style="width:13px;height:13px"></i></button>
-                                                    <a href="/lexora_mlk/admin/books/delete?idb=<?= $b['id'] ?>"
+                                                    <a href="/PFA/admin/books/delete?idb=<?= $b['id'] ?>"
                                                         onclick="return confirm('Are you sure you want to delete this book?');"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
@@ -589,13 +596,13 @@ if (!isset($users, $books, $posts)) {
                                                     <a href="#" class="admin-btn ghost"
                                                         onclick="alert('Post preview is visual-only in parity mode.')"><i
                                                             data-lucide="eye" style="width:13px;height:13px"></i></a>
-                                                    <a href="/lexora_mlk/admin/posts/update?id=<?= $p['id'] ?>&action=review"
+                                                    <a href="/PFA/admin/posts/update?id=<?= $p['id'] ?>&action=review"
                                                         class="admin-btn ghost"><i data-lucide="check"
                                                             style="width:13px;height:13px"></i></a>
-                                                    <a href="/lexora_mlk/admin/posts/update?id=<?= $p['id'] ?>&action=tag"
+                                                    <a href="/PFA/admin/posts/update?id=<?= $p['id'] ?>&action=tag"
                                                         class="admin-btn ghost"><i data-lucide="tag"
                                                             style="width:13px;height:13px"></i></a>
-                                                    <a href="/lexora_mlk/admin/posts/delete?id=<?= $p['id'] ?>"
+                                                    <a href="/PFA/admin/posts/delete?id=<?= $p['id'] ?>"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
                                                 </div>
@@ -975,7 +982,7 @@ if (!isset($users, $books, $posts)) {
     <script>
         function openEditModal(id, currentName, currentEmail) {
             const html = `
-                <form id="phpEditUserForm" method="POST" action="/lexora_mlk/admin/users/update">
+                <form id="phpEditUserForm" method="POST" action="/PFA/admin/users/update">
                     <input type="hidden" name="idu" value="${id}">
                     <label class="label-xs mt-3">Name</label>
                     <input class="admin-input full" type="text" name="user_name" value="${currentName}" required>
@@ -993,7 +1000,7 @@ if (!isset($users, $books, $posts)) {
 
         function openAddBookModal() {
             const html = `
-                <form id="phpAddBookForm" method="POST" action="/lexora_mlk/admin/books/create">
+                <form id="phpAddBookForm" method="POST" action="/PFA/admin/books/create">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" required>
                     <div class="grid-2 mt-3" style="gap:1rem">
@@ -1028,7 +1035,7 @@ if (!isset($users, $books, $posts)) {
 
         function openEditBookModal(id, title, author, genre, cover, coinCost, xpReward, coinReward, audience, trending) {
             const html = `
-                <form id="phpEditBookForm" method="POST" action="/lexora_mlk/admin/books/update">
+                <form id="phpEditBookForm" method="POST" action="/PFA/admin/books/update">
                     <input type="hidden" name="idb" value="${id}">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" value="${title}" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" value="${author}" required>
@@ -1061,6 +1068,105 @@ if (!isset($users, $books, $posts)) {
                 return false;
             });
         }
+        (function () {
+
+    /* ── BOOKS FILTERING ─────────────────────────────────────────── */
+    const booksSearch   = document.querySelector('[data-filter="books-search"]');
+    const booksGenre    = document.querySelector('[data-filter="books-genre"]');
+    const booksAudience = document.querySelector('[data-filter="books-audience"]');
+    const bookTbody     = document.getElementById('bookTbody');
+
+    function filterBooks() {
+        const q        = booksSearch.value.toLowerCase().trim();
+        const genre    = booksGenre.value;
+        const audience = booksAudience.value;
+
+        Array.from(bookTbody.rows).forEach(row => {
+            const title    = (row.cells[1]?.textContent ?? '').toLowerCase();
+            const author   = (row.cells[2]?.textContent ?? '').toLowerCase();
+            const rowGenre = (row.cells[3]?.textContent ?? '').trim();
+            const rowAud   = (row.cells[6]?.textContent ?? '').trim();
+
+            const matchQ = !q || title.includes(q) || author.includes(q);
+
+            const matchGenre = genre === 'All' || rowGenre === genre;
+
+            let matchAud = true;
+            if (audience === '+18 Only')  matchAud = rowAud === '+18 Only';
+            if (audience === 'all-ages')  matchAud = rowAud === 'All Ages';
+
+            row.style.display = (matchQ && matchGenre && matchAud) ? '' : 'none';
+        });
+
+        updateBookCount();
+    }
+
+    function updateBookCount() {
+        const visible = Array.from(bookTbody.rows).filter(r => r.style.display !== 'none').length;
+        const total   = bookTbody.rows.length;
+        const el      = document.getElementById('statTotalBooks');
+        if (el) el.textContent = visible < total ? `${visible}/${total}` : total;
+    }
+
+    if (booksSearch)   booksSearch.addEventListener('input', filterBooks);
+    if (booksGenre)    booksGenre.addEventListener('change', filterBooks);
+    if (booksAudience) booksAudience.addEventListener('change', filterBooks);
+
+    /* ── USERS FILTERING ─────────────────────────────────────────── */
+    const usersSearch = document.querySelector('[data-filter="users-search"]');
+    const usersRole   = document.querySelector('[data-filter="users-role"]');
+    const userTbody   = document.getElementById('userTbody');
+
+    function filterUsers() {
+        const q    = usersSearch.value.toLowerCase().trim();
+        const role = usersRole.value;
+
+        Array.from(userTbody.rows).forEach(row => {
+            const name     = (row.cells[1]?.textContent ?? '').toLowerCase();
+            const email    = (row.cells[2]?.textContent ?? '').toLowerCase();
+            const rowRole  = (row.cells[3]?.textContent ?? '').trim();
+
+            const matchQ    = !q || name.includes(q) || email.includes(q);
+            const matchRole = role === 'All' || rowRole === role;
+
+            row.style.display = (matchQ && matchRole) ? '' : 'none';
+        });
+    }
+
+    if (usersSearch) usersSearch.addEventListener('input', filterUsers);
+    if (usersRole)   usersRole.addEventListener('change', filterUsers);
+
+    /* ── COMMUNITY FILTERING ─────────────────────────────────────── */
+    const commSearch = document.querySelector('[data-filter="community-search"]');
+    const commTag    = document.querySelector('[data-filter="community-tag"]');
+    const commStatus = document.querySelector('[data-filter="community-status"]');
+    const commTbody  = document.getElementById('communityTbody');
+
+    function filterCommunity() {
+        const q      = commSearch.value.toLowerCase().trim();
+        const tag    = commTag.value;
+        const status = commStatus.value;
+
+        Array.from(commTbody.rows).forEach(row => {
+            if (row.cells.length < 7) return; // skip "no posts" row
+            const title   = (row.cells[0]?.textContent ?? '').toLowerCase();
+            const author  = (row.cells[1]?.textContent ?? '').toLowerCase();
+            const rowTag  = (row.cells[3]?.textContent ?? '').trim();
+            const rowStat = (row.cells[6]?.textContent ?? '').trim();
+
+            const matchQ      = !q || title.includes(q) || author.includes(q);
+            const matchTag    = tag === 'All'    || rowTag  === tag;
+            const matchStatus = status === 'All' || rowStat === status;
+
+            row.style.display = (matchQ && matchTag && matchStatus) ? '' : 'none';
+        });
+    }
+
+    if (commSearch) commSearch.addEventListener('input', filterCommunity);
+    if (commTag)    commTag.addEventListener('change', filterCommunity);
+    if (commStatus) commStatus.addEventListener('change', filterCommunity);
+
+})();
     </script>
 </body>
 

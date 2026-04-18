@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile ? Lexora</title>
+    <title>Profile Lexora</title>
     <meta name="description"
         content="Your Lexora reading profile ? track progress, view your library, and explore the Scholar's Map.">
     <link rel="stylesheet" href="public/assets/css/user/main.css">
@@ -16,10 +16,10 @@
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="?view=user" class="logo">?? LEXORA</a>
+      <a href="?view=user" class="logo">LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">? Back to
+        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none">Back to
           lecture</a>
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
@@ -120,13 +120,13 @@
             <!-- Lamp of Knowledge -->
             <section class="lamp-of-knowledge" aria-labelledby="lamp-heading">
                 <div class="lamp-card-head">
-                    <h2 id="lamp-heading" class="font-display lamp-card-title">?? Lamp of Knowledge</h2>
+                    <h2 id="lamp-heading" class="font-display lamp-card-title"> Lamp of Knowledge</h2>
                     <span class="lamp-demo-badge">DEMO CONTROL</span>
                 </div>
                 <div class="lamp-card-body">
                     <div class="lumo-thumb lamp-lumo-wrap">
                         <img id="lumoThumbLamp" src="public/assets/images/lumo-happy.png" alt="Lumo">
-                        <div id="lampDot" class="lamp-dot animate-lamp-glow">??</div>
+                        <div id="lampDot" class="lamp-dot animate-lamp-glow"></div>
                     </div>
                     <div class="lamp-card-controls">
                         <div id="lampStatus" class="lamp-status-block"></div>
@@ -136,7 +136,7 @@
                         </div>
                         <input id="lampSlider" type="range" min="0" max="24" step="1" value="0" class="lamp-range">
                         <div class="lamp-range-ticks">
-                            <span>0h ??</span><span>18h ??</span><span>24h ??</span>
+                            <span>0h </span><span>18h </span><span>24h </span>
                         </div>
                     </div>
                 </div>
@@ -145,8 +145,8 @@
             <!-- Scholar's Map -->
             <div class="scholars-map" id="scholarsMapSection">
                 <div class="scholars-map__head">
-                    <h2 class="font-display">??? Scholar's Map</h2>
-                    <p>Level up to unlock new regions ? scroll to explore your journey</p>
+                    <h2 class="font-display">Scholar's Map</h2>
+                    <p>Level up to unlock new regions scroll to explore your journey</p>
                 </div>
                 <div class="scholars-map__scroll" id="scholarsMapScroll">
                     <div class="scholars-map__canvas" id="scholarsMapCanvas"></div>

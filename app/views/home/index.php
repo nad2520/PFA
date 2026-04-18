@@ -931,7 +931,7 @@
         </div>
 
         <!-- Form -->
-        <form id="auth-form" class="auth-form" method="POST" action="/lexora_mlk/auth">
+        <form id="auth-form" class="auth-form" method="POST" action="/PFA/auth">
           <input type="hidden" name="action" id="auth-action" value="login" />
           <div id="username-field" class="form-group hidden">
             <i data-lucide="user" class="input-icon"></i>
