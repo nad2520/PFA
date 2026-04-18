@@ -154,7 +154,7 @@ function setupNavigation() {
         item.addEventListener("click", () => {
             const section = item.dataset.section;
             if (section === "logout") {
-                window.location.href = "/lexora_mlk/logout";
+                window.location.href = "/PFA/logout";
                 return;
             }
             AdminState.activeSection = section;
