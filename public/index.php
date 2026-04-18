@@ -40,10 +40,12 @@ if ($view !== null) {
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
+// If hosted at /PFA, strip that base prefix for route matching.
 $basePrefix = '/PFA';
 if (strncmp($path, $basePrefix . '/', strlen($basePrefix) + 1) === 0) {
     $path = substr($path, strlen($basePrefix));
 }
 
 $router->dispatch($method, $path);
+
 

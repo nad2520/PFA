@@ -57,5 +57,16 @@ class BooksController extends Controller
         $ok = $id > 0 ? BookModel::delete($id) : false;
         $this->redirectBack('index.php?view=admin&deletebook=' . ($ok ? 'ok' : 'error'));
     }
+public function search(): void
+{
+    $query = trim((string)($_GET['q'] ?? ''));
+
+    if ($query === '') {
+        $this->json(['success' => false, 'message' => 'Query is required'], 400);
+    }
+
+    $books = BookModel::searchByTitle($query);
+    $this->json(['success' => true, 'data' => $books, 'count' => count($books)]);
+}
 }
 

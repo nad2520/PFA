@@ -126,7 +126,7 @@
                 <div class="lamp-card-body">
                     <div class="lumo-thumb lamp-lumo-wrap">
                         <img id="lumoThumbLamp" src="public/assets/images/lumo-happy.png" alt="Lumo">
-                        <div id="lampDot" class="lamp-dot animate-lamp-glow">??</div>
+                        <div id="lampDot" class="lamp-dot animate-lamp-glow"></div>
                     </div>
                     <div class="lamp-card-controls">
                         <div id="lampStatus" class="lamp-status-block"></div>
@@ -136,7 +136,7 @@
                         </div>
                         <input id="lampSlider" type="range" min="0" max="24" step="1" value="0" class="lamp-range">
                         <div class="lamp-range-ticks">
-                            <span>0h ??</span><span>18h ??</span><span>24h ??</span>
+                            <span>0h </span><span>18h </span><span>24h </span>
                         </div>
                     </div>
                 </div>

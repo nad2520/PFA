@@ -50,7 +50,7 @@
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <path d="M12 17h.01" />
               </svg>
-              <span id="coinCount">1,350</span> COINS
+              <!-- <span id="coinCount">1,350</span> COINS -->
             </div>
           </div>
         </div>

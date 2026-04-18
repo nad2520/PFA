@@ -64,5 +64,11 @@ return function (Router $router): void {
         require APP_PATH . '/controllers/PostsController.php';
         (new PostsController())->delete();
     });
+    
+$router->get('/api/books/search', function () {
+    require_once APP_PATH . '/controllers/BooksController.php';
+    (new BooksController())->search();
+});
+
 };
 

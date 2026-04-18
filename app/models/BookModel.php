@@ -75,5 +75,13 @@ class BookModel
             return false;
         }
     }
+public static function searchByTitle(string $query): array
+{
+    $stmt = Database::getInstance()->prepare(
+        'SELECT * FROM books WHERE title LIKE ? ORDER BY title ASC'
+    );
+    $stmt->execute(['%' . $query . '%']);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }
 
