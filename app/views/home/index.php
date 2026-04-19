@@ -1,3 +1,4 @@
+Home  index.php
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -170,7 +171,7 @@
         </a>
         <div class="mobile-menu-auth">
           <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">Log In</button>
-          <button class="btn btn-hero btn-sm" onclick="openAuthModal('signup')">Sign Up ✦</button>
+          <button class="btn btn-hero btn-sm" onclick="openAuthModal('signup')">Sign Up</button>
         </div>
       </div>
     </nav>
@@ -197,7 +198,7 @@
           <span>Adventure</span>
         </h1>
         <p class="hero-desc">
-          The most fun and immersive way to read. Track your journey, earn rewards, and explore infinite worlds. ⋆˙⟡
+          The most fun and immersive way to read. Track your journey, earn rewards, and explore infinite worlds.
         </p>
         <div class="hero-btn-wrap">
           <button class="btn btn-hero btn-xl" id="btn-get-started"> Get Started</button>
@@ -280,9 +281,9 @@
             <p>Coins are the currency of the Reading Kingdom. Earn them by reading pages, completing quests, and
               maintaining your daily streak. Spend them on premium books, avatar cosmetics, and exclusive features.</p>
             <div class="coin-badges">
-              <span class="coin-badge">📖 Read 10 pages → <span class="amount">+20 coins</span></span>
-              <span class="coin-badge">🔥 Daily streak → <span class="amount">+50 coins</span></span>
-              <span class="coin-badge">⚔️ Quest complete → <span class="amount">+200 coins</span></span>
+              <span class="coin-badge"> Read 10 pages → <span class="amount">+20 coins</span></span>
+              <span class="coin-badge"> Daily streak → <span class="amount">+50 coins</span></span>
+              <span class="coin-badge"> Quest complete → <span class="amount">+200 coins</span></span>
             </div>
           </div>
         </div>
@@ -572,14 +573,14 @@
         <div class="age-grid">
           <div class="card age-card reveal reveal-delay-1">
             <div class="age-emoji"></div>
-            <div class="age-name">Children (6-12 ans)</div>
+            <div class="age-name">Young Readers</div>
             <div class="age-count">4,200 books</div>
             <div class="age-badges">
-              <span class="age-badge">Age: 6-12</span>
-              <span class="age-badge">Parental consent required</span>
+              <span class="age-badge">Age: -18</span>
+              <span class="age-badge">Age verification</span>
             </div>
           </div>
-          <div class="card age-card reveal reveal-delay-2">
+          <!-- <div class="card age-card reveal reveal-delay-2">
             <div class="age-emoji"></div>
             <div class="age-name">Teens (13-17 ans)</div>
             <div class="age-count">3,650 books</div>
@@ -587,14 +588,14 @@
               <span class="age-badge">Age: 13-17</span>
               <span class="age-badge">Age verification</span>
             </div>
-          </div>
+          </div> -->
           <div class="card age-card reveal reveal-delay-3">
             <div class="age-emoji"></div>
-            <div class="age-name">Adults (18+)</div>
+            <div class="age-name">Adult Readers </div>
             <div class="age-count">4,600 books</div>
             <div class="age-badges">
               <span class="age-badge">Age: 18+</span>
-              <span class="age-badge">ID verification</span>
+              <span class="age-badge">Age verification</span>
             </div>
           </div>
         </div>
@@ -613,7 +614,7 @@
           </div>
 
           <div class="lb-row top3 reveal-x">
-            <div class="lb-rank"><span class="lb-rank-icon" style="color:var(--primary)"></span></div>
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:var(--primary)">#1</span></div>
             <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Luna Starweaver</span>
             </div>
             <div class="lb-score"><span class="lb-score-val">98,750</span><span class="lb-score-label">pts</span></div>
@@ -622,7 +623,7 @@
           </div>
 
           <div class="lb-row top3 reveal-x" style="transition-delay:80ms">
-            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(0,0%,60%)"></span></div>
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(0,0%,60%)">#2</span></div>
             <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Atlas Bookwright</span>
             </div>
             <div class="lb-score"><span class="lb-score-val">87,200</span><span class="lb-score-label">pts</span></div>
@@ -631,7 +632,7 @@
           </div>
 
           <div class="lb-row top3 reveal-x" style="transition-delay:160ms">
-            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(25,70%,50%)"></span></div>
+            <div class="lb-rank"><span class="lb-rank-icon" style="color:hsl(25,70%,50%)">#3</span></div>
             <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Ember Foxley</span></div>
             <div class="lb-score"><span class="lb-score-val">76,430</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">267</div>
@@ -772,11 +773,13 @@
             <h4>Company</h4>
             <ul>
               <li><a href="#">About</a></li>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Shop</a></li>
-              <li><a href="#">Community</a></li>
               <li><a href="#">Help Center</a></li>
-              <li><a href="#">Pricing</a></li>
+              <!-- <li><a href="#">Community</a></li>-->
+              <!-- <li><a href="#">Pricing</a></li> -->
+</br>
+              <h4>Categories by age</h4>
+              <li><a href="#">Young Readers</a></li>
+              <li><a href="#">Adult Readers</a></li>              
             </ul>
           </div>
           <div class="footer-col">
@@ -789,33 +792,29 @@
             </ul>
           </div>
           <div class="footer-col">
-            <h4>Categories</h4>
+            <h4>Categories by genre</h4>
             <ul>
-              <li><a href="#">All Books</a></li>
+              <!-- <li><a href="#">All Books</a></li> -->
               <li><a href="#">Fantasy</a></li>
               <li><a href="#">Adventure</a></li>
               <li><a href="#">Mystery</a></li>
               <li><a href="#">Science Fiction</a></li>
               <li><a href="#">History</a></li>
-              <li><a href="#">Biography</a></li>
-              <li><a href="#">Poetry</a></li>
-              <li><a href="#">Comics</a></li>
               <li><a href="#">Educational</a></li>
+              <li><a href="#">Poetry</a></li>
+
             </ul>
           </div>
           <div class="footer-col">
             <h4>&nbsp;</h4>
             <ul>
-              <li><a href="#">Children (6-12)</a></li>
-              <li><a href="#">Teens (13-17)</a></li>
-              <li><a href="#">Young Adults</a></li>
-              <li><a href="#">Adults</a></li>
               <li><a href="#">Non-Fiction</a></li>
               <li><a href="#">Romance</a></li>
               <li><a href="#">Horror</a></li>
               <li><a href="#">Self-Help</a></li>
               <li><a href="#">Classics</a></li>
               <li><a href="#">Philosophy</a></li>
+              <li><a href="#">Comics</a></li>
             </ul>
           </div>
         </div>
@@ -946,7 +945,7 @@
           <div id="birthdate-field" class="form-group hidden">
             <i data-lucide="calendar" class="input-icon"></i>
             <input type="date" id="birthdate" name="birthdate" class="form-input" />
-          </div>
+          </div> 
 
           <div class="form-group">
             <i data-lucide="lock" class="input-icon"></i>
@@ -1013,3 +1012,4 @@
 </body>
 
 </html>
+
