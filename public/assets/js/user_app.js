@@ -1423,9 +1423,20 @@ function initBookDetail() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//  Server-driven reader (read_book_app.js) sets data-lexora-read-app on body.
+// ═══════════════════════════════════════════════════════════════════════════════
+document.addEventListener('lexora:bookCompleted', (e) => {
+    const bookId = e.detail?.bookId;
+    if (!bookId || !window.LexoraState?.markBookCompleted) return;
+    window.LexoraState.markBookCompleted(bookId);
+    if (document.getElementById('bookDetailMain')) initBookDetail();
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //  READ BOOK PAGE  (read-book.html)
 // ═══════════════════════════════════════════════════════════════════════════════
 function initReadBook() {
+    if (document.body?.dataset?.lexoraReadApp === '1') return;
     const layout = document.querySelector('.read-layout');
     if (!layout || !window.LexoraState) return;
 

@@ -65,10 +65,40 @@ return function (Router $router): void {
         (new PostsController())->delete();
     });
     
-$router->get('/api/books/search', function () {
-    require_once APP_PATH . '/controllers/BooksController.php';
-    (new BooksController())->search();
-});
+    $router->get('/api/books/search', function () {
+        require_once APP_PATH . '/controllers/BooksController.php';
+        (new BooksController())->search();
+    });
 
+    // User JSON API (session auth)
+    $router->get('/api/user/profile', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->profile();
+    });
+    $router->post('/api/user/reading-session', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->logSession();
+    });
+    $router->post('/api/user/book/purchase', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->purchaseBook();
+    });
+    $router->post('/api/user/book/progress', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->saveProgress();
+    });
+    $router->post('/api/user/book/complete', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->completeBook();
+    });
+    $router->post('/api/user/book/rating', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->updateRating();
+    });
+    $router->get('/api/leaderboard', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->leaderboard();
+    });
 };
+
 

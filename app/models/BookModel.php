@@ -3,6 +3,22 @@ require_once __DIR__ . '/../../core/Database.php';
 
 class BookModel
 {
+    public static function findById(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare('SELECT * FROM books WHERE id = ? LIMIT 1');
+            $stmt->execute([$id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
     public static function all(): array
     {
         try {
@@ -75,13 +91,16 @@ class BookModel
             return false;
         }
     }
-public static function searchByTitle(string $query): array
-{
-    $stmt = Database::getInstance()->prepare(
-        'SELECT * FROM books WHERE title LIKE ? ORDER BY title ASC'
-    );
-    $stmt->execute(['%' . $query . '%']);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    public static function searchByTitle(string $query): array
+    {
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare('SELECT * FROM books WHERE title LIKE ? ORDER BY title ASC');
+            $stmt->execute(['%' . $query . '%']);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
 }
 

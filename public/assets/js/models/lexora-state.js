@@ -41,11 +41,17 @@
     return pages;
   }
 
-  function getBookPages(bookId) {
-    if (!pageCache[bookId]) {
-      pageCache[bookId] = generateBookPages(bookId);
+  function pageCacheKey(bookId, totalPages) {
+    return bookId + ':' + (totalPages || 24);
+  }
+
+  function getBookPages(bookId, totalPages) {
+    const t = totalPages || 24;
+    const key = pageCacheKey(bookId, t);
+    if (!pageCache[key]) {
+      pageCache[key] = generateBookPages(bookId, t);
     }
-    return pageCache[bookId];
+    return pageCache[key];
   }
 
   function getAllProgress() {
@@ -196,6 +202,33 @@
     saveUserBooks(userBooks);
   }
 
+  /** Sync local shelf after server-side completion (1-based last page for detail UI). */
+  function markBookCompleted(bookId) {
+    const L = window.__lexora;
+    const pagesForBook = getBookPages(bookId);
+    const lastPage = pagesForBook.length;
+    saveReadingPage(bookId, lastPage);
+    let userBooks = getUserBooks();
+    const idx = userBooks.findIndex(function (ub) {
+      return ub.book.id === bookId;
+    });
+    if (idx >= 0) {
+      userBooks[idx] = {
+        book: userBooks[idx].book,
+        status: "completed",
+        progress: 100,
+      };
+    } else if (L) {
+      const book = L.books.find(function (b) {
+        return b.id === bookId;
+      });
+      if (book) {
+        userBooks.push({ book: book, status: "completed", progress: 100 });
+      }
+    }
+    saveUserBooks(userBooks);
+  }
+
   window.LexoraState = {
     getBookPages: getBookPages,
     getBookProgress: getBookProgress,
@@ -211,5 +244,6 @@
     addToList: addToList,
     removeFromLibrary: removeFromLibrary,
     removeFromList: removeFromList,
+    markBookCompleted: markBookCompleted,
   };
 })();
