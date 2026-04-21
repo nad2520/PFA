@@ -27,6 +27,9 @@ async function api(path, method = 'GET', body = null) {
     try {
         const res  = await fetch('/PFA' + path, opts);
         const json = await res.json().catch(() => ({ success: false }));
+        if (!res.ok) {
+            json._httpStatus = res.status;
+        }
         return json;
     } catch (e) {
         console.warn('API call failed:', path, e.message);
@@ -136,10 +139,15 @@ async function goToPage(newPage) {
     renderPage();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    api('/api/user/book/progress', 'POST', {
+    const progressResp = await api('/api/user/book/progress', 'POST', {
         book_id: BOOK.id,
         page:    newPage,
     });
+    if (progressResp?._httpStatus === 403 && progressResp?.error === 'NOT_ENOUGH_COINS') {
+        alert("You don't have enough coins");
+        window.location.href = 'index.php?view=store';
+        return;
+    }
 
     if (minutesOnPage > 0 || newPage > 0) {
         api('/api/user/reading-session', 'POST', {
@@ -379,6 +387,15 @@ document.addEventListener('keydown', e => {
         currentPage = Math.min(pp, pages.length - 1);
     }
     renderPage();
+    const resumeResp = await api('/api/user/book/progress', 'POST', {
+        book_id: BOOK.id,
+        page: currentPage,
+    });
+    if (resumeResp?._httpStatus === 403 && resumeResp?.error === 'NOT_ENOUGH_COINS') {
+        alert("You don't have enough coins");
+        window.location.href = 'index.php?view=store';
+        return;
+    }
     if (getProgressPercent(currentPage) === 100 && !BOOK.alreadyCompleted && !finishAutoOffered) {
         finishAutoOffered = true;
         setTimeout(openFinishModal, 800);
@@ -387,5 +404,14 @@ document.addEventListener('keydown', e => {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderPage();
+api('/api/user/book/progress', 'POST', {
+    book_id: BOOK.id,
+    page: currentPage,
+}).then((firstResp) => {
+    if (firstResp?._httpStatus === 403 && firstResp?.error === 'NOT_ENOUGH_COINS') {
+        alert("You don't have enough coins");
+        window.location.href = 'index.php?view=store';
+    }
+});
 
 })();

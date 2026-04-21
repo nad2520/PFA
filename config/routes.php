@@ -87,6 +87,18 @@ return function (Router $router): void {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->saveProgress();
     });
+    $router->post('/api/user/book/list/add', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->addBookToList();
+    });
+    $router->post('/api/user/book/list/remove', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->removeBookFromList();
+    });
+    $router->get('/api/user/back-to-lecture', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->backToLecture();
+    });
     $router->post('/api/user/book/complete', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->completeBook();
@@ -102,6 +114,10 @@ return function (Router $router): void {
     $router->get('/api/leaderboard', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->leaderboard();
+    });
+    $router->get('/api/leaderboard/me', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->myLeaderboard();
     });
 };
 

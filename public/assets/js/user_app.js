@@ -11,7 +11,6 @@ const {
     genres,
     bookPrices,
     mockUser,
-    mockUserBooks,
     communityPosts,
 } = LX;
 
@@ -212,18 +211,50 @@ function genreTagHTML(genre) {
 // ─── Navigate helper ─────────────────────────────────────────────────────────
 function nav(url) { window.location.href = url; }
 
+const LX_SESSION = window.LX_SESSION || {};
+async function lxApi(path, method = 'GET', body = null) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (LX_SESSION.csrfToken) headers['X-CSRF-Token'] = LX_SESSION.csrfToken;
+    const res = await fetch('/PFA' + path, {
+        method,
+        headers,
+        credentials: 'same-origin',
+        body: body ? JSON.stringify(body) : undefined,
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+        throw new Error(json.message || 'Request failed.');
+    }
+    return json;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 //  GLOBAL HEADER
 // ═══════════════════════════════════════════════════════════════════════════════
 function initHeaderNavLinks() {
     const el = document.getElementById('navBackLecture');
-    if (!el || !window.LexoraState) return;
+    if (!el) return;
     if (document.getElementById('bookDetailMain')) return;
-    const last = window.LexoraState.getLastBookReadId();
-    if (last) {
-        el.href = `?view=read-book&id=${last}`;
-        el.style.display = '';
-    }
+    lxApi('/api/user/back-to-lecture', 'GET')
+        .then(({ data }) => {
+            if (data?.book_id) {
+                el.href = `?view=read-book&id=${data.book_id}`;
+                el.style.display = '';
+                return;
+            }
+            const last = window.LexoraState?.getLastBookReadId?.();
+            if (last) {
+                el.href = `?view=read-book&id=${last}`;
+                el.style.display = '';
+            }
+        })
+        .catch(() => {
+            const last = window.LexoraState?.getLastBookReadId?.();
+            if (last) {
+                el.href = `?view=read-book&id=${last}`;
+                el.style.display = '';
+            }
+        });
 }
 
 function updateBookDetailHeaderNav(bookId, showLecture) {
@@ -497,7 +528,7 @@ function initCatalog() {
     }
 
     // For You section
-    const userBooks = window.LexoraState ? window.LexoraState.getUserBooks() : mockUserBooks;
+    const userBooks = window.LexoraState ? window.LexoraState.getUserBooks() : [];
     const readGenres = userBooks.filter(u => u.status === 'reading' || u.status === 'completed').map(u => u.book.genre);
     const genreCount = {};
     readGenres.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
@@ -890,7 +921,7 @@ function initProfile() {
         }
 
         const libGrid = document.getElementById('libraryGrid');
-        const userBooksAll = window.LexoraState ? window.LexoraState.getUserBooks() : mockUserBooks;
+        const userBooksAll = window.LexoraState ? window.LexoraState.getUserBooks() : [];
         const library = userBooksAll.filter(u => u.status === 'reading' || u.status === 'completed');
         if (libGrid) {
             if (library.length === 0) {
@@ -1011,6 +1042,28 @@ function initProfile() {
                 }
             });
         }
+
+        const myLbRoot = document.getElementById('profileLeaderboardRows');
+        const myLbRank = document.getElementById('profileLeaderboardRank');
+        if (myLbRoot) {
+            try {
+                const lb = await lxApi('/api/leaderboard/me', 'GET');
+                const data = lb.data || {};
+                if (myLbRank) myLbRank.textContent = '#' + (data.rank || '-');
+                const rows = Array.isArray(data.window) ? data.window : [];
+                myLbRoot.innerHTML = rows.map(r => `
+                    <div class="lb-row${r.isCurrentUser ? ' top3' : ''}">
+                      <div class="lb-rank"><span class="lb-rank-num">#${r.rank}</span></div>
+                      <div class="lb-reader"><span class="lb-name">${r.nom}</span></div>
+                      <div class="lb-score"><span class="lb-score-val">${Number(r.xp || 0).toLocaleString()}</span><span class="lb-score-label">xp</span></div>
+                      <div class="lb-books">${Number(r.books_read || 0)}</div>
+                      <div class="lb-level"><span class="lb-level-badge">Lv.${Number(r.level || 1)}</span></div>
+                    </div>
+                `).join('');
+            } catch (_) {
+                myLbRoot.innerHTML = '';
+            }
+        }
     })();
 }
 
@@ -1051,7 +1104,7 @@ function initBookDetail() {
     const cover = genreCovers[book.genre];
     const colors = genreColors[book.genre];
     const price = bookPrices[book.id];
-    const userBook = St ? St.getBookStatus(book.id) : mockUserBooks.find(u => u.book.id === book.id);
+    const userBook = St ? St.getBookStatus(book.id) : null;
     const totalPages = St ? St.getBookPages(book.id).length : 24;
     const savedPage = St ? St.getBookProgress(book.id) : 0;
     const hasStarted = savedPage > 0;
@@ -1060,8 +1113,6 @@ function initBookDetail() {
     const readingPercent = hasStarted
         ? Math.round((savedPage / totalPages) * 100)
         : (userBook?.progress ?? 0);
-
-    const ctaText = isCompleted ? 'READ AGAIN' : hasStarted ? 'CONTINUE READING' : 'START READING';
 
     const progressBlock = isReading && readingPercent > 0 && !isCompleted ? `
     <div style="max-width:24rem" class="detail-reading-progress">
@@ -1075,12 +1126,12 @@ function initBookDetail() {
 
     const inLibrary = St ? St.isInLibrary(book.id) : !!(userBook && (userBook.status === 'reading' || userBook.status === 'completed'));
     const inList = St ? St.isInList(book.id) : userBook?.status === 'plan-to-read';
+    const ctaText = inLibrary
+        ? (isCompleted ? 'READ AGAIN' : 'CONTINUE READING')
+        : (inList ? 'IN YOUR LIST' : 'UNLOCK / READ');
 
-    const libBtn = inLibrary
-        ? `<button type="button" class="btn-detail-secondary btn-detail-danger" data-action="remove-library">${SVG.x} REMOVE FROM LIBRARY</button>`
-        : `<button type="button" class="btn-detail-secondary" data-action="add-library">${SVG.bookOpenLg} ADD TO LIBRARY</button>`;
     const listBtn = inList
-        ? `<button type="button" class="btn-detail-secondary btn-detail-danger" data-action="remove-list">${SVG.x} REMOVE FROM LIST</button>`
+        ? `<button type="button" class="btn-detail-secondary" disabled>IN YOUR LIST</button>`
         : `<button type="button" class="btn-detail-secondary" data-action="add-list">ADD TO LIST</button>`;
 
     document.title = `${book.title} — Lexora`;
@@ -1110,8 +1161,7 @@ function initBookDetail() {
       ${completedBadge}
       <div class="detail-actions">
         <button type="button" class="cta-btn" id="detailReadCta">${SVG.bookOpen} ${ctaText}</button>
-        ${libBtn}
-        ${listBtn}
+        ${(!inLibrary && !inList) ? listBtn : ''}
       </div>
     </div>
   </section>
@@ -1162,29 +1212,34 @@ function initBookDetail() {
   </section>`;
 
     const readCta = document.getElementById('detailReadCta');
-    readCta?.addEventListener('click', () => nav(`?view=read-book&id=${book.id}`));
+    readCta?.addEventListener('click', () => {
+        if (inLibrary) {
+            nav(`?view=read-book&id=${book.id}`);
+            return;
+        }
+        if (inList) {
+            showDetailToast(`"${book.title}" is already in your list.`);
+            return;
+        }
+        nav('?view=store');
+    });
 
     updateBookDetailHeaderNav(book.id, !!isReading);
 
     mainEl.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (!St) return;
+        btn.addEventListener('click', async () => {
             const act = btn.getAttribute('data-action');
-            if (act === 'add-library') {
-                St.addToLibrary(book.id);
-                showDetailToast(`"${book.title}" is now in your library.`);
-            }
-            if (act === 'remove-library') {
-                St.removeFromLibrary(book.id);
-                showDetailToast(`"${book.title}" removed from your library.`);
-            }
             if (act === 'add-list') {
-                St.addToList(book.id);
-                showDetailToast(`"${book.title}" added to your reading list.`);
-            }
-            if (act === 'remove-list') {
-                St.removeFromList(book.id);
-                showDetailToast(`"${book.title}" removed from your list.`);
+                try {
+                    await lxApi('/api/user/book/list/add', 'POST', { book_id: book.id });
+                    showDetailToast(`"${book.title}" added to your reading list.`);
+                    const profile = await lxApi('/api/user/profile', 'GET');
+                    if (profile?.data?.library && window.LexoraState?.applyLibraryFromServer) {
+                        window.LexoraState.applyLibraryFromServer(profile.data.library);
+                    }
+                } catch (e) {
+                    showDetailToast(e.message || 'Could not update your list.');
+                }
             }
             initBookDetail();
         });

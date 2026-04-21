@@ -1,8 +1,8 @@
 // lexora-state.js — mirrors story-shelf-retreat localStorage + bookContent
 (function () {
-  const STORAGE_KEY = "lexora-user-books";
   const LAST_READ_KEY = "lexora-user-books-last";
-  const PROGRESS_KEY = "lexora-reading-progress";
+  let memoryUserBooks = [];
+  let memoryProgress = {};
 
   const loremParagraphs = [
     "The morning light crept through the curtains like a timid guest, casting golden ribbons across the wooden floor. Outside, the village was already stirring — the baker's chimney puffed white smoke into the pale sky, and somewhere a rooster announced the dawn with relentless optimism.",
@@ -54,64 +54,20 @@
     return pageCache[key];
   }
 
-  function getAllProgress() {
-    try {
-      return JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
-    } catch {
-      return {};
-    }
-  }
-
   function getBookProgress(bookId) {
-    return getAllProgress()[bookId] ?? 0;
+    return memoryProgress[bookId] ?? 0;
   }
 
   function saveReadingPage(bookId, page) {
-    const all = getAllProgress();
-    all[bookId] = page;
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
+    memoryProgress[bookId] = page;
   }
 
   function getUserBooks() {
-    const L = window.__lexora;
-    if (!L) return [];
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-      return L.mockUserBooks.map(function (ub) {
-        return { book: ub.book, status: ub.status, progress: ub.progress };
-      });
-    }
-    try {
-      const parsed = JSON.parse(saved);
-      return parsed
-        .map(function (entry) {
-          const book = L.books.find(function (b) {
-            return b.id === entry.bookId;
-          });
-          if (!book) return null;
-          return {
-            book: book,
-            status: entry.status,
-            progress: entry.progress,
-          };
-        })
-        .filter(Boolean);
-    } catch {
-      return L.mockUserBooks.map(function (ub) {
-        return { book: ub.book, status: ub.status, progress: ub.progress };
-      });
-    }
+    return Array.isArray(memoryUserBooks) ? [...memoryUserBooks] : [];
   }
 
   function saveUserBooks(userBooks) {
-    const serializable = userBooks.map(function (ub) {
-      return {
-        bookId: ub.book.id,
-        status: ub.status,
-        progress: ub.progress,
-      };
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializable));
+    memoryUserBooks = Array.isArray(userBooks) ? [...userBooks] : [];
   }
 
   function getLastBookReadId() {
@@ -146,8 +102,6 @@
   }
 
   function addToLibrary(bookId) {
-    const L = window.__lexora;
-    if (!L) return;
     let userBooks = getUserBooks();
     if (
       userBooks.some(function (ub) {
@@ -156,7 +110,7 @@
     ) {
       return;
     }
-    const book = L.books.find(function (b) {
+    const book = (window.__lexora?.books || []).find(function (b) {
       return b.id === bookId;
     });
     if (!book) return;
@@ -168,8 +122,6 @@
   }
 
   function addToList(bookId) {
-    const L = window.__lexora;
-    if (!L) return;
     let userBooks = getUserBooks();
     if (
       userBooks.some(function (ub) {
@@ -178,7 +130,7 @@
     ) {
       return;
     }
-    const book = L.books.find(function (b) {
+    const book = (window.__lexora?.books || []).find(function (b) {
       return b.id === bookId;
     });
     if (!book) return;
@@ -210,7 +162,7 @@
     const L = window.__lexora;
     if (!L.books || !L.books.length) return;
 
-    let userBooks = getUserBooks();
+    let userBooks = [];
     rows.forEach(function (row) {
       const bid = Number(row.book_id);
       const book =
@@ -234,12 +186,11 @@
         }
       }
 
-      const idx = userBooks.findIndex(function (ub) {
-        return ub.book.id === bid;
-      });
       const entry = { book: book, status: st, progress: progress };
-      if (idx >= 0) userBooks[idx] = entry;
-      else userBooks.push(entry);
+      userBooks.push(entry);
+      if (typeof row.progress_page === "number") {
+        memoryProgress[bid] = row.progress_page;
+      }
     });
     saveUserBooks(userBooks);
   }

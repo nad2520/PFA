@@ -206,6 +206,21 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                 <div id="planGrid"></div>
             </section>
 
+            <section style="display:flex;flex-direction:column;gap:1rem">
+                <h2 class="font-display" style="font-size:1.5rem;font-weight:700"> Your Leaderboard Window</h2>
+                <p style="color:var(--muted-foreground);font-size:.9rem">Current rank: <strong id="profileLeaderboardRank">-</strong></p>
+                <div class="leaderboard-wrap">
+                    <div class="lb-header">
+                        <span>Rank</span>
+                        <span>Reader</span>
+                        <span style="text-align:right;">Score</span>
+                        <span class="lb-books-col" style="text-align:right;">Books</span>
+                        <span style="text-align:right;">Level</span>
+                    </div>
+                    <div id="profileLeaderboardRows"></div>
+                </div>
+            </section>
+
         </div>
 
         <!-- Footer -->

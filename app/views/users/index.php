@@ -1,4 +1,10 @@
-<?php session_start(); ?>
+<?php
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = (string)$_SESSION['csrf_token'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,6 +20,7 @@
   <link rel="stylesheet" href="public/assets/css/user/main.css">
   <script>
     window.LX_USER_ROLE = "<?php echo isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user'; ?>";
+    window.LX_SESSION = { csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>" };
   </script>
 </head>
 

@@ -604,7 +604,7 @@ Home  index.php
         <h3 class="section-title reveal" style="font-size:1.75rem;margin-bottom:2rem;text-align:center;">
           Top <span class="text-primary text-glow-gold">Readers</span> Leaderboard
         </h3>
-        <div class="leaderboard-wrap reveal">
+        <div class="leaderboard-wrap reveal" id="landingLeaderboard">
           <div class="lb-header">
             <span>Rank</span>
             <span>Reader</span>
@@ -612,7 +612,7 @@ Home  index.php
             <span class="lb-books-col" style="text-align:right;">Books</span>
             <span style="text-align:right;">Level</span>
           </div>
-
+          <div id="landingLeaderboardRows">
           <div class="lb-row top3 reveal-x">
             <div class="lb-rank"><span class="lb-rank-icon" style="color:var(--primary)">#1</span></div>
             <div class="lb-reader"><span class="lb-avatar"></span><span class="lb-name">Luna Starweaver</span>
@@ -677,6 +677,7 @@ Home  index.php
             <div class="lb-score"><span class="lb-score-val">43,900</span><span class="lb-score-label">pts</span></div>
             <div class="lb-books">158</div>
             <div class="lb-level"><span class="lb-level-badge">Lv.48</span></div>
+          </div>
           </div>
         </div>
       </div>
@@ -1008,6 +1009,7 @@ Home  index.php
   <script src="public/assets/js/landing/get-started-modal/script.js"></script>
   <script src="public/assets/js/landing/auth-modal/script.js"></script>
   <script src="public/assets/js/landing/footer/script.js"></script>
+  <script src="public/assets/js/landing/leaderboard/script.js"></script>
   <script src="public/assets/js/landing-common/global.js"></script>
 </body>
 

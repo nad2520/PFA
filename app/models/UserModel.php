@@ -292,6 +292,155 @@ class UserModel
         }
     }
 
+    public static function addToMyList(int $userId, int $bookId): bool
+    {
+        if ($userId <= 0 || $bookId <= 0) {
+            return false;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at, completed_at)
+                 VALUES (?, ?, "plan_to_read", 0, NULL, NULL)
+                 ON DUPLICATE KEY UPDATE
+                   status = CASE
+                     WHEN status = "completed" THEN status
+                     WHEN status = "reading" THEN status
+                     ELSE "plan_to_read"
+                   END'
+            );
+            return (bool)$stmt->execute([$userId, $bookId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public static function removeFromMyList(int $userId, int $bookId): bool
+    {
+        if ($userId <= 0 || $bookId <= 0) {
+            return false;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'DELETE FROM user_books
+                 WHERE user_id = ? AND book_id = ? AND status = "plan_to_read"'
+            );
+            $stmt->execute([$userId, $bookId]);
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public static function ensureBookInLibrary(int $userId, int $bookId): bool
+    {
+        if ($userId <= 0 || $bookId <= 0) {
+            return false;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
+                 VALUES (?, ?, "reading", 0, NOW())
+                 ON DUPLICATE KEY UPDATE
+                   status = CASE
+                     WHEN status = "completed" THEN status
+                     ELSE "reading"
+                   END,
+                   started_at = IFNULL(started_at, NOW())'
+            );
+            return (bool)$stmt->execute([$userId, $bookId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public static function saveReadingProgress(int $userId, int $bookId, int $page): bool
+    {
+        if ($userId <= 0 || $bookId <= 0) {
+            return false;
+        }
+        $page = max(0, $page);
+        try {
+            $pdo = Database::pdo();
+            $pdo->beginTransaction();
+
+            $okLibrary = self::ensureBookInLibrary($userId, $bookId);
+            if (!$okLibrary) {
+                throw new RuntimeException('Could not ensure library row.');
+            }
+
+            $stmtProgress = $pdo->prepare(
+                'INSERT INTO reading_progress (user_id, book_id, last_page, updated_at)
+                 VALUES (?, ?, ?, NOW())
+                 ON DUPLICATE KEY UPDATE
+                   last_page = VALUES(last_page),
+                   updated_at = NOW()'
+            );
+            $stmtProgress->execute([$userId, $bookId, $page]);
+
+            $stmtBook = $pdo->prepare(
+                'UPDATE user_books
+                 SET progress_page = GREATEST(progress_page, ?)
+                 WHERE user_id = ? AND book_id = ?'
+            );
+            $stmtBook->execute([$page, $userId, $bookId]);
+
+            $pdo->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return false;
+        }
+    }
+
+    public static function getBackToLecture(int $userId): ?array
+    {
+        if ($userId <= 0) {
+            return null;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'SELECT rp.book_id, rp.last_page, rp.updated_at,
+                        b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward, b.audience, b.trending, b.description
+                 FROM reading_progress rp
+                 INNER JOIN books b ON b.id = rp.book_id
+                 WHERE rp.user_id = ?
+                 ORDER BY rp.updated_at DESC
+                 LIMIT 1'
+            );
+            $stmt->execute([$userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                return null;
+            }
+            return [
+                'book_id' => (int)$row['book_id'],
+                'last_page' => (int)$row['last_page'],
+                'updated_at' => $row['updated_at'],
+                'book' => [
+                    'id' => (int)$row['book_id'],
+                    'title' => (string)$row['title'],
+                    'author' => (string)$row['author'],
+                    'genre' => (string)$row['genre'],
+                    'cover' => (string)$row['cover'],
+                    'coinCost' => (int)$row['coinCost'],
+                    'xpReward' => (int)$row['xpReward'],
+                    'coinReward' => (int)$row['coinReward'],
+                    'audience' => (string)$row['audience'],
+                    'trending' => (int)$row['trending'],
+                    'description' => (string)($row['description'] ?? ''),
+                ],
+            ];
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
     /**
      * @return list<array<string, mixed>>
      */
@@ -301,11 +450,94 @@ class UserModel
         try {
             $pdo = Database::pdo();
             $stmt = $pdo->query(
-                'SELECT id, nom, level, xp, coins FROM users ORDER BY xp DESC, level DESC LIMIT ' . (int)$limit
+                'SELECT
+                    u.id,
+                    u.nom,
+                    u.level,
+                    u.xp,
+                    u.coins,
+                    COALESCE((
+                      SELECT COUNT(*)
+                      FROM user_books ub
+                      WHERE ub.user_id = u.id AND ub.status = "completed"
+                    ), 0) AS books_read
+                 FROM users u
+                 ORDER BY u.xp DESC, u.coins DESC, u.id ASC
+                 LIMIT ' . (int)$limit
             );
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $idx => &$row) {
+                $row['rank'] = $idx + 1;
+            }
+            unset($row);
+            return $rows;
         } catch (PDOException $e) {
             return [];
+        }
+    }
+
+    /**
+     * @return array{rank:int,window:list<array<string,mixed>>}|null
+     */
+    public static function relativeLeaderboard(int $userId, int $above = 4, int $below = 2): ?array
+    {
+        if ($userId <= 0) {
+            return null;
+        }
+        $above = max(0, $above);
+        $below = max(0, $below);
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->query(
+                'SELECT
+                    u.id,
+                    u.nom,
+                    u.level,
+                    u.xp,
+                    u.coins,
+                    COALESCE((
+                      SELECT COUNT(*)
+                      FROM user_books ub
+                      WHERE ub.user_id = u.id AND ub.status = "completed"
+                    ), 0) AS books_read
+                 FROM users u
+                 ORDER BY u.xp DESC, u.coins DESC, u.id ASC'
+            );
+            $allRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $rank = 0;
+            foreach ($allRows as $idx => $row) {
+                if ((int)$row['id'] === $userId) {
+                    $rank = $idx + 1;
+                    break;
+                }
+            }
+            if ($rank <= 0) {
+                return null;
+            }
+
+            $startRank = max(1, $rank - $above);
+            $endRank = $rank + $below;
+            $rows = [];
+            for ($i = $startRank; $i <= $endRank; $i++) {
+                if (!isset($allRows[$i - 1])) {
+                    continue;
+                }
+                $row = $allRows[$i - 1];
+                $row['rank'] = $i;
+                $row['isCurrentUser'] = ((int)$row['id'] === $userId);
+                $rows[] = $row;
+            }
+            foreach ($rows as &$row) {
+                $row['isCurrentUser'] = ((int)$row['id'] === $userId);
+            }
+            unset($row);
+
+            return [
+                'rank' => $rank,
+                'window' => $rows,
+            ];
+        } catch (PDOException $e) {
+            return null;
         }
     }
 }

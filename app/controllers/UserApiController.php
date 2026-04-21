@@ -49,6 +49,7 @@ class UserApiController extends Controller
                     default   => '',
                 },
                 'library'     => UserModel::getUserBooks($userId),
+                'backToLecture' => UserModel::getBackToLecture($userId),
             ],
         ]);
     }
@@ -137,8 +138,15 @@ class UserApiController extends Controller
                 throw new RuntimeException('Not enough coins');
             }
             $pdo->prepare(
-                'INSERT INTO user_books (user_id, book_id, status) VALUES (?, ?, ?)'
-            )->execute([$userId, $bookId, 'plan_to_read']);
+                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
+                 VALUES (?, ?, ?, 0, NOW())
+                 ON DUPLICATE KEY UPDATE
+                   status = CASE
+                     WHEN status = "completed" THEN status
+                     ELSE "reading"
+                   END,
+                   started_at = IFNULL(started_at, NOW())'
+            )->execute([$userId, $bookId, 'reading']);
 
             $pdo->prepare(
                 'INSERT INTO economy_logs (user_id, log_date, coins_spent, event_type) VALUES (?, CURDATE(), ?, ?)'
@@ -312,18 +320,117 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'book_id required.'], 400);
         }
 
-        $pdo  = Database::pdo();
-        $stmt = $pdo->prepare(
-            'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
-             VALUES (?, ?, "reading", ?, NOW())
-             ON DUPLICATE KEY UPDATE
-               progress_page = VALUES(progress_page),
-               status = IF(status = "plan_to_read", "reading", status),
-               started_at = IFNULL(started_at, NOW())'
+        $book = BookModel::findById($bookId);
+        if (!$book) {
+            $this->json(['success' => false, 'message' => 'Book not found.'], 404);
+        }
+
+        $pdo = Database::pdo();
+        $coinCost = max(0, (int)($book['coinCost'] ?? 0));
+        $ownedStmt = $pdo->prepare(
+            'SELECT status FROM user_books WHERE user_id = ? AND book_id = ? LIMIT 1'
         );
-        $stmt->execute([$userId, $bookId, $page]);
+        $ownedStmt->execute([$userId, $bookId]);
+        $owned = $ownedStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$owned && $coinCost > 0) {
+            $pdo->beginTransaction();
+            try {
+                $coinsStmt = $pdo->prepare('SELECT coins FROM users WHERE id = ? FOR UPDATE');
+                $coinsStmt->execute([$userId]);
+                $coins = (int)($coinsStmt->fetchColumn() ?: 0);
+                if ($coins < $coinCost) {
+                    $pdo->rollBack();
+                    $this->json([
+                        'success' => false,
+                        'error' => 'NOT_ENOUGH_COINS',
+                        'message' => "You don't have enough coins",
+                    ], 403);
+                }
+                $deduct = $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?');
+                $deduct->execute([$coinCost, $userId, $coinCost]);
+                if ($deduct->rowCount() === 0) {
+                    $pdo->rollBack();
+                    $this->json([
+                        'success' => false,
+                        'error' => 'NOT_ENOUGH_COINS',
+                        'message' => "You don't have enough coins",
+                    ], 403);
+                }
+                $pdo->prepare(
+                    'INSERT INTO economy_logs (user_id, log_date, coins_spent, event_type) VALUES (?, CURDATE(), ?, ?)'
+                )->execute([$userId, $coinCost, 'book_access']);
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                $this->json(['success' => false, 'message' => 'Could not validate book access.'], 500);
+            }
+        }
+
+        $ok = UserModel::saveReadingProgress($userId, $bookId, $page);
+        if (!$ok) {
+            $this->json(['success' => false, 'message' => 'Could not save progress.'], 500);
+        }
 
         $this->json(['success' => true]);
+    }
+
+    // ── POST /api/user/book/list/add ───────────────────────────────────────────
+    public function addBookToList(): void
+    {
+        $this->requireAuth();
+        if (!$this->verifyCsrfHeader()) {
+            $this->json(['success' => false, 'message' => 'Invalid CSRF token.'], 403);
+        }
+        $body   = $this->jsonBody();
+        $userId = (int)$_SESSION['user_id'];
+        $bookId = (int)($body['book_id'] ?? 0);
+
+        if ($bookId <= 0) {
+            $this->json(['success' => false, 'message' => 'book_id required.'], 400);
+        }
+        $book = BookModel::findById($bookId);
+        if (!$book) {
+            $this->json(['success' => false, 'message' => 'Book not found.'], 404);
+        }
+
+        $ok = UserModel::addToMyList($userId, $bookId);
+        if (!$ok) {
+            $this->json(['success' => false, 'message' => 'Could not add to list.'], 500);
+        }
+        $this->json(['success' => true, 'message' => 'Book added to your list.']);
+    }
+
+    // ── POST /api/user/book/list/remove ────────────────────────────────────────
+    public function removeBookFromList(): void
+    {
+        $this->requireAuth();
+        if (!$this->verifyCsrfHeader()) {
+            $this->json(['success' => false, 'message' => 'Invalid CSRF token.'], 403);
+        }
+        $body   = $this->jsonBody();
+        $userId = (int)$_SESSION['user_id'];
+        $bookId = (int)($body['book_id'] ?? 0);
+
+        if ($bookId <= 0) {
+            $this->json(['success' => false, 'message' => 'book_id required.'], 400);
+        }
+        $ok = UserModel::removeFromMyList($userId, $bookId);
+        if (!$ok) {
+            $this->json(['success' => false, 'message' => 'Could not remove from list.'], 500);
+        }
+        $this->json(['success' => true, 'message' => 'Book removed from your list.']);
+    }
+
+    // ── GET /api/user/back-to-lecture ──────────────────────────────────────────
+    public function backToLecture(): void
+    {
+        $this->requireAuth();
+        $userId = (int)$_SESSION['user_id'];
+        $row = UserModel::getBackToLecture($userId);
+        $this->json(['success' => true, 'data' => $row]);
     }
 
     // ── POST /api/user/quest/complete ─────────────────────────────────────────
@@ -383,6 +490,18 @@ class UserApiController extends Controller
     {
         $top = UserModel::leaderboard(10);
         $this->json(['success' => true, 'data' => $top]);
+    }
+
+    // ── GET /api/leaderboard/me ─────────────────────────────────────────────────
+    public function myLeaderboard(): void
+    {
+        $this->requireAuth();
+        $userId = (int)$_SESSION['user_id'];
+        $window = UserModel::relativeLeaderboard($userId, 4, 2);
+        if ($window === null) {
+            $this->json(['success' => false, 'message' => 'Leaderboard not available.'], 404);
+        }
+        $this->json(['success' => true, 'data' => $window]);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

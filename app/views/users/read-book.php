@@ -33,8 +33,9 @@ try {
     $ubRow = $chk->fetch(PDO::FETCH_ASSOC);
     $alreadyCompleted = ($ubRow['status'] ?? '') === 'completed';
 
-    // Paid-read gate: first read requires coin cost, wishlist does not.
-    if (!$ubRow) {
+    // Paid-read gate: read access requires ownership when coinCost > 0.
+    // plan_to_read is wishlist only and does not grant read access.
+    if (!$ubRow || (($ubRow['status'] ?? '') === 'plan_to_read')) {
         $coinCost = max(0, (int)($book['coinCost'] ?? 0));
         if ($coinCost > 0) {
             $pdo->beginTransaction();
@@ -56,7 +57,11 @@ try {
             }
 
             $pdo->prepare(
-                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at) VALUES (?, ?, "reading", 0, NOW())'
+                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
+                 VALUES (?, ?, "reading", 0, NOW())
+                 ON DUPLICATE KEY UPDATE
+                   status = "reading",
+                   started_at = IFNULL(started_at, NOW())'
             )->execute([$userId, (int)$book['id']]);
             $pdo->prepare(
                 'INSERT INTO economy_logs (user_id, log_date, coins_spent, event_type) VALUES (?, CURDATE(), ?, ?)'
@@ -64,7 +69,11 @@ try {
             $pdo->commit();
         } else {
             $pdo->prepare(
-                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at) VALUES (?, ?, "reading", 0, NOW())'
+                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
+                 VALUES (?, ?, "reading", 0, NOW())
+                 ON DUPLICATE KEY UPDATE
+                   status = "reading",
+                   started_at = IFNULL(started_at, NOW())'
             )->execute([$userId, (int)$book['id']]);
         }
     }
