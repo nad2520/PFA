@@ -91,6 +91,10 @@ return function (Router $router): void {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->completeBook();
     });
+    $router->post('/api/user/quest/complete', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->completeQuest();
+    });
     $router->post('/api/user/book/rating', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->updateRating();

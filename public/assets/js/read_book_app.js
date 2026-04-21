@@ -146,6 +146,10 @@ async function goToPage(newPage) {
             book_id:      BOOK.id,
             pages_read:   1,
             minutes_read: Math.max(minutesOnPage, 1),
+        }).then((resp) => {
+            if (resp?.success && window.LX_applyProfileStats && typeof resp.newCoins === 'number') {
+                window.LX_applyProfileStats({ newCoins: resp.newCoins });
+            }
         });
     }
 

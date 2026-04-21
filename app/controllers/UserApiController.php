@@ -81,8 +81,15 @@ class UserApiController extends Controller
         $stmt->execute([$userId, $bookId, $today, $pagesRead, $minutesRead]);
 
         UserModel::updateAfterReading($userId, $minutesRead);
+        $milestoneCoins = UserModel::applyPageMilestoneRewards($userId, $bookId);
+        $user = UserModel::findById($userId);
 
-        $this->json(['success' => true, 'message' => 'Session logged.']);
+        $this->json([
+            'success' => true,
+            'message' => 'Session logged.',
+            'coinRewardEarned' => $milestoneCoins,
+            'newCoins' => (int)($user['coins'] ?? 0),
+        ]);
     }
 
     // ── POST /api/user/book/purchase ──────────────────────────────────────────
@@ -124,7 +131,11 @@ class UserApiController extends Controller
 
         $pdo->beginTransaction();
         try {
-            $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ?')->execute([$cost, $userId]);
+            $deduct = $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?');
+            $deduct->execute([$cost, $userId, $cost]);
+            if ($deduct->rowCount() === 0) {
+                throw new RuntimeException('Not enough coins');
+            }
             $pdo->prepare(
                 'INSERT INTO user_books (user_id, book_id, status) VALUES (?, ?, ?)'
             )->execute([$userId, $bookId, 'plan_to_read']);
@@ -136,10 +147,19 @@ class UserApiController extends Controller
             $pdo->commit();
         } catch (\Throwable $e) {
             $pdo->rollBack();
+            if ($e instanceof RuntimeException) {
+                $this->json(['success' => false, 'message' => 'Not enough coins.'], 402);
+            }
             $this->json(['success' => false, 'message' => 'Purchase failed.'], 500);
         }
 
-        $this->json(['success' => true, 'message' => 'Book added to your library!', 'coinsSpent' => $cost]);
+        $fresh = UserModel::findById($userId);
+        $this->json([
+            'success' => true,
+            'message' => 'Book added to your library!',
+            'coinsSpent' => $cost,
+            'newCoins' => (int)($fresh['coins'] ?? 0),
+        ]);
     }
 
     // ── POST /api/user/book/complete ──────────────────────────────────────────
@@ -304,6 +324,58 @@ class UserApiController extends Controller
         $stmt->execute([$userId, $bookId, $page]);
 
         $this->json(['success' => true]);
+    }
+
+    // ── POST /api/user/quest/complete ─────────────────────────────────────────
+    public function completeQuest(): void
+    {
+        $this->requireAuth();
+        if (!$this->verifyCsrfHeader()) {
+            $this->json(['success' => false, 'message' => 'Invalid CSRF token.'], 403);
+        }
+        $body   = $this->jsonBody();
+        $userId = (int)$_SESSION['user_id'];
+        $questKey = trim((string)($body['quest_key'] ?? 'daily_reader'));
+        if ($questKey === '') {
+            $this->json(['success' => false, 'message' => 'quest_key required.'], 400);
+        }
+
+        $reward = 200;
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            $ins = $pdo->prepare(
+                'INSERT INTO user_quest_rewards (user_id, quest_key, coins_rewarded) VALUES (?, ?, ?)'
+            );
+            $ins->execute([$userId, $questKey, $reward]);
+
+            $pdo->prepare('UPDATE users SET coins = coins + ? WHERE id = ?')->execute([$reward, $userId]);
+            $pdo->prepare(
+                'INSERT INTO economy_logs (user_id, log_date, coins_earned, event_type) VALUES (?, CURDATE(), ?, ?)'
+            )->execute([$userId, $reward, 'quest_completion']);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            if (($e instanceof PDOException) && ($e->getCode() === '23000')) {
+                $user = UserModel::findById($userId);
+                $this->json([
+                    'success' => true,
+                    'alreadyClaimed' => true,
+                    'message' => 'Quest reward already claimed.',
+                    'coinsEarned' => 0,
+                    'newCoins' => (int)($user['coins'] ?? 0),
+                ]);
+            }
+            $this->json(['success' => false, 'message' => 'Could not complete quest.'], 500);
+        }
+
+        $user = UserModel::findById($userId);
+        $this->json([
+            'success' => true,
+            'message' => 'Quest completed!',
+            'coinsEarned' => $reward,
+            'newCoins' => (int)($user['coins'] ?? 0),
+        ]);
     }
 
     // ── GET /api/leaderboard ──────────────────────────────────────────────────

@@ -195,7 +195,7 @@ btnConfirm?.addEventListener('click', async () => {
 
     try {
         const data = await api('/api/user/book/purchase', 'POST', { book_id: pendingBookId });
-        currentCoins -= data.coinsSpent || 0;
+        currentCoins = Number(data.newCoins ?? (currentCoins - (data.coinsSpent || 0)));
 
         // Update displayed coin count
         document.getElementById('coinCount') && (document.getElementById('coinCount').textContent = currentCoins.toLocaleString());

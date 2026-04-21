@@ -68,9 +68,9 @@ class AuthController extends Controller
         }
 
         $hashed = $this->hashPassword($password);
-        $req = "INSERT INTO users(nom, email, password, role, birthdate) VALUES (?, ?, ?, ?, ?)";
+        $req = "INSERT INTO users(nom, email, password, role, birthdate, coins) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($req);
-        $ok = $stmt->execute([$username, $email, $hashed, $role, $birthdate ?: null]);
+        $ok = $stmt->execute([$username, $email, $hashed, $role, $birthdate ?: null, 1000]);
 
         if (!$ok) {
             $_SESSION['auth_error'] = "Error creating account.";

@@ -199,11 +199,13 @@ class UserModel
             $streak = (int)($row['streak_days'] ?? 0);
 
             $newStreak = 1;
+            $firstReadToday = true;
             if ($lastRead) {
                 try {
                     $lastDay = (new DateTimeImmutable((string)$lastRead))->format('Y-m-d');
                     if ($lastDay === $today) {
                         $newStreak = $streak > 0 ? $streak : 1;
+                        $firstReadToday = false;
                     } elseif ($lastDay === $yesterday) {
                         $newStreak = max(1, $streak + 1);
                     }
@@ -219,8 +221,74 @@ class UserModel
             $pdo->prepare(
                 'UPDATE users SET level = GREATEST(1, FLOOR(xp / 500) + 1) WHERE id = ?'
             )->execute([$userId]);
+
+            // Daily streak coin reward: first read session of the day only.
+            if ($firstReadToday) {
+                $pdo->prepare('UPDATE users SET coins = coins + 50 WHERE id = ?')->execute([$userId]);
+                $pdo->prepare(
+                    'INSERT INTO economy_logs (user_id, log_date, coins_earned, event_type) VALUES (?, CURDATE(), ?, ?)'
+                )->execute([$userId, 50, 'daily_streak']);
+            }
         } catch (PDOException $e) {
             // ignore
+        }
+    }
+
+    /**
+     * Reward +20 coins for each new 10-page milestone reached on a book.
+     */
+    public static function applyPageMilestoneRewards(int $userId, int $bookId): int
+    {
+        if ($userId <= 0 || $bookId <= 0) {
+            return 0;
+        }
+        try {
+            $pdo = Database::pdo();
+            $pdo->beginTransaction();
+
+            $ub = $pdo->prepare(
+                'SELECT id, page_reward_steps FROM user_books WHERE user_id = ? AND book_id = ? FOR UPDATE'
+            );
+            $ub->execute([$userId, $bookId]);
+            $row = $ub->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                $pdo->commit();
+                return 0;
+            }
+
+            $sum = $pdo->prepare(
+                'SELECT COALESCE(SUM(pages_read), 0) AS total_pages FROM reading_sessions WHERE user_id = ? AND book_id = ?'
+            );
+            $sum->execute([$userId, $bookId]);
+            $totalPages = (int)($sum->fetchColumn() ?: 0);
+
+            $earnedSteps = intdiv(max(0, $totalPages), 10);
+            $alreadySteps = (int)($row['page_reward_steps'] ?? 0);
+            $newSteps = max(0, $earnedSteps - $alreadySteps);
+
+            if ($newSteps <= 0) {
+                $pdo->commit();
+                return 0;
+            }
+
+            $coinReward = $newSteps * 20;
+            $pdo->prepare(
+                'UPDATE user_books SET page_reward_steps = ? WHERE id = ?'
+            )->execute([$alreadySteps + $newSteps, (int)$row['id']]);
+            $pdo->prepare(
+                'UPDATE users SET coins = coins + ? WHERE id = ?'
+            )->execute([$coinReward, $userId]);
+            $pdo->prepare(
+                'INSERT INTO economy_logs (user_id, log_date, coins_earned, event_type) VALUES (?, CURDATE(), ?, ?)'
+            )->execute([$userId, $coinReward, 'reading_pages_reward']);
+
+            $pdo->commit();
+            return $coinReward;
+        } catch (PDOException $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return 0;
         }
     }
 

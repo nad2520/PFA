@@ -32,7 +32,46 @@ try {
     $chk->execute([$userId, (int)$book['id']]);
     $ubRow = $chk->fetch(PDO::FETCH_ASSOC);
     $alreadyCompleted = ($ubRow['status'] ?? '') === 'completed';
+
+    // Paid-read gate: first read requires coin cost, wishlist does not.
+    if (!$ubRow) {
+        $coinCost = max(0, (int)($book['coinCost'] ?? 0));
+        if ($coinCost > 0) {
+            $pdo->beginTransaction();
+            $userStmt = $pdo->prepare('SELECT coins FROM users WHERE id = ? FOR UPDATE');
+            $userStmt->execute([$userId]);
+            $coins = (int)($userStmt->fetchColumn() ?: 0);
+            if ($coins < $coinCost) {
+                $pdo->rollBack();
+                header('Location: index.php?view=store&coin_error=' . rawurlencode('You don’t have enough coins to read this book.'));
+                exit;
+            }
+
+            $ded = $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?');
+            $ded->execute([$coinCost, $userId, $coinCost]);
+            if ($ded->rowCount() === 0) {
+                $pdo->rollBack();
+                header('Location: index.php?view=store&coin_error=' . rawurlencode('You don’t have enough coins to read this book.'));
+                exit;
+            }
+
+            $pdo->prepare(
+                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at) VALUES (?, ?, "reading", 0, NOW())'
+            )->execute([$userId, (int)$book['id']]);
+            $pdo->prepare(
+                'INSERT INTO economy_logs (user_id, log_date, coins_spent, event_type) VALUES (?, CURDATE(), ?, ?)'
+            )->execute([$userId, $coinCost, 'book_access']);
+            $pdo->commit();
+        } else {
+            $pdo->prepare(
+                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at) VALUES (?, ?, "reading", 0, NOW())'
+            )->execute([$userId, (int)$book['id']]);
+        }
+    }
 } catch (Throwable $e) {
+    if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     $alreadyCompleted = false;
 }
 

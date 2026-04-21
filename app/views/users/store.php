@@ -1,3 +1,6 @@
+<?php
+$coinError = isset($_GET['coin_error']) ? trim((string)$_GET['coin_error']) : '';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -63,6 +66,11 @@
         <div class="store-hero">
             <h1 class="text-golden font-display">Imperial Treasury</h1>
             <p>Acquire premium book volumes or test your luck.</p>
+            <?php if ($coinError !== ''): ?>
+                <p style="margin-top:.75rem;color:hsl(0,62%,60%);font-weight:600;">
+                    <?= htmlspecialchars($coinError, ENT_QUOTES) ?>
+                </p>
+            <?php endif; ?>
         </div>
 
         <!-- --- Tier Cards ---------------------------------------------------------- -->

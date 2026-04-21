@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = (string)$_SESSION['csrf_token'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +15,9 @@
     <meta name="description"
         content="Your Lexora reading profile  track progress, view your library, and explore the Scholar's Map.">
     <link rel="stylesheet" href="public/assets/css/user/main.css">
+    <script>
+      window.LX_SESSION = { csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>" };
+    </script>
 </head>
 
 <body>
@@ -113,6 +123,28 @@
                                 style="font-size:1.1rem;font-weight:700">5</span>
                             <span style="font-size:.875rem;color:var(--muted-foreground)">Books Read</span>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="lamp-of-knowledge" aria-labelledby="coin-system-heading">
+                <div class="lamp-card-head">
+                    <h2 id="coin-system-heading" class="font-display lamp-card-title">The Coin System</h2>
+                </div>
+                <div class="lamp-card-body" style="display:block">
+                    <p style="color:var(--muted-foreground);margin-bottom:1rem">
+                        Coins are the currency of the Reading Kingdom. Earn them by reading pages, completing quests,
+                        and maintaining your daily streak. Spend them on premium books, avatar cosmetics, and
+                        exclusive features.
+                    </p>
+                    <ul style="display:grid;gap:.5rem;list-style:none;padding:0;margin:0 0 1rem 0">
+                        <li>Read 10 pages → <strong>+20 coins</strong></li>
+                        <li>Daily streak → <strong>+50 coins</strong></li>
+                        <li>Quest complete → <strong>+200 coins</strong></li>
+                    </ul>
+                    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+                        <button type="button" class="btn-primary" id="claimQuestRewardBtn">Claim Quest Reward (+200)</button>
+                        <span id="coinSystemMsg" style="color:var(--muted-foreground);font-size:.9rem"></span>
                     </div>
                 </div>
             </section>

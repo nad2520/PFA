@@ -973,6 +973,44 @@ function initProfile() {
         const booksReadEl = document.getElementById('booksReadCount');
         const completedOnly = userBooksAll.filter(u => u.status === 'completed').length;
         if (booksReadEl && !apiData) booksReadEl.textContent = completedOnly;
+
+        const questBtn = document.getElementById('claimQuestRewardBtn');
+        const questMsg = document.getElementById('coinSystemMsg');
+        if (questBtn) {
+            questBtn.addEventListener('click', async () => {
+                const csrf = window.LX_SESSION?.csrfToken || '';
+                questBtn.disabled = true;
+                if (questMsg) questMsg.textContent = 'Claiming reward...';
+                try {
+                    const res = await fetch('/PFA/api/user/quest/complete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrf,
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ quest_key: 'daily_reader_quest' }),
+                    });
+                    const j = await res.json();
+                    if (!res.ok || !j.success) {
+                        throw new Error(j.message || 'Could not claim quest reward.');
+                    }
+
+                    if (window.LX_applyProfileStats) {
+                        window.LX_applyProfileStats({ newCoins: j.newCoins });
+                    }
+                    if (questMsg) {
+                        questMsg.textContent = j.alreadyClaimed
+                            ? 'Quest already claimed.'
+                            : `Quest completed! +${j.coinsEarned} coins.`;
+                    }
+                } catch (e) {
+                    if (questMsg) questMsg.textContent = e.message || 'Quest claim failed.';
+                } finally {
+                    questBtn.disabled = false;
+                }
+            });
+        }
     })();
 }
 
