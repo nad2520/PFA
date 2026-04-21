@@ -41,7 +41,7 @@
             <img src="public/assets/images/lumo-happy.png" alt="Lumo">
             <div style="text-align:center">
               <p style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700">Eleanor Vance</p>
-              <p
+              <p id="hoverLevelBadge"
                 style="font-family:'Press Start 2P';font-size:.5rem;color:var(--primary);letter-spacing:.05em;margin-top:.25rem">
                 LVL 12</p>
             </div>

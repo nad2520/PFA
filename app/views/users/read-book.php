@@ -123,11 +123,11 @@ $lxSessionJson = json_encode(['csrfToken' => $csrfToken], JSON_HEX_TAG | JSON_HE
 
     <!-- Finish flow: confirm → rating → success -->
     <div id="finishModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true"
-        aria-labelledby="finishModalTitle">
+        aria-labelledby="finishStep1Title">
         <div class="modal-box read-finish-modal" onclick="event.stopPropagation()">
             <div class="read-finish-modal-inner">
                 <div id="finishStep1">
-                    <h2 id="finishModalTitle" class="font-display read-finish-title">Did you finish this book?</h2>
+                    <h2 id="finishStep1Title" class="font-display read-finish-title">Did you finish this book?</h2>
                     <p class="read-finish-sub font-body" id="finishBookName"></p>
                     <div class="read-finish-actions">
                         <button type="button" class="btn-primary" id="btnFinishYes" aria-label="Completed">✅
@@ -152,10 +152,11 @@ $lxSessionJson = json_encode(['csrfToken' => $csrfToken], JSON_HEX_TAG | JSON_HE
                         <button type="button" class="btn-primary" id="btnFinishSave" disabled>Confirm rating</button>
                     </div>
                 </div>
-                <div id="finishStep3" style="display:none">
-                    <h2 class="font-display read-finish-title">You did it!</h2>
+                <div id="finishStep3" style="display:none" aria-labelledby="finishSuccessTitle">
+                    <h2 id="finishSuccessTitle" class="font-display read-finish-title">You did it!</h2>
                     <p id="finishRewardMsg" class="read-finish-reward font-body"></p>
-                    <button type="button" class="btn-primary" id="btnFinishClose">Close</button>
+                    <p id="finishRedirectHint" class="read-finish-hint font-body" style="display:none;text-align:center;color:var(--muted-foreground);font-size:.8rem;margin:0 0 1rem">Taking you to your profile…</p>
+                    <button type="button" class="btn-primary" id="btnFinishClose">Continue to profile</button>
                 </div>
             </div>
         </div>

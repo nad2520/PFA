@@ -1016,12 +1016,12 @@ input, textarea {
   letter-spacing: 0.05em;
 }
 .status-badge.reading {
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: hsl(43, 74%, 48%);
+  color: hsl(24, 35%, 12%);
 }
 .status-badge.completed {
-  background: var(--accent);
-  color: var(--accent-foreground);
+  background: #2d4c3b;
+  color: #fff;
 }
 .status-badge.plan {
   background: var(--secondary);

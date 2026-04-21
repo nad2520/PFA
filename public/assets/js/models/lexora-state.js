@@ -202,6 +202,48 @@
     saveUserBooks(userBooks);
   }
 
+  /**
+   * Merge /api/user/profile `library` into local shelf so badges (READING → DONE) match the DB.
+   */
+  function applyLibraryFromServer(rows) {
+    if (!rows || !Array.isArray(rows) || !window.__lexora) return;
+    const L = window.__lexora;
+    if (!L.books || !L.books.length) return;
+
+    let userBooks = getUserBooks();
+    rows.forEach(function (row) {
+      const bid = Number(row.book_id);
+      const book =
+        row.book && Number(row.book.id) === bid
+          ? row.book
+          : L.books.find(function (b) {
+              return b.id === bid;
+            });
+      if (!book) return;
+
+      const st = row.status === "plan-to-read" ? "plan-to-read" : row.status;
+      let progress = row.progress;
+      if (progress == null) {
+        if (st === "completed") progress = 100;
+        else {
+          const total = getBookPages(bid).length || 24;
+          const pp =
+            typeof row.progress_page === "number" ? row.progress_page : 0;
+          progress =
+            total > 0 ? Math.round(((pp + 1) / total) * 100) : 0;
+        }
+      }
+
+      const idx = userBooks.findIndex(function (ub) {
+        return ub.book.id === bid;
+      });
+      const entry = { book: book, status: st, progress: progress };
+      if (idx >= 0) userBooks[idx] = entry;
+      else userBooks.push(entry);
+    });
+    saveUserBooks(userBooks);
+  }
+
   /** Sync local shelf after server-side completion (1-based last page for detail UI). */
   function markBookCompleted(bookId) {
     const L = window.__lexora;
@@ -245,5 +287,6 @@
     removeFromLibrary: removeFromLibrary,
     removeFromList: removeFromList,
     markBookCompleted: markBookCompleted,
+    applyLibraryFromServer: applyLibraryFromServer,
   };
 })();

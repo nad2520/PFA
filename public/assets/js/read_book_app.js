@@ -52,6 +52,26 @@ function getProgressPercent(zeroBasedPage) {
 let currentPage = 0;
 let finishAutoOffered = false;
 let completionSubmitting = false;
+let profileRedirectTimer = null;
+
+function clearProfileRedirectTimer() {
+    if (profileRedirectTimer) {
+        clearTimeout(profileRedirectTimer);
+        profileRedirectTimer = null;
+    }
+}
+
+function goToProfilePage() {
+    clearProfileRedirectTimer();
+    window.location.href = 'index.php?view=profile';
+}
+
+function scheduleProfileRedirect() {
+    clearProfileRedirectTimer();
+    const hint = document.getElementById('finishRedirectHint');
+    if (hint) hint.style.display = 'block';
+    profileRedirectTimer = setTimeout(goToProfilePage, 2600);
+}
 
 // ── DOM ─────────────────────────────────────────────────────────────────────
 const elTitle     = document.getElementById('readBookTitle');
@@ -185,6 +205,8 @@ function openFinishModal() {
     finishStep1.style.display = 'block';
     finishStep2.style.display = 'none';
     finishStep3.style.display = 'none';
+    const hintEl = document.getElementById('finishRedirectHint');
+    if (hintEl) hintEl.style.display = 'none';
     selectedRating = 0;
     setRatingError(false);
     resetStars();
@@ -197,7 +219,9 @@ function openFinishModal() {
 
 function closeFinishModal() {
     if (!finishModal) return;
+    const onSuccess = finishStep3 && finishStep3.style.display !== 'none';
     finishModal.style.display = 'none';
+    if (onSuccess) goToProfilePage();
 }
 
 function resetStars() {
@@ -218,7 +242,8 @@ btnNo?.addEventListener('click', () => {
 });
 
 btnFinishClose?.addEventListener('click', () => {
-    closeFinishModal();
+    clearProfileRedirectTimer();
+    goToProfilePage();
 });
 
 document.querySelectorAll('.fstar').forEach(star => {
@@ -263,38 +288,62 @@ btnSave?.addEventListener('click', async () => {
     btnSave.textContent = 'Confirm rating';
 
     if (data.success) {
-        BOOK.alreadyCompleted = true;
-        const xp   = Number(data.xpEarned) || 0;
+        if (!data.alreadyCompleted) {
+            BOOK.alreadyCompleted = true;
+        }
+        const xp    = Number(data.xpEarned) || 0;
         const coins = Number(data.coinsEarned) || 0;
-        const msg = document.getElementById('finishRewardMsg');
+        const lvl   = Number(data.newLevel) || 1;
+        const msg   = document.getElementById('finishRewardMsg');
+        const hint  = document.getElementById('finishRedirectHint');
+        if (hint) hint.style.display = 'none';
         if (msg) {
             if (data.alreadyCompleted) {
-                msg.textContent = 'This book was already in your completed list. Your rating was saved if you chose one.';
+                msg.textContent =
+                    'This book was already completed. Your rating was updated if you chose one.';
             } else {
                 msg.textContent =
-                    `You earned +${coins} coins and +${xp} XP.` +
-                    (data.newLevel ? ` You are now level ${data.newLevel}.` : '');
+                    `You earned +${coins} coins and +${xp} XP. You are now level ${lvl}.`;
             }
         }
         finishStep2.style.display = 'none';
         finishStep3.style.display = 'block';
         renderPage();
 
+        const prof = await api('/api/user/profile', 'GET');
+        if (
+            prof.success &&
+            prof.data?.library &&
+            window.LexoraState?.applyLibraryFromServer
+        ) {
+            window.LexoraState.applyLibraryFromServer(prof.data.library);
+        }
+
         window.dispatchEvent(new CustomEvent('lexora:bookCompleted', {
             detail: {
                 bookId: BOOK.id,
                 xpEarned: xp,
                 coinsEarned: coins,
+                newCoins: Number(data.newCoins) || 0,
+                newXp: Number(data.newXp) || 0,
+                newLevel: lvl,
+                booksRead: Number(data.booksRead) || 0,
                 alreadyCompleted: !!data.alreadyCompleted,
             },
         }));
+
+        scheduleProfileRedirect();
     } else {
         alert(data.message || 'Could not save completion. Please try again.');
     }
 });
 
 finishModal?.addEventListener('click', e => {
-    if (e.target === finishModal) {
+    if (e.target !== finishModal) return;
+    if (finishStep3 && finishStep3.style.display !== 'none') {
+        clearProfileRedirectTimer();
+        goToProfilePage();
+    } else {
         closeFinishModal();
     }
 });
@@ -310,6 +359,10 @@ document.addEventListener('keydown', e => {
 (async function syncFromServer() {
     const data = await api('/api/user/profile', 'GET');
     if (!data.success || !data.data || !Array.isArray(data.data.library)) return;
+
+    if (window.LexoraState?.applyLibraryFromServer) {
+        window.LexoraState.applyLibraryFromServer(data.data.library);
+    }
 
     const entry = data.data.library.find(l => Number(l.book_id) === Number(BOOK.id));
     if (!entry) return;

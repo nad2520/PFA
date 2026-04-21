@@ -202,6 +202,7 @@ class UserApiController extends Controller
                     'newCoins'          => (int)($user['coins'] ?? 0),
                     'newLevel'          => max(1, (int)($user['level'] ?? 1)),
                     'newXp'             => (int)($user['xp'] ?? 0),
+                    'booksRead'         => UserModel::countBooksRead($userId),
                 ]);
             }
 
@@ -243,6 +244,7 @@ class UserApiController extends Controller
             'newCoins'    => (int)($user['coins'] ?? 0),
             'newLevel'    => max(1, (int)($user['level'] ?? 1)),
             'newXp'       => (int)($user['xp'] ?? 0),
+            'booksRead'   => UserModel::countBooksRead($userId),
         ]);
     }
 

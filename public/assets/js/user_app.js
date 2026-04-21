@@ -822,10 +822,32 @@ function initScholarsMap(currentLevel) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//  PROFILE PAGE
+//  PROFILE PAGE  (live stats via /api/user/profile when logged in)
 // ═══════════════════════════════════════════════════════════════════════════════
+window.LX_applyProfileStats = function (o) {
+    if (!o) return;
+    const coins = o.coins != null ? o.coins : o.newCoins;
+    const level = o.level != null ? o.level : o.newLevel;
+    if (coins != null) {
+        ['profileCoins', 'coinCount'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = Number(coins).toLocaleString();
+        });
+    }
+    if (o.booksRead != null) {
+        const el = document.getElementById('booksReadCount');
+        if (el) el.textContent = String(o.booksRead);
+    }
+    if (level != null) {
+        const hb = document.getElementById('hoverLevelBadge');
+        if (hb) hb.textContent = 'LVL ' + level;
+        if (document.getElementById('scholarsMapCanvas')) {
+            initScholarsMap(Number(level));
+        }
+    }
+};
+
 function initProfile() {
-    // Circular progress
     const svgEl = document.getElementById('circularSvg');
     if (svgEl) {
         const r = 40, circ = 2 * Math.PI * r;
@@ -840,36 +862,58 @@ function initProfile() {
         if (label) label.textContent = mockUser.dailyReadingHours + 'h';
     }
 
-    // Scholar's Map
-    initScholarsMap(mockUser.level);
+    (async function loadProfileUi() {
+        let apiData = null;
+        try {
+            const res = await fetch('/PFA/api/user/profile', { credentials: 'same-origin' });
+            const j = await res.json();
+            if (j.success && j.data) apiData = j.data;
+        } catch (e) {
+            /* offline or not logged in — keep mock */
+        }
 
+        if (apiData) {
+            window.LX_applyProfileStats({
+                coins: apiData.coins,
+                level: apiData.level,
+                booksRead: apiData.booksRead,
+            });
+            if (apiData.library && window.LexoraState?.applyLibraryFromServer) {
+                window.LexoraState.applyLibraryFromServer(apiData.library);
+            }
+        } else {
+            initScholarsMap(mockUser.level);
+            const coinEl = document.getElementById('profileCoins');
+            const coinHead = document.getElementById('coinCount');
+            if (coinEl) coinEl.textContent = mockUser.coins.toLocaleString();
+            if (coinHead) coinHead.textContent = mockUser.coins.toLocaleString();
+        }
 
-    // Library grid
-    const libGrid = document.getElementById('libraryGrid');
-    const userBooksAll = window.LexoraState ? window.LexoraState.getUserBooks() : mockUserBooks;
-    const library = userBooksAll.filter(u => u.status === 'reading' || u.status === 'completed');
-    if (libGrid) {
-        if (library.length === 0) {
-            libGrid.innerHTML = `<div class="empty-library-card">
+        const libGrid = document.getElementById('libraryGrid');
+        const userBooksAll = window.LexoraState ? window.LexoraState.getUserBooks() : mockUserBooks;
+        const library = userBooksAll.filter(u => u.status === 'reading' || u.status === 'completed');
+        if (libGrid) {
+            if (library.length === 0) {
+                libGrid.innerHTML = `<div class="empty-library-card">
         <p class="empty-library-msg">Your library is empty!</p>
         <a href="index.php#catalog" class="btn-primary empty-library-cta">Browse the catalog ✦</a>
       </div>`;
-        } else {
-            libGrid.innerHTML = library.map(ub => {
-                const c = genreColors[ub.book.genre];
-                const cover = genreCovers[ub.book.genre];
-                const badgeCls = ub.status === 'completed' ? 'completed' : 'reading';
-                const badgeTxt = ub.status === 'completed' ? '✓ DONE' : 'READING';
-                let progressPct = ub.progress ?? 0;
-                if (window.LexoraState && ub.status === 'reading') {
-                    const total = window.LexoraState.getBookPages(ub.book.id).length;
-                    const savedPage = window.LexoraState.getBookProgress(ub.book.id);
-                    progressPct = savedPage > 0 ? Math.round((savedPage / total) * 100) : (ub.progress ?? 0);
-                }
-                const progress = (ub.status === 'reading' && progressPct > 0) ? `
+            } else {
+                libGrid.innerHTML = library.map(ub => {
+                    const c = genreColors[ub.book.genre];
+                    const cover = genreCovers[ub.book.genre];
+                    const badgeCls = ub.status === 'completed' ? 'completed' : 'reading';
+                    const badgeTxt = ub.status === 'completed' ? '✓ DONE' : 'READING';
+                    let progressPct = ub.progress ?? 0;
+                    if (window.LexoraState && ub.status === 'reading') {
+                        const total = window.LexoraState.getBookPages(ub.book.id).length;
+                        const savedPage = window.LexoraState.getBookProgress(ub.book.id);
+                        progressPct = savedPage > 0 ? Math.round((savedPage / total) * 100) : (ub.progress ?? 0);
+                    }
+                    const progress = (ub.status === 'reading' && progressPct > 0 && progressPct < 100) ? `
         <div class="progress-bar-wrap"><div class="progress-bar" style="width:${progressPct}%"></div></div>
         <p style="font-family:'Press Start 2P';font-size:.44rem;color:var(--muted-foreground);text-align:right">${progressPct}%</p>` : '';
-                return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
+                    return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
         <div class="cover-wrap">
           <img src="${cover}" alt="${ub.book.title}" loading="lazy">
           <div class="cover-fade"></div>
@@ -882,30 +926,29 @@ function initProfile() {
           <span class="genre-tag" style="${c.css}">${ub.book.genre}</span>
         </div>
       </div>`;
-            }).join('');
-            libGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
-                el.addEventListener('click', () => {
-                    const bid = el.getAttribute('data-book-id');
-                    if (bid) nav(`?view=book-detail&id=${bid}`);
+                }).join('');
+                libGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const bid = el.getAttribute('data-book-id');
+                        if (bid) nav(`?view=book-detail&id=${bid}`);
+                    });
                 });
-            });
+            }
         }
-    }
 
-    // My List grid
-    const listGrid = document.getElementById('planGrid');
-    const planToRead = userBooksAll.filter(u => u.status === 'plan-to-read');
-    if (listGrid) {
-        if (planToRead.length === 0) {
-            listGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:3rem;text-align:center">
+        const listGrid = document.getElementById('planGrid');
+        const planToRead = userBooksAll.filter(u => u.status === 'plan-to-read');
+        if (listGrid) {
+            if (planToRead.length === 0) {
+                listGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:3rem;text-align:center">
         <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground);margin-bottom:1rem">Your list is empty!</p>
         <a href="index.php#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Find your first book! ✦</a>
       </div>`;
-        } else {
-            listGrid.innerHTML = `<div class="book-grid">${planToRead.map(ub => {
-                const c = genreColors[ub.book.genre];
-                const cover = genreCovers[ub.book.genre];
-                return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
+            } else {
+                listGrid.innerHTML = `<div class="book-grid">${planToRead.map(ub => {
+                    const c = genreColors[ub.book.genre];
+                    const cover = genreCovers[ub.book.genre];
+                    return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
           <div class="cover-wrap">
             <img src="${cover}" alt="${ub.book.title}" loading="lazy">
             <div class="cover-fade"></div>
@@ -917,21 +960,20 @@ function initProfile() {
             <span class="genre-tag" style="${c.css}">${ub.book.genre}</span>
           </div>
         </div>`;
-            }).join('')}</div>`;
-            listGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
-                el.addEventListener('click', () => {
-                    const bid = el.getAttribute('data-book-id');
-                    if (bid) nav(`?view=book-detail&id=${bid}`);
+                }).join('')}</div>`;
+                listGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const bid = el.getAttribute('data-book-id');
+                        if (bid) nav(`?view=book-detail&id=${bid}`);
+                    });
                 });
-            });
+            }
         }
-    }
 
-    // Stats
-    const booksReadEl = document.getElementById('booksReadCount');
-    if (booksReadEl) booksReadEl.textContent = library.length;
-    const coinEl = document.getElementById('profileCoins');
-    if (coinEl) coinEl.textContent = mockUser.coins.toLocaleString();
+        const booksReadEl = document.getElementById('booksReadCount');
+        const completedOnly = userBooksAll.filter(u => u.status === 'completed').length;
+        if (booksReadEl && !apiData) booksReadEl.textContent = completedOnly;
+    })();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -983,7 +1025,7 @@ function initBookDetail() {
 
     const ctaText = isCompleted ? 'READ AGAIN' : hasStarted ? 'CONTINUE READING' : 'START READING';
 
-    const progressBlock = isReading && readingPercent > 0 ? `
+    const progressBlock = isReading && readingPercent > 0 && !isCompleted ? `
     <div style="max-width:24rem" class="detail-reading-progress">
       <div style="display:flex;justify-content:space-between;margin-bottom:.5rem">
         <span style="color:var(--muted-foreground);font-size:.9rem">Reading Progress</span>
@@ -1426,10 +1468,18 @@ function initBookDetail() {
 //  Server-driven reader (read_book_app.js) sets data-lexora-read-app on body.
 // ═══════════════════════════════════════════════════════════════════════════════
 document.addEventListener('lexora:bookCompleted', (e) => {
-    const bookId = e.detail?.bookId;
-    if (!bookId || !window.LexoraState?.markBookCompleted) return;
-    window.LexoraState.markBookCompleted(bookId);
+    const d = e.detail;
+    if (!d?.bookId || !window.LexoraState?.markBookCompleted) return;
+    if (window.LX_applyProfileStats) {
+        window.LX_applyProfileStats({
+            newCoins: d.newCoins,
+            newLevel: d.newLevel,
+            booksRead: d.booksRead,
+        });
+    }
+    window.LexoraState.markBookCompleted(d.bookId);
     if (document.getElementById('bookDetailMain')) initBookDetail();
+    if (document.getElementById('libraryGrid')) initProfile();
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
