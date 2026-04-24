@@ -316,6 +316,40 @@ input, textarea { font-family: inherit; }
   grid-template-columns:repeat(2,1fr);
   @media(min-width:640px){ grid-template-columns:repeat(4,1fr); gap:1.5rem; }
 }
+.for-you-carousel-wrap {
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+}
+.for-you-carousel {
+  display:flex;
+  gap:1rem;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  padding:.25rem .1rem .5rem;
+  flex:1;
+  &::-webkit-scrollbar { display:none; }
+}
+.for-you-item {
+  min-width:220px;
+  max-width:260px;
+  flex:0 0 auto;
+  scroll-snap-align:start;
+}
+.for-you-nav {
+  width:2.3rem; height:2.3rem; border-radius:999px;
+  border:1px solid var(--border); background:var(--card); color:var(--foreground);
+  font-size:1.25rem; line-height:1; display:inline-flex; align-items:center; justify-content:center;
+  transition:all .2s ease;
+  &:hover { border-color:var(--primary); color:var(--primary); transform:translateY(-1px); }
+}
+@media(max-width:640px){
+  .for-you-nav { display:none; }
+  .for-you-item { min-width:180px; }
+}
 
 // ─── Catalog book card (flat, BookCard.tsx parity) ───────────────────────────
 .catalog-book-card {

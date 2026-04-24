@@ -149,6 +149,14 @@ async function goToPage(newPage) {
         window.location.href = 'index.php?view=book-detail&id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
         return;
     }
+    if (!progressResp?.success) {
+        console.warn('Progress save failed', { bookId: BOOK.id, page: newPage, response: progressResp });
+        if (elMeta) {
+            elMeta.title = 'Progress sync issue. Your latest page may not be saved yet.';
+        }
+    } else if (elMeta) {
+        elMeta.removeAttribute('title');
+    }
 
     if (minutesOnPage > 0 || newPage > 0) {
         api('/api/user/reading-session', 'POST', {
@@ -374,16 +382,23 @@ async function bootReader() {
     }
 
     const entry = lib.find(l => Number(l.book_id) === Number(BOOK.id));
+    let resumeFromServer = 0;
     if (entry) {
         if (entry.status === 'completed') {
             BOOK.alreadyCompleted = true;
         }
         const pp = entry.progress_page;
         if (typeof pp === 'number' && Number.isFinite(pp) && pages.length > 0) {
-            const clamped = Math.min(Math.max(0, Math.floor(pp)), pages.length - 1);
-            currentPage = clamped;
+            resumeFromServer = Math.min(Math.max(0, Math.floor(pp)), pages.length - 1);
         }
     }
+    const resumeFromLocal = window.LexoraState?.getBookProgress
+        ? Number(window.LexoraState.getBookProgress(BOOK.id)) || 0
+        : 0;
+    currentPage = Math.min(
+        Math.max(0, Math.max(resumeFromServer, resumeFromLocal)),
+        pages.length > 0 ? pages.length - 1 : 0
+    );
 
     renderPage();
 
@@ -395,6 +410,14 @@ async function bootReader() {
         alert(resumeResp?.message || 'You cannot buy this book. Try to fulfill your quests or buy coins.');
         window.location.href = 'index.php?view=book-detail&id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
         return;
+    }
+    if (!resumeResp?.success) {
+        console.warn('Initial progress sync failed', { bookId: BOOK.id, page: currentPage, response: resumeResp });
+        if (elMeta) {
+            elMeta.title = 'Progress sync issue. Retry by moving to the next page.';
+        }
+    } else if (elMeta) {
+        elMeta.removeAttribute('title');
     }
     if (getProgressPercent(currentPage) === 100 && !BOOK.alreadyCompleted && !finishAutoOffered) {
         finishAutoOffered = true;

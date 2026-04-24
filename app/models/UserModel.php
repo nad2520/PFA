@@ -495,14 +495,16 @@ class UserModel
                 return false;
             }
 
-            $stmtProgress = $pdo->prepare(
-                'INSERT INTO reading_progress (user_id, book_id, last_page, updated_at)
-                 VALUES (?, ?, ?, NOW())
-                 ON DUPLICATE KEY UPDATE
-                   last_page = GREATEST(last_page, VALUES(last_page)),
-                   updated_at = NOW()'
-            );
-            $stmtProgress->execute([$userId, $bookId, $page]);
+            if (self::tableExists('reading_progress')) {
+                $stmtProgress = $pdo->prepare(
+                    'INSERT INTO reading_progress (user_id, book_id, last_page, updated_at)
+                     VALUES (?, ?, ?, NOW())
+                     ON DUPLICATE KEY UPDATE
+                       last_page = GREATEST(last_page, VALUES(last_page)),
+                       updated_at = NOW()'
+                );
+                $stmtProgress->execute([$userId, $bookId, $page]);
+            }
 
             $stmtBook = $pdo->prepare(
                 'UPDATE user_books
@@ -662,6 +664,137 @@ class UserModel
             ];
         } catch (PDOException $e) {
             return null;
+        }
+    }
+
+    /** @return list<string> */
+    public static function getAvailableGenres(): array
+    {
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->query(
+                'SELECT DISTINCT genre FROM books
+                 WHERE genre IS NOT NULL AND TRIM(genre) <> ""
+                 ORDER BY genre ASC'
+            );
+            $rows = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+            return array_values(array_filter(array_map(static fn($g) => trim((string)$g), $rows)));
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    /** @return list<string> */
+    public static function getUserCategoryPreferences(int $userId): array
+    {
+        if ($userId <= 0 || !self::tableExists('user_category_preferences')) {
+            return [];
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'SELECT genre
+                 FROM user_category_preferences
+                 WHERE user_id = ?
+                 ORDER BY genre ASC'
+            );
+            $stmt->execute([$userId]);
+            $rows = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+            return array_values(array_filter(array_map(static fn($g) => trim((string)$g), $rows)));
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public static function hasUserCategoryPreferencesSchema(): bool
+    {
+        return self::tableExists('user_category_preferences');
+    }
+
+    /** @param list<string> $genres */
+    public static function saveUserCategoryPreferences(int $userId, array $genres): bool
+    {
+        if ($userId <= 0 || !self::tableExists('user_category_preferences')) {
+            return false;
+        }
+        $available = self::getAvailableGenres();
+        $allowed = array_fill_keys($available, true);
+        $sanitized = [];
+        foreach ($genres as $g) {
+            $genre = trim((string)$g);
+            if ($genre !== '' && isset($allowed[$genre])) {
+                $sanitized[$genre] = true;
+            }
+        }
+        $selected = array_keys($sanitized);
+        if (count($selected) === 0) {
+            return false;
+        }
+        try {
+            $pdo = Database::pdo();
+            $pdo->beginTransaction();
+            $pdo->prepare('DELETE FROM user_category_preferences WHERE user_id = ?')->execute([$userId]);
+            $ins = $pdo->prepare(
+                'INSERT INTO user_category_preferences (user_id, genre, created_at, updated_at)
+                 VALUES (?, ?, NOW(), NOW())'
+            );
+            foreach ($selected as $genre) {
+                $ins->execute([$userId, $genre]);
+            }
+            $pdo->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return false;
+        }
+    }
+
+    /** @return list<array<string,mixed>> */
+    public static function getForYouBooks(int $userId, int $limit = 12): array
+    {
+        if ($userId <= 0) {
+            return [];
+        }
+        $limit = max(1, min(30, $limit));
+        $genres = self::getUserCategoryPreferences($userId);
+        if (count($genres) === 0) {
+            return [];
+        }
+        try {
+            $pdo = Database::pdo();
+            $ph = implode(',', array_fill(0, count($genres), '?'));
+            $sql = "SELECT b.id, b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward, b.audience, b.trending, b.description
+                    FROM books b
+                    WHERE b.genre IN ($ph)
+                      AND NOT EXISTS (
+                        SELECT 1 FROM user_books ub
+                        WHERE ub.user_id = ? AND ub.book_id = b.id
+                      )
+                    ORDER BY b.trending DESC, b.id DESC
+                    LIMIT $limit";
+            $stmt = $pdo->prepare($sql);
+            $params = array_merge($genres, [$userId]);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            return array_map(static function (array $r): array {
+                return [
+                    'id' => (int)($r['id'] ?? 0),
+                    'title' => (string)($r['title'] ?? ''),
+                    'author' => (string)($r['author'] ?? ''),
+                    'genre' => (string)($r['genre'] ?? ''),
+                    'cover' => (string)($r['cover'] ?? '📖'),
+                    'coinCost' => (int)($r['coinCost'] ?? 0),
+                    'xpReward' => (int)($r['xpReward'] ?? 0),
+                    'coinReward' => (int)($r['coinReward'] ?? 0),
+                    'audience' => (string)($r['audience'] ?? 'All'),
+                    'trending' => !empty($r['trending']),
+                    'description' => (string)($r['description'] ?? ''),
+                ];
+            }, $rows);
+        } catch (PDOException $e) {
+            return [];
         }
     }
 }

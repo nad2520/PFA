@@ -458,7 +458,11 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'Could not save progress.'], 500);
         }
 
-        $this->json(['success' => true]);
+        $this->json([
+            'success' => true,
+            'book_id' => $bookId,
+            'saved_page' => max(0, $page),
+        ]);
     }
 
     // ── POST /api/user/book/list/add ───────────────────────────────────────────
@@ -617,6 +621,83 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'Leaderboard not available.'], 404);
         }
         $this->json(['success' => true, 'data' => $window]);
+    }
+
+    // ── GET /api/user/preferences/categories ───────────────────────────────────
+    public function getCategoryPreferences(): void
+    {
+        $this->requireAuth();
+        $userId = (int)$_SESSION['user_id'];
+        $schemaReady = UserModel::hasUserCategoryPreferencesSchema();
+        $selected = UserModel::getUserCategoryPreferences($userId);
+        $available = UserModel::getAvailableGenres();
+        $this->json([
+            'success' => true,
+            'data' => [
+                'selected' => $selected,
+                'available' => $available,
+                'hasPreferences' => count($selected) > 0,
+                'schemaReady' => $schemaReady,
+            ],
+        ]);
+    }
+
+    // ── POST /api/user/preferences/categories ──────────────────────────────────
+    public function saveCategoryPreferences(): void
+    {
+        $this->requireAuth();
+        if (!$this->verifyCsrfHeader()) {
+            $this->json(['success' => false, 'message' => 'Invalid CSRF token.'], 403);
+        }
+        $body = $this->jsonBody();
+        $genres = $body['genres'] ?? [];
+        if (!is_array($genres) || count($genres) === 0) {
+            $this->json(['success' => false, 'message' => 'Select at least one category.'], 400);
+        }
+        if (!UserModel::hasUserCategoryPreferencesSchema()) {
+            $this->json([
+                'success' => false,
+                'message' => 'Category preferences table is missing. Run database/migrations/010_user_category_preferences.sql.',
+            ], 500);
+        }
+        $available = UserModel::getAvailableGenres();
+        $allowed = array_fill_keys($available, true);
+        $sanitized = [];
+        foreach ($genres as $genre) {
+            $g = trim((string)$genre);
+            if ($g !== '' && isset($allowed[$g])) {
+                $sanitized[$g] = true;
+            }
+        }
+        $selected = array_keys($sanitized);
+        if (count($selected) === 0) {
+            $this->json(['success' => false, 'message' => 'Selected categories are invalid.'], 400);
+        }
+        $ok = UserModel::saveUserCategoryPreferences((int)$_SESSION['user_id'], $selected);
+        if (!$ok) {
+            $this->json(['success' => false, 'message' => 'Could not save preferences.'], 500);
+        }
+        $this->json([
+            'success' => true,
+            'message' => 'Preferences saved.',
+            'data' => [
+                'selected' => UserModel::getUserCategoryPreferences((int)$_SESSION['user_id']),
+            ],
+        ]);
+    }
+
+    // ── GET /api/user/recommendations/for-you ──────────────────────────────────
+    public function forYouRecommendations(): void
+    {
+        $this->requireAuth();
+        $userId = (int)$_SESSION['user_id'];
+        $limit = (int)($_GET['limit'] ?? 12);
+        $rows = UserModel::getForYouBooks($userId, $limit);
+        $this->json([
+            'success' => true,
+            'data' => $rows,
+            'count' => count($rows),
+        ]);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

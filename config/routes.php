@@ -124,6 +124,18 @@ return function (Router $router): void {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->myLeaderboard();
     });
+    $router->get('/api/user/preferences/categories', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->getCategoryPreferences();
+    });
+    $router->post('/api/user/preferences/categories', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->saveCategoryPreferences();
+    });
+    $router->get('/api/user/recommendations/for-you', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->forYouRecommendations();
+    });
 };
 
 

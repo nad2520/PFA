@@ -742,6 +742,58 @@ input, textarea {
     gap: 1.5rem;
   }
 }
+.for-you-carousel-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.for-you-carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.25rem 0.1rem 0.5rem;
+  flex: 1;
+}
+.for-you-carousel::-webkit-scrollbar {
+  display: none;
+}
+.for-you-item {
+  min-width: 220px;
+  max-width: 260px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+.for-you-nav {
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 1.25rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.for-you-nav:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+  .for-you-nav {
+    display: none;
+  }
+  .for-you-item {
+    min-width: 180px;
+  }
+}
 
 .catalog-book-card {
   border-radius: 0.5rem;

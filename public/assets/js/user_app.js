@@ -632,18 +632,125 @@ function initCatalog() {
         });
     }
 
-    // For You section
-    const userBooks = window.LexoraState ? window.LexoraState.getUserBooks() : [];
-    const readGenres = userBooks.filter(u => u.status === 'reading' || u.status === 'completed').map(u => u.book.genre);
-    const genreCount = {};
-    readGenres.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
-    const topGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]).map(([g]) => g);
-    const userIds = new Set(userBooks.map(u => u.book.id));
-    let forYouBooks = books.filter(b => topGenres.includes(b.genre) && !userIds.has(b.id));
-    if (window.LX_USER_ROLE === 'User -18') {
-        forYouBooks = forYouBooks.filter(b => b.audience !== '+18 Only');
+    // For You section (DB-backed category preferences + carousel)
+    const prefOverlay = document.getElementById('forYouPrefsOverlay');
+    const prefChoices = document.getElementById('forYouPrefsChoices');
+    const prefMsg = document.getElementById('forYouPrefsMsg');
+    const prefSaveBtn = document.getElementById('forYouPrefsSave');
+    const prefCloseBtn = document.getElementById('forYouPrefsClose');
+    const prefSkipBtn = document.getElementById('forYouPrefsSkip');
+    const prefEditBtn = document.getElementById('editForYouPrefsBtn');
+    let availableGenres = [];
+    let selectedGenres = [];
+    let forYouBooks = [];
+
+    function setPrefMsg(msg, isError = false) {
+        if (!prefMsg) return;
+        prefMsg.textContent = msg || '';
+        prefMsg.style.color = isError ? 'var(--destructive)' : 'var(--muted-foreground)';
     }
-    forYouBooks = forYouBooks.slice(0, 4);
+
+    function renderPrefChoices() {
+        if (!prefChoices) return;
+        if (!Array.isArray(availableGenres) || availableGenres.length === 0) {
+            prefChoices.innerHTML = '<p style="color:var(--muted-foreground);font-size:.9rem">No categories available.</p>';
+            return;
+        }
+        prefChoices.innerHTML = availableGenres.map((g) => {
+            const active = selectedGenres.includes(g);
+            return `<button type="button" data-genre="${g}" class="btn-outline lx-pref-chip${active ? ' active' : ''}" style="padding:.65rem .7rem;font-size:.75rem;${active ? 'background:var(--primary);border-color:var(--primary);color:var(--primary-foreground);' : ''}">${g}</button>`;
+        }).join('');
+        prefChoices.querySelectorAll('button[data-genre]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const g = btn.getAttribute('data-genre') || '';
+                if (!g) return;
+                if (selectedGenres.includes(g)) {
+                    selectedGenres = selectedGenres.filter(x => x !== g);
+                } else {
+                    selectedGenres.push(g);
+                }
+                renderPrefChoices();
+            });
+        });
+    }
+
+    function togglePrefModal(show) {
+        if (!prefOverlay) return;
+        prefOverlay.classList.toggle('hidden', !show);
+        prefOverlay.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+
+    async function loadPreferenceBootstrap() {
+        try {
+            const resp = await lxApi('/api/user/preferences/categories', 'GET');
+            if (resp?.success && resp.data) {
+                availableGenres = Array.isArray(resp.data.available) ? resp.data.available : [];
+                selectedGenres = Array.isArray(resp.data.selected) ? resp.data.selected : [];
+                renderPrefChoices();
+                if (resp.data.schemaReady === false) {
+                    setPrefMsg('Preferences storage is not ready. Ask admin to run migration 010_user_category_preferences.sql.', true);
+                    return;
+                }
+                if (!resp.data.hasPreferences) {
+                    togglePrefModal(true);
+                    setPrefMsg('Choose at least one category to start.');
+                }
+            }
+        } catch (_) { /* ignore */ }
+    }
+
+    async function loadForYouBooks() {
+        try {
+            const resp = await lxApi('/api/user/recommendations/for-you?limit=14', 'GET');
+            forYouBooks = (resp?.success && Array.isArray(resp.data)) ? resp.data : [];
+            if (window.LX_USER_ROLE === 'User -18') {
+                forYouBooks = forYouBooks.filter(b => b.audience !== '+18 Only');
+            }
+        } catch (_) {
+            forYouBooks = [];
+        }
+    }
+
+    if (prefEditBtn) {
+        prefEditBtn.addEventListener('click', () => {
+            renderPrefChoices();
+            togglePrefModal(true);
+        });
+    }
+    if (prefCloseBtn) prefCloseBtn.addEventListener('click', () => togglePrefModal(false));
+    if (prefSkipBtn) prefSkipBtn.addEventListener('click', () => togglePrefModal(false));
+    if (prefOverlay) {
+        prefOverlay.addEventListener('click', (ev) => {
+            if (ev.target === prefOverlay) togglePrefModal(false);
+        });
+    }
+    if (prefSaveBtn) {
+        prefSaveBtn.addEventListener('click', async () => {
+            if (!Array.isArray(selectedGenres) || selectedGenres.length === 0) {
+                setPrefMsg('Select at least one category.', true);
+                return;
+            }
+            const prev = prefSaveBtn.textContent;
+            prefSaveBtn.disabled = true;
+            prefSaveBtn.textContent = 'Saving...';
+            setPrefMsg('Saving your preferences...');
+            try {
+                const resp = await lxApi('/api/user/preferences/categories', 'POST', { genres: selectedGenres });
+                if (!resp?.success) {
+                    throw new Error(resp?.message || 'Could not save preferences.');
+                }
+                setPrefMsg('Preferences saved.');
+                await loadForYouBooks();
+                render();
+                togglePrefModal(false);
+            } catch (e) {
+                setPrefMsg((e && e.message) ? String(e.message) : 'Could not save preferences.', true);
+            } finally {
+                prefSaveBtn.disabled = false;
+                prefSaveBtn.textContent = prev || 'Save preferences';
+            }
+        });
+    }
 
     if (searchInput) {
         searchInput.addEventListener('input', () => { searchQuery = searchInput.value; visibleCount = ITEMS; render(); });
@@ -676,16 +783,37 @@ function initCatalog() {
             forYouSection.style.display = activeFilter === 'trending' ? '' : 'none';
             if (forYouGrid) {
                 if (forYouBooks.length > 0) {
-                    forYouGrid.innerHTML = `<div class="for-you-grid">${forYouBooks.map((b, i) => buildCatalogBookCardHTML(b, i)).join('')}</div>`;
+                    forYouGrid.innerHTML = `
+                    <div class="for-you-carousel-wrap">
+                      <button type="button" class="for-you-nav for-you-nav--prev" id="forYouPrev" aria-label="Scroll left">‹</button>
+                      <div class="for-you-carousel" id="forYouCarousel">
+                        ${forYouBooks.map((b, i) => `<div class="for-you-item">${buildCatalogBookCardHTML(b, i)}</div>`).join('')}
+                      </div>
+                      <button type="button" class="for-you-nav for-you-nav--next" id="forYouNext" aria-label="Scroll right">›</button>
+                    </div>`;
+                    const rail = document.getElementById('forYouCarousel');
+                    const prev = document.getElementById('forYouPrev');
+                    const next = document.getElementById('forYouNext');
+                    const dx = 360;
+                    prev?.addEventListener('click', () => rail?.scrollBy({ left: -dx, behavior: 'smooth' }));
+                    next?.addEventListener('click', () => rail?.scrollBy({ left: dx, behavior: 'smooth' }));
                 } else {
-                    forYouGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%,.5);padding:2rem;text-align:center"><p style="font-family:'Press Start 2P';font-size:.56rem;color:var(--muted-foreground)">📖 Read a few books to get personalized picks!</p></div>`;
+                    forYouGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%,.5);padding:2rem;text-align:center">
+                    <p style="font-family:'Press Start 2P';font-size:.56rem;color:var(--muted-foreground);margin-bottom:.8rem">No personalized picks yet.</p>
+                    <button type="button" id="forYouEmptyCta" class="btn-primary" style="padding:.65rem 1rem">Choose categories</button>
+                    </div>`;
+                    const cta = document.getElementById('forYouEmptyCta');
+                    cta?.addEventListener('click', () => togglePrefModal(true));
                 }
             }
         }
         if (divider) divider.style.display = (activeFilter === 'trending' && forYouBooks.length > 0) ? '' : 'none';
     }
-
-    render();
+    (async function bootForYou() {
+        await loadPreferenceBootstrap();
+        await loadForYouBooks();
+        render();
+    })();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1045,16 +1173,17 @@ function renderProfileShelvesFromLexoraState() {
                 const cover = genreCovers[ub.book.genre] || ub.book.cover || '';
                 const badgeCls = ub.status === 'completed' ? 'completed' : 'reading';
                 const badgeTxt = ub.status === 'completed' ? '✓ DONE' : 'READING';
-                let progressPct = ub.progress ?? 0;
+                let progressPct = Number(ub.progress ?? 0) || 0;
                 if (window.LexoraState && ub.status === 'reading') {
                     const total = window.LexoraState.getBookPages(ub.book.id).length;
                     const raw = window.LexoraState.getBookProgress(ub.book.id);
                     const savedPage = typeof raw === 'number' && Number.isFinite(raw)
                         ? Math.max(0, Math.min(Math.floor(raw), Math.max(0, total - 1)))
                         : 0;
-                    progressPct = total > 0
+                    const localPct = total > 0
                         ? Math.min(100, Math.round(((savedPage + 1) / total) * 100))
                         : (ub.progress ?? 0);
+                    progressPct = Math.max(progressPct, Number(localPct) || 0);
                 }
                 const progress = (ub.status === 'reading' && progressPct > 0 && progressPct < 100) ? `
         <div class="progress-bar-wrap"><div class="progress-bar" style="width:${progressPct}%"></div></div>
@@ -1430,9 +1559,11 @@ function initBookDetail() {
     const hasStarted = savedPage0 > 0;
     const isCompleted = userBook?.status === 'completed';
     const isReading = hasStarted || userBook?.status === 'reading';
-    const readingPercent = (userBook?.status === 'reading' || savedPage0 > 0) && totalPages > 0
+    const localReadingPercent = (userBook?.status === 'reading' || savedPage0 > 0) && totalPages > 0
         ? Math.min(100, Math.round(((savedPage0 + 1) / totalPages) * 100))
-        : (userBook?.progress ?? 0);
+        : 0;
+    const apiReadingPercent = Number(userBook?.progress ?? 0) || 0;
+    const readingPercent = Math.max(localReadingPercent, apiReadingPercent);
 
     const progressBlock = isReading && readingPercent > 0 && !isCompleted ? `
     <div style="max-width:24rem" class="detail-reading-progress">

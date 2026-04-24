@@ -126,7 +126,12 @@ require_once __DIR__ . '/_lx_public_urls.php';
 
       <!-- For You -->
       <div id="forYouSection" style="margin-top:2rem;margin-bottom:1.5rem">
-        <h3 class="font-display" style="font-size:1.5rem;font-weight:700;margin-bottom:1rem"> For You</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+          <h3 class="font-display" style="font-size:1.5rem;font-weight:700;margin:0"> For You</h3>
+          <button type="button" id="editForYouPrefsBtn" class="btn-outline" style="padding:.5rem .9rem;font-size:.75rem">
+            Edit categories
+          </button>
+        </div>
         <div id="forYouGrid"></div>
       </div>
       <div id="catalogDivider" style="border-top:1px solid var(--border);margin:1.5rem 0"></div>
@@ -224,6 +229,31 @@ require_once __DIR__ . '/_lx_public_urls.php';
 
   <!-- Lumo Chatbot (shared markup: controller/lumo-chatbot.js) -->
   <div id="lumo-chatbot-root" data-asset-base="<?= htmlspecialchars(lx_public_asset('assets/images/'), ENT_QUOTES, 'UTF-8') ?>"></div>
+
+  <!-- First-login For You category onboarding -->
+  <div id="forYouPrefsOverlay" class="modal-overlay hidden" aria-hidden="true">
+    <div class="modal-box" style="max-width:42rem;width:100%;position:relative">
+      <button type="button" id="forYouPrefsClose" class="modal-close-btn" aria-label="Close category selection">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+          stroke-width="2" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+      <div style="padding:1.5rem">
+        <h2 class="font-display" style="margin:0 0 .5rem 0">Choose your favorite categories</h2>
+        <p style="margin:0 0 1rem 0;color:var(--muted-foreground)">
+          Pick at least one genre so Lexora can personalize your For You shelf.
+        </p>
+        <div id="forYouPrefsChoices" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem"></div>
+        <p id="forYouPrefsMsg" style="min-height:1.2rem;color:var(--muted-foreground);font-size:.9rem;margin:.8rem 0 0"></p>
+        <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem">
+          <button type="button" id="forYouPrefsSkip" class="btn-outline">Skip for now</button>
+          <button type="button" id="forYouPrefsSave" class="btn-primary">Save preferences</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="<?= htmlspecialchars(lx_public_asset('assets/js/models/user_data.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(lx_public_asset('assets/js/models/lexora-state.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
