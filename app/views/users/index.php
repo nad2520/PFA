@@ -1,9 +1,25 @@
 <?php
-session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+  session_start();
+}
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = (string)$_SESSION['csrf_token'];
+$lxUserName = isset($_SESSION['user_name']) ? (string)$_SESSION['user_name'] : 'Reader';
+$lxUserNameEsc = htmlspecialchars($lxUserName, ENT_QUOTES, 'UTF-8');
+$parts = preg_split('/\s+/', trim($lxUserName));
+$lxInitials = '';
+foreach (array_slice($parts, 0, 2) as $p) {
+    if ($p !== '') {
+        $lxInitials .= strtoupper(substr($p, 0, 1));
+    }
+}
+if ($lxInitials === '') {
+    $lxInitials = 'R';
+}
+$lxInitialsEsc = htmlspecialchars($lxInitials, ENT_QUOTES, 'UTF-8');
+require_once __DIR__ . '/_lx_public_urls.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,10 +33,11 @@ $csrfToken = (string)$_SESSION['csrf_token'];
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&display=swap');
   </style>
-  <link rel="stylesheet" href="public/assets/css/user/main.css">
+  <link rel="stylesheet" href="<?= htmlspecialchars(lx_main_css_href(), ENT_QUOTES, 'UTF-8') ?>">
   <script>
     window.LX_USER_ROLE = "<?php echo isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user'; ?>";
     window.LX_SESSION = { csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>" };
+    window.__lxBootstrapUser = <?= json_encode(['name' => $lxUserName, 'initials' => $lxInitials], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
   </script>
 </head>
 
@@ -47,15 +64,15 @@ $csrfToken = (string)$_SESSION['csrf_token'];
         </button>
         <div class="hover-card">
           <button class="avatar-btn" onclick="nav('?view=profile')">
-            <img id="avatarImg" src="public/assets/images/lumo-happy.png" alt="User avatar">
+            <img id="avatarImg" src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="User avatar">
           </button>
           <div class="hover-card-content">
-            <img src="public/assets/images/lumo-happy.png" alt="Lumo">
+            <img src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Lumo">
             <div style="text-align:center">
-              <p style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700">Eleanor Vance</p>
-              <p
+              <p id="hoverCardUserName" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700"><?= $lxUserNameEsc ?></p>
+              <p id="hoverLevelBadge"
                 style="font-family:'Press Start 2P';font-size:.5rem;color:var(--primary);letter-spacing:.05em;margin-top:.25rem">
-                LVL 12</p>
+                LVL 1</p>
             </div>
             <div class="coins-badge">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor"
@@ -64,7 +81,7 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <path d="M12 17h.01" />
               </svg>
-              <!-- <span id="coinCount">1,350</span> COINS -->
+              <span id="coinCount">0</span> COINS
             </div>
           </div>
         </div>
@@ -75,8 +92,8 @@ $csrfToken = (string)$_SESSION['csrf_token'];
   <!-- --- Hero Section -------------------------------------------------------- -->
   <section class="hero-section">
     <div class="hero-media">
-      <video autoplay loop muted playsinline poster="public/assets/images/hero-library.png">
-        <source src="public/assets/videos/hero-library.mp4" type="video/mp4">
+      <video autoplay loop muted playsinline poster="<?= htmlspecialchars(lx_public_asset('assets/images/hero-library.png'), ENT_QUOTES, 'UTF-8') ?>">
+        <source src="<?= htmlspecialchars(lx_public_asset('assets/videos/hero-library.mp4'), ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
       </video>
     </div>
     <div class="hero-vignette"></div>
@@ -144,7 +161,7 @@ $csrfToken = (string)$_SESSION['csrf_token'];
       </button>
       <div class="reading-kingdom-map-wrap">
         <div class="reading-kingdom-badge">YOUR READING KINGDOM </div>
-        <img src="public/assets/images/reading-kingdom-map.png" alt="Reading Kingdom Map" class="reading-kingdom-map-img"
+        <img src="<?= htmlspecialchars(lx_public_asset('assets/images/reading-kingdom-map.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Reading Kingdom Map" class="reading-kingdom-map-img"
           draggable="false">
         <div id="genreOverlay" class="reading-kingdom-regions"></div>
         <div class="castle-shimmer" aria-hidden="true"></div>
@@ -163,7 +180,7 @@ $csrfToken = (string)$_SESSION['csrf_token'];
         </svg>
       </button>
       <div class="lumo-welcome">
-        <img src="public/assets/images/lumo-happy.png" alt="Lumo the bear" class="animate-breathe">
+        <img src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Lumo the bear" class="animate-breathe">
         <h2> LUMO'S BOUNTY BOARD </h2>
         <p class="sub">Complete these quests to level up and unlock new map regions!</p>
         <div class="bounty-list">
@@ -206,12 +223,12 @@ $csrfToken = (string)$_SESSION['csrf_token'];
   </div>
 
   <!-- Lumo Chatbot (shared markup: controller/lumo-chatbot.js) -->
-  <div id="lumo-chatbot-root" data-asset-base="public/assets/images/"></div>
+  <div id="lumo-chatbot-root" data-asset-base="<?= htmlspecialchars(lx_public_asset('assets/images/'), ENT_QUOTES, 'UTF-8') ?>"></div>
 
-  <script src="public/assets/js/models/user_data.js"></script>
-  <script src="public/assets/js/models/lexora-state.js"></script>
-  <script src="public/assets/js/lumo-chatbot.js"></script>
-  <script src="public/assets/js/user_app.js"></script>
+  <script src="<?= htmlspecialchars(lx_public_asset('assets/js/models/user_data.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(lx_public_asset('assets/js/models/lexora-state.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(lx_public_asset('assets/js/lumo-chatbot.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(lx_public_asset('assets/js/user_app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
 
 </html>

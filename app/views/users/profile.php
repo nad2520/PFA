@@ -1,9 +1,30 @@
 <?php
-session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = (string)$_SESSION['csrf_token'];
+$lxUserName = isset($_SESSION['user_name']) ? (string)$_SESSION['user_name'] : 'Reader';
+$lxUserNameEsc = htmlspecialchars($lxUserName, ENT_QUOTES, 'UTF-8');
+$parts = preg_split('/\s+/', trim($lxUserName));
+$lxInitials = '';
+foreach (array_slice($parts, 0, 2) as $p) {
+    if ($p !== '') {
+        $lxInitials .= strtoupper(substr($p, 0, 1));
+    }
+}
+if ($lxInitials === '') {
+    $lxInitials = 'R';
+}
+$lxInitialsEsc = htmlspecialchars($lxInitials, ENT_QUOTES, 'UTF-8');
+require_once __DIR__ . '/_lx_public_urls.php';
+$libraryRows = is_array($library ?? null) ? $library : [];
+$libraryOnlyRows = array_values(array_filter($libraryRows, static function ($row): bool {
+    $status = strtolower((string)($row['status'] ?? ''));
+    return in_array($status, ['reading', 'completed'], true);
+}));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,9 +35,11 @@ $csrfToken = (string)$_SESSION['csrf_token'];
     <title>Profile  Lexora</title>
     <meta name="description"
         content="Your Lexora reading profile  track progress, view your library, and explore the Scholar's Map.">
-    <link rel="stylesheet" href="public/assets/css/user/main.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars(lx_main_css_href(), ENT_QUOTES, 'UTF-8') ?>">
     <script>
       window.LX_SESSION = { csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>" };
+      window.__lxBootstrapUser = <?= json_encode(['name' => $lxUserName, 'initials' => $lxInitials], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
+      window.__lxLibrary = <?= json_encode($library ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
     </script>
 </head>
 
@@ -45,15 +68,15 @@ $csrfToken = (string)$_SESSION['csrf_token'];
         </button>
         <div class="hover-card">
           <button class="avatar-btn" onclick="nav('?view=profile')">
-            <img id="avatarImg" src="public/assets/images/lumo-happy.png" alt="User avatar">
+            <img id="avatarImg" src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="User avatar">
           </button>
           <div class="hover-card-content">
-            <img src="public/assets/images/lumo-happy.png" alt="Lumo">
+            <img src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Lumo">
             <div style="text-align:center">
-              <p style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700">Eleanor Vance</p>
+              <p id="hoverCardUserName" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700"><?= $lxUserNameEsc ?></p>
               <p id="hoverLevelBadge"
                 style="font-family:'Press Start 2P';font-size:.5rem;color:var(--primary);letter-spacing:.05em;margin-top:.25rem">
-                LVL 12</p>
+                LVL 1</p>
             </div>
             <div class="coins-badge">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor"
@@ -62,7 +85,7 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <path d="M12 17h.01" />
               </svg>
-              <span id="coinCount">1,350</span> COINS
+              <span id="coinCount">0</span> COINS
             </div>
           </div>
         </div>
@@ -77,8 +100,8 @@ $csrfToken = (string)$_SESSION['csrf_token'];
             <section class="profile-stats">
                 <div class="stats-inner">
                     <div class="avatar-block">
-                        <div class="avatar-circle avatar-initials" aria-hidden="true">EV</div>
-                        <h1 class="font-display">Eleanor Vance</h1>
+                        <div id="avatarInitials" class="avatar-circle avatar-initials" aria-hidden="true"><?= $lxInitialsEsc ?></div>
+                        <h1 id="profileDisplayName" class="font-display"><?= $lxUserNameEsc ?></h1>
                     </div>
                     <div class="stats-row">
                         <!-- Reading hours circular -->
@@ -89,10 +112,10 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                                 <div
                                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
                                     <span id="circularLabel" class="font-display"
-                                        style="font-size:1.1rem;font-weight:700">2.4h</span>
+                                        style="font-size:1.1rem;font-weight:700">0h</span>
                                 </div>
                             </div>
-                            <span style="font-size:.875rem;color:var(--muted-foreground)">of 4h goal</span>
+                            <span id="readingGoalCaption" style="font-size:.875rem;color:var(--muted-foreground)">of 4h goal</span>
                         </div>
                         <!-- Coins -->
                         <div class="stat-item">
@@ -106,7 +129,7 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                                 </svg>
                             </div>
                             <span id="profileCoins" class="font-display"
-                                style="font-size:1.1rem;font-weight:700">1,350</span>
+                                style="font-size:1.1rem;font-weight:700">0</span>
                             <span style="font-size:.875rem;color:var(--muted-foreground)">Coins</span>
                         </div>
                         <!-- Books Read -->
@@ -120,7 +143,7 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                                 </svg>
                             </div>
                             <span id="booksReadCount" class="font-display"
-                                style="font-size:1.1rem;font-weight:700">5</span>
+                                style="font-size:1.1rem;font-weight:700">0</span>
                             <span style="font-size:.875rem;color:var(--muted-foreground)">Books Read</span>
                         </div>
                     </div>
@@ -157,7 +180,7 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                 </div>
                 <div class="lamp-card-body">
                     <div class="lumo-thumb lamp-lumo-wrap">
-                        <img id="lumoThumbLamp" src="public/assets/images/lumo-happy.png" alt="Lumo">
+                        <img id="lumoThumbLamp" src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Lumo">
                         <div id="lampDot" class="lamp-dot animate-lamp-glow"></div>
                     </div>
                     <div class="lamp-card-controls">
@@ -185,39 +208,81 @@ $csrfToken = (string)$_SESSION['csrf_token'];
                 </div>
             </div>
 
-            <!-- My Library -->
-            <section style="display:flex;flex-direction:column;gap:1rem">
-                <h2 class="font-display"
-                    style="font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:.5rem">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"
-                        style="color:var(--primary)">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                    </svg>
-                    My Library
-                </h2>
-                <div class="book-grid" id="libraryGrid"></div>
-            </section>
-
-            <!-- My List -->
-            <section style="display:flex;flex-direction:column;gap:1rem">
-                <h2 class="font-display" style="font-size:1.5rem;font-weight:700"> My List</h2>
-                <div id="planGrid"></div>
-            </section>
-
-            <section style="display:flex;flex-direction:column;gap:1rem">
-                <h2 class="font-display" style="font-size:1.5rem;font-weight:700"> Your Leaderboard Window</h2>
-                <p style="color:var(--muted-foreground);font-size:.9rem">Current rank: <strong id="profileLeaderboardRank">-</strong></p>
-                <div class="leaderboard-wrap">
-                    <div class="lb-header">
-                        <span>Rank</span>
-                        <span>Reader</span>
-                        <span style="text-align:right;">Score</span>
-                        <span class="lb-books-col" style="text-align:right;">Books</span>
-                        <span style="text-align:right;">Level</span>
+            <section class="lamp-of-knowledge" aria-labelledby="my-library-heading">
+                <div class="lamp-card-head">
+                    <h2 id="my-library-heading" class="font-display lamp-card-title">My Library</h2>
+                    <p style="margin:0;color:var(--muted-foreground);font-size:.9rem">Books you added from the book detail page appear here.</p>
+                </div>
+                <div class="lamp-card-body" style="display:block">
+                    <div id="libraryGrid" class="book-grid" aria-live="polite">
+                        <?php if (count($libraryOnlyRows) > 0): ?>
+                            <?php foreach ($libraryOnlyRows as $entry): ?>
+                                <?php
+                                $book = is_array($entry['book'] ?? null) ? $entry['book'] : [];
+                                $bookId = (int)($book['id'] ?? $entry['book_id'] ?? 0);
+                                $bookTitle = htmlspecialchars((string)($book['title'] ?? 'Untitled Book'), ENT_QUOTES, 'UTF-8');
+                                $bookAuthor = htmlspecialchars((string)($book['author'] ?? 'Unknown Author'), ENT_QUOTES, 'UTF-8');
+                                $bookGenre = htmlspecialchars((string)($book['genre'] ?? 'General'), ENT_QUOTES, 'UTF-8');
+                                $status = strtolower((string)($entry['status'] ?? 'reading'));
+                                $badgeClass = $status === 'completed' ? 'completed' : 'reading';
+                                $badgeText = $status === 'completed' ? '✓ DONE' : 'READING';
+                                $detailHref = 'index.php?view=book-detail&id=' . $bookId;
+                                ?>
+                                <div class="book-card-static" role="link" data-book-id="<?= $bookId ?>" style="cursor:pointer" onclick="window.location.href='<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8') ?>'">
+                                    <div class="card-body">
+                                        <span class="status-badge <?= htmlspecialchars($badgeClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($badgeText, ENT_QUOTES, 'UTF-8') ?></span>
+                                        <h3 class="line-clamp-1"><?= $bookTitle ?></h3>
+                                        <p class="line-clamp-1"><?= $bookAuthor ?></p>
+                                        <span class="genre-tag"><?= $bookGenre ?></span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="empty-library-card">
+                                <p class="empty-library-msg">No books yet. Start exploring and add some!</p>
+                                <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">
+                                    Books you add from Book Detail will appear here.
+                                </p>
+                                <a href="index.php?view=user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    <div id="profileLeaderboardRows"></div>
+                </div>
+            </section>
+
+            <section class="profile-leaderboard profile-leaderboard--featured" aria-labelledby="profile-lb-heading">
+                <div class="profile-leaderboard__head">
+                    <h2 id="profile-lb-heading" class="font-display profile-leaderboard__title">
+                        <svg class="profile-leaderboard__title-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"
+                            aria-hidden="true">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                            <path d="M4 22h16" />
+                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                        </svg>
+                        Your Leaderboard
+                    </h2>
+                    <p class="profile-leaderboard__rankline">
+                        Your rank
+                        <span class="profile-leaderboard__rank-badge" id="profileLeaderboardRank">—</span>
+                    </p>
+                </div>
+                <div class="profile-leaderboard__tablewrap">
+                    <table class="profile-lb-table" role="table" aria-label="Reading leaderboard window">
+                        <thead>
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">Reader</th>
+                                <th scope="col" class="profile-lb-table__th-num">Score</th>
+                                <th scope="col" class="profile-lb-table__th-num">Books</th>
+                                <th scope="col" class="profile-lb-table__th-num">Level</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profileLeaderboardRows"></tbody>
+                    </table>
                 </div>
             </section>
 
@@ -229,13 +294,13 @@ $csrfToken = (string)$_SESSION['csrf_token'];
         </footer>
     </div>
 
-    <div id="lumo-chatbot-root" data-asset-base="public/assets/images/"
+    <div id="lumo-chatbot-root" data-asset-base="<?= htmlspecialchars(lx_public_asset('assets/images/'), ENT_QUOTES, 'UTF-8') ?>"
         data-lumo-greeting="Hi there! I'm Lumo Ask me about your progress or book recommendations!"></div>
 
-    <script src="public/assets/js/models/user_data.js"></script>
-    <script src="public/assets/js/models/lexora-state.js"></script>
-    <script src="public/assets/js/lumo-chatbot.js"></script>
-    <script src="public/assets/js/user_app.js"></script>
+    <script src="<?= htmlspecialchars(lx_public_js_href('assets/js/models/user_data.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script src="<?= htmlspecialchars(lx_public_js_href('assets/js/models/lexora-state.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script src="<?= htmlspecialchars(lx_public_js_href('assets/js/lumo-chatbot.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script src="<?= htmlspecialchars(lx_public_js_href('assets/js/user_app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
 
 </html>

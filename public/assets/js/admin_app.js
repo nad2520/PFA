@@ -525,7 +525,7 @@ function initProfile() {
         <a href="index.php#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Find your first book! ✦</a>
       </div>`;
         } else {
-            listGrid.innerHTML = `<div class="book-grid">${planToRead.map(ub => {
+            listGrid.innerHTML = planToRead.map(ub => {
                 const c = genreColors[ub.book.genre];
                 const cover = genreCovers[ub.book.genre];
                 return `<div class="book-card-static">
@@ -540,7 +540,7 @@ function initProfile() {
             <span class="genre-tag" style="${c.css}">${ub.book.genre}</span>
           </div>
         </div>`;
-            }).join('')}</div>`;
+            }).join('');
         }
     }
 

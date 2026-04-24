@@ -36,7 +36,12 @@ class AuthController extends Controller
 
     private function signup(): void
     {
-        $pdo = Database::pdo();
+        try {
+            $pdo = Database::pdo();
+        } catch (Throwable $e) {
+            $_SESSION['auth_error'] = "Unable to connect to the database. Please start MySQL in XAMPP and try again.";
+            $this->redirect('index.php#auth-modal');
+        }
 
         $username = trim((string)($_POST['username'] ?? ''));
         $email = trim((string)($_POST['email'] ?? ''));
@@ -68,6 +73,8 @@ class AuthController extends Controller
         }
 
         $hashed = $this->hashPassword($password);
+        // New-user invariant: only insert into `users`. Do not seed user_books, reading_progress,
+        // or reading_sessions here — implicit unread / empty library is "no rows" for those tables.
         $req = "INSERT INTO users(nom, email, password, role, birthdate, coins) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($req);
         $ok = $stmt->execute([$username, $email, $hashed, $role, $birthdate ?: null, 1000]);
@@ -77,6 +84,7 @@ class AuthController extends Controller
             $this->redirect('index.php#auth-modal');
         }
 
+        session_regenerate_id(true);
         $_SESSION['user_id'] = (int)$pdo->lastInsertId();
         $_SESSION['user_name'] = $username;
         $_SESSION['user_role'] = $role;
@@ -89,7 +97,12 @@ class AuthController extends Controller
 
     private function login(): void
     {
-        $pdo = Database::pdo();
+        try {
+            $pdo = Database::pdo();
+        } catch (Throwable $e) {
+            $_SESSION['auth_error'] = "Unable to connect to the database. Please start MySQL in XAMPP and try again.";
+            $this->redirect('index.php#auth-modal');
+        }
 
         $email = trim((string)($_POST['email'] ?? ''));
         $password = trim((string)($_POST['password'] ?? ''));
@@ -109,6 +122,7 @@ class AuthController extends Controller
             $this->redirect('index.php#auth-modal');
         }
 
+        session_regenerate_id(true);
         $_SESSION['user_id'] = (int)$user['id'];
         $_SESSION['user_name'] = (string)$user['nom'];
         $_SESSION['user_role'] = (string)$user['role'];

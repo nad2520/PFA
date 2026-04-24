@@ -12,6 +12,31 @@ require_once APP_PATH  . '/models/BookModel.php';
  */
 class UserApiController extends Controller
 {
+    /** Cache schema check within request lifecycle. */
+    private static ?bool $hasUserBooksPurchasedAt = null;
+
+    private function userBooksHasPurchasedAt(PDO $pdo): bool
+    {
+        if (self::$hasUserBooksPurchasedAt !== null) {
+            return self::$hasUserBooksPurchasedAt;
+        }
+        try {
+            $q = $pdo->query(
+                "SELECT 1
+                 FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = 'user_books'
+                   AND COLUMN_NAME = 'purchased_at'
+                 LIMIT 1"
+            );
+            self::$hasUserBooksPurchasedAt = (bool)$q->fetchColumn();
+        } catch (\Throwable) {
+            self::$hasUserBooksPurchasedAt = false;
+        }
+
+        return self::$hasUserBooksPurchasedAt;
+    }
+
     // ── GET /api/user/profile ─────────────────────────────────────────────────
     public function profile(): void
     {
@@ -28,6 +53,11 @@ class UserApiController extends Controller
         $xpForNext = $level * 500;
 
         $lumoState = UserModel::computeLumoState($row);
+        $reading   = UserModel::getReadingTimeAggregates($userId);
+
+        // Never cache: browsers could reuse another user's JSON after login / signup.
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Pragma: no-cache');
 
         $this->json([
             'success' => true,
@@ -50,6 +80,11 @@ class UserApiController extends Controller
                 },
                 'library'     => UserModel::getUserBooks($userId),
                 'backToLecture' => UserModel::getBackToLecture($userId),
+                'totalReadingMinutes'   => $reading['totalReadingMinutes'],
+                'totalReadingHours'     => $reading['totalReadingHours'],
+                'averageReadingMinutes' => $reading['averageReadingMinutes'],
+                'averageReadingHours'   => $reading['averageReadingHours'],
+                'dailyReadingGoalHours' => $reading['dailyReadingGoalHours'],
             ],
         ]);
     }
@@ -67,6 +102,14 @@ class UserApiController extends Controller
 
         if ($bookId <= 0) {
             $this->json(['success' => false, 'message' => 'book_id required.'], 400);
+        }
+
+        if (!UserModel::userHasReadableAccess($userId, $bookId)) {
+            $this->json([
+                'success' => false,
+                'error' => 'ACCESS_DENIED',
+                'message' => 'Unlock this book from the book page before logging reading time.',
+            ], 403);
         }
 
         $pdo   = Database::pdo();
@@ -113,60 +156,128 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'Book not found.'], 404);
         }
 
-        $user = UserModel::findById($userId);
-        if (!$user) {
+        if (!UserModel::findById($userId)) {
             $this->json(['success' => false, 'message' => 'User not found.'], 404);
         }
-        $cost = (int)$book['coinCost'];
 
-        if ((int)$user['coins'] < $cost) {
-            $this->json(['success' => false, 'message' => 'Not enough coins.'], 402);
-        }
-
-        $pdo = Database::pdo();
-        $chk = $pdo->prepare('SELECT id FROM user_books WHERE user_id = ? AND book_id = ?');
-        $chk->execute([$userId, $bookId]);
-        if ($chk->fetch()) {
-            $this->json(['success' => false, 'message' => 'Book already in your library.'], 409);
-        }
-
-        $pdo->beginTransaction();
+        $pdo = null;
         try {
-            $deduct = $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?');
-            $deduct->execute([$cost, $userId, $cost]);
-            if ($deduct->rowCount() === 0) {
-                throw new RuntimeException('Not enough coins');
-            }
-            $pdo->prepare(
-                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
-                 VALUES (?, ?, ?, 0, NOW())
-                 ON DUPLICATE KEY UPDATE
-                   status = CASE
-                     WHEN status = "completed" THEN status
-                     ELSE "reading"
-                   END,
-                   started_at = IFNULL(started_at, NOW())'
-            )->execute([$userId, $bookId, 'reading']);
+            $pdo = Database::pdo();
+            $pdo->beginTransaction();
+            $hasPurchasedAt = $this->userBooksHasPurchasedAt($pdo);
 
-            $pdo->prepare(
-                'INSERT INTO economy_logs (user_id, log_date, coins_spent, event_type) VALUES (?, CURDATE(), ?, ?)'
-            )->execute([$userId, $cost, 'book_purchase']);
+            $selectSql = $hasPurchasedAt
+                ? 'SELECT id, status, purchased_at FROM user_books WHERE user_id = ? AND book_id = ? FOR UPDATE'
+                : 'SELECT id, status, NULL AS purchased_at FROM user_books WHERE user_id = ? AND book_id = ? FOR UPDATE';
+            $chk = $pdo->prepare($selectSql);
+            $chk->execute([$userId, $bookId]);
+            $existing = $chk->fetch(PDO::FETCH_ASSOC);
+
+            $st = (string)($existing['status'] ?? '');
+            $paidRecorded = !empty($existing['purchased_at']);
+            $alreadyOwned = $existing && (
+                in_array($st, ['reading', 'completed'], true) || $paidRecorded
+            );
+
+            if ($alreadyOwned) {
+                $pdo->commit();
+                $fresh = UserModel::findById($userId);
+                $this->json([
+                    'success' => true,
+                    'already_in_library' => true,
+                    'newCoins' => (int)($fresh['coins'] ?? 0),
+                    'message' => 'Book already in your library.',
+                ]);
+
+                return;
+            }
+
+            // ── Coin deduction (only for first-time purchase) ──────────────────────
+            $coinCost = (int)($book['coinCost'] ?? 0);
+            $coinsSpent = 0;
+
+            if ($coinCost > 0) {
+                // Lock the user row to read the current balance safely.
+                $userLock = $pdo->prepare('SELECT coins FROM users WHERE id = ? FOR UPDATE');
+                $userLock->execute([$userId]);
+                $userRow = $userLock->fetch(PDO::FETCH_ASSOC);
+                $currentCoins = (int)($userRow['coins'] ?? 0);
+
+                if ($currentCoins < $coinCost) {
+                    $pdo->rollBack();
+                    $this->json([
+                        'success'  => false,
+                        'error'    => 'NOT_ENOUGH_COINS',
+                        'message'  => UserModel::MSG_INSUFFICIENT_COINS,
+                    ], 402);
+                    return;
+                }
+
+                // Deduct coins atomically.
+                $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?')
+                    ->execute([$coinCost, $userId, $coinCost]);
+
+                // Audit log.
+                $pdo->prepare(
+                    'INSERT INTO economy_logs (user_id, log_date, coins_earned, coins_spent, event_type)
+                     VALUES (?, CURDATE(), 0, ?, ?)'
+                )->execute([$userId, $coinCost, 'book_purchase']);
+
+                $coinsSpent = $coinCost;
+            }
+
+            if ($hasPurchasedAt) {
+                $ins = $pdo->prepare(
+                    'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at, purchased_at)
+                     VALUES (?, ?, ?, 0, NOW(), NOW())
+                     ON DUPLICATE KEY UPDATE
+                       status = CASE
+                         WHEN user_books.status = "completed" THEN user_books.status
+                         ELSE "reading"
+                       END,
+                       started_at = IFNULL(user_books.started_at, NOW()),
+                       purchased_at = COALESCE(user_books.purchased_at, NOW())'
+                );
+                $ins->execute([$userId, $bookId, 'reading']);
+            } else {
+                $ins = $pdo->prepare(
+                    'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
+                     VALUES (?, ?, ?, 0, NOW())
+                     ON DUPLICATE KEY UPDATE
+                       status = CASE
+                         WHEN user_books.status = "completed" THEN user_books.status
+                         ELSE "reading"
+                       END,
+                       started_at = IFNULL(user_books.started_at, NOW())'
+                );
+                $ins->execute([$userId, $bookId, 'reading']);
+            }
 
             $pdo->commit();
         } catch (\Throwable $e) {
-            $pdo->rollBack();
-            if ($e instanceof RuntimeException) {
-                $this->json(['success' => false, 'message' => 'Not enough coins.'], 402);
+            try {
+                if ($pdo instanceof \PDO && $pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+            } catch (\Throwable) {
+                // ignore rollback failures
             }
-            $this->json(['success' => false, 'message' => 'Purchase failed.'], 500);
+            $this->json([
+                'success' => false,
+                'message' => 'Purchase failed. Run database/migrations/008_user_books_purchased_at.sql if `purchased_at` is missing, and ensure `user_books` matches 001_book_completion_lexora.sql.',
+            ], 500);
+
+            return;
         }
 
         $fresh = UserModel::findById($userId);
         $this->json([
-            'success' => true,
-            'message' => 'Book added to your library!',
-            'coinsSpent' => $cost,
-            'newCoins' => (int)($fresh['coins'] ?? 0),
+            'success'    => true,
+            'message'    => $coinsSpent > 0
+                ? "Book purchased for {$coinsSpent} coins!"
+                : 'Book added to your library!',
+            'coinsSpent' => $coinsSpent,
+            'newCoins'   => (int)($fresh['coins'] ?? 0),
         ]);
     }
 
@@ -204,12 +315,21 @@ class UserApiController extends Controller
             $ub = $sel->fetch(PDO::FETCH_ASSOC);
 
             if (!$ub) {
-                $pdo->prepare(
-                    'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
-                     VALUES (?, ?, "reading", 0, NOW())'
-                )->execute([$userId, $bookId]);
-                $sel->execute([$userId, $bookId]);
-                $ub = $sel->fetch(PDO::FETCH_ASSOC);
+                $pdo->rollBack();
+                $this->json([
+                    'success' => false,
+                    'error' => 'ACCESS_DENIED',
+                    'message' => 'Book is not in your library. Unlock it before completing.',
+                ], 403);
+            }
+
+            if (($ub['status'] ?? '') === 'plan_to_read') {
+                $pdo->rollBack();
+                $this->json([
+                    'success' => false,
+                    'error' => 'ACCESS_DENIED',
+                    'message' => 'Start reading (unlock) this book before completing.',
+                ], 403);
             }
 
             if (($ub['status'] ?? '') === 'completed') {
@@ -325,48 +445,12 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'Book not found.'], 404);
         }
 
-        $pdo = Database::pdo();
-        $coinCost = max(0, (int)($book['coinCost'] ?? 0));
-        $ownedStmt = $pdo->prepare(
-            'SELECT status FROM user_books WHERE user_id = ? AND book_id = ? LIMIT 1'
-        );
-        $ownedStmt->execute([$userId, $bookId]);
-        $owned = $ownedStmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$owned && $coinCost > 0) {
-            $pdo->beginTransaction();
-            try {
-                $coinsStmt = $pdo->prepare('SELECT coins FROM users WHERE id = ? FOR UPDATE');
-                $coinsStmt->execute([$userId]);
-                $coins = (int)($coinsStmt->fetchColumn() ?: 0);
-                if ($coins < $coinCost) {
-                    $pdo->rollBack();
-                    $this->json([
-                        'success' => false,
-                        'error' => 'NOT_ENOUGH_COINS',
-                        'message' => "You don't have enough coins",
-                    ], 403);
-                }
-                $deduct = $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?');
-                $deduct->execute([$coinCost, $userId, $coinCost]);
-                if ($deduct->rowCount() === 0) {
-                    $pdo->rollBack();
-                    $this->json([
-                        'success' => false,
-                        'error' => 'NOT_ENOUGH_COINS',
-                        'message' => "You don't have enough coins",
-                    ], 403);
-                }
-                $pdo->prepare(
-                    'INSERT INTO economy_logs (user_id, log_date, coins_spent, event_type) VALUES (?, CURDATE(), ?, ?)'
-                )->execute([$userId, $coinCost, 'book_access']);
-                $pdo->commit();
-            } catch (\Throwable $e) {
-                if ($pdo->inTransaction()) {
-                    $pdo->rollBack();
-                }
-                $this->json(['success' => false, 'message' => 'Could not validate book access.'], 500);
-            }
+        if (!UserModel::userHasReadableAccess($userId, $bookId)) {
+            $this->json([
+                'success' => false,
+                'error' => 'ACCESS_DENIED',
+                'message' => 'Unlock this book from the book page (Start Reading) before saving progress.',
+            ], 403);
         }
 
         $ok = UserModel::saveReadingProgress($userId, $bookId, $page);
@@ -396,11 +480,42 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'Book not found.'], 404);
         }
 
+        try {
+            $pdo = Database::pdo();
+            $chk = $pdo->prepare('SELECT status FROM user_books WHERE user_id = ? AND book_id = ? LIMIT 1');
+            $chk->execute([$userId, $bookId]);
+            $row = $chk->fetch(PDO::FETCH_ASSOC);
+            $st = (string)($row['status'] ?? '');
+        } catch (\Throwable) {
+            $st = '';
+        }
+
+        if ($st === 'plan_to_read') {
+            $this->json([
+                'success' => true,
+                'already_in_list' => true,
+                'message' => 'Already in your list.',
+            ]);
+            return;
+        }
+        if (in_array($st, ['reading', 'completed'], true)) {
+            $this->json([
+                'success' => true,
+                'in_library' => true,
+                'message' => 'This book is already in your library.',
+            ]);
+            return;
+        }
+
         $ok = UserModel::addToMyList($userId, $bookId);
         if (!$ok) {
             $this->json(['success' => false, 'message' => 'Could not add to list.'], 500);
         }
-        $this->json(['success' => true, 'message' => 'Book added to your list.']);
+        $this->json([
+            'success' => true,
+            'already_in_list' => false,
+            'message' => 'Book added to your list.',
+        ]);
     }
 
     // ── POST /api/user/book/list/remove ────────────────────────────────────────

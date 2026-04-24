@@ -50,47 +50,40 @@ const books = [
 ];
 
 // ─── Book Prices ─────────────────────────────────────────────────────────────
+// Purchase `cost` matches DB `books.coinCost` (see database/migrations/004 and 006).
+// ~70% of titles at 200–250 coins; remaining ~30% at a higher tier.
 const bookPrices = {
-  1: { cost:2300, xpReward:150, coinReward:300 },
-  2: { cost:1800, xpReward:120, coinReward:250 },
-  3: { cost:1500, xpReward:100, coinReward:200 },
-  4: { cost:2100, xpReward:140, coinReward:280 },
-  5: { cost:900,  xpReward:80,  coinReward:150 },
-  6: { cost:1200, xpReward:90,  coinReward:180 },
-  7: { cost:2500, xpReward:160, coinReward:320 },
-  8: { cost:1600, xpReward:110, coinReward:220 },
-  9: { cost:2000, xpReward:130, coinReward:260 },
-  10:{ cost:1400, xpReward:95,  coinReward:190 },
-  11:{ cost:1700, xpReward:115, coinReward:230 },
-  12:{ cost:800,  xpReward:70,  coinReward:140 },
-  13:{ cost:1100, xpReward:85,  coinReward:170 },
-  14:{ cost:2400, xpReward:155, coinReward:310 },
-  15:{ cost:1900, xpReward:125, coinReward:240 },
-  16:{ cost:2200, xpReward:145, coinReward:290 },
+  1: { cost:200, xpReward:150, coinReward:300 },
+  2: { cost:250, xpReward:120, coinReward:250 },
+  3: { cost:200, xpReward:100, coinReward:200 },
+  4: { cost:250, xpReward:140, coinReward:280 },
+  5: { cost:200, xpReward:80,  coinReward:150 },
+  6: { cost:250, xpReward:90,  coinReward:180 },
+  7: { cost:200, xpReward:160, coinReward:320 },
+  8: { cost:250, xpReward:110, coinReward:220 },
+  9: { cost:200, xpReward:130, coinReward:260 },
+  10:{ cost:250, xpReward:95,  coinReward:190 },
+  11:{ cost:200, xpReward:115, coinReward:230 },
+  12:{ cost:350, xpReward:70,  coinReward:140 },
+  13:{ cost:350, xpReward:85,  coinReward:170 },
+  14:{ cost:400, xpReward:155, coinReward:310 },
+  15:{ cost:400, xpReward:125, coinReward:240 },
+  16:{ cost:450, xpReward:145, coinReward:290 },
 };
 
 // ─── Mock User ────────────────────────────────────────────────────────────────
 const mockUser = {
-  name: "Eleanor Vance",
-  level: 12,
-  levelProgress: 68,
-  dailyReadingHours: 2.4,
+  name: "Reader",
+  level: 1,
+  levelProgress: 0,
+  dailyReadingHours: 0,
   dailyReadingGoal: 4,
-  coins: 1350,
+  coins: 0,
 };
 
 // ─── Mock User Books ──────────────────────────────────────────────────────────
-const mockUserBooks = [
-  { book: books[0],  status:"reading",      progress:72 },
-  { book: books[1],  status:"reading",      progress:35 },
-  { book: books[5],  status:"completed" },
-  { book: books[6],  status:"completed" },
-  { book: books[11], status:"completed" },
-  { book: books[3],  status:"plan-to-read" },
-  { book: books[7],  status:"plan-to-read" },
-  { book: books[9],  status:"plan-to-read" },
-  { book: books[13], status:"plan-to-read" },
-];
+// Empty by default: real shelf comes from GET /api/user/profile (`library`). Admin UI uses admin_data.js mocks.
+const mockUserBooks = [];
 
 // ─── Community Posts ──────────────────────────────────────────────────────────
 const communityPosts = [
@@ -116,7 +109,8 @@ const communityPosts = [
   { id:"p20", bookId:16, author:"BoneCollector",     avatarInitials:"BC", title:"The garden imagery is haunting",                        preview:"Crane's description of bones arranged like flowers growing from the earth is simultaneously beautiful and disturbing…",                  upvotes:99,  comments:27, timeAgo:"1d ago",  tag:"review" },
 ];
 
-// Expose for other scripts (classic scripts do not share const/let across files)
+// Expose for other scripts (classic scripts do not share const/let across files).
+// `books` / `bookPrices` are bootstrap fallbacks; `user_app.js` replaces them from GET /api/catalog/books.
 window.__lexora = {
   books,
   genreCovers,

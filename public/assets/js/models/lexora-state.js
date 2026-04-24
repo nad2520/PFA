@@ -155,41 +155,66 @@
   }
 
   /**
-   * Merge /api/user/profile `library` into local shelf so badges (READING → DONE) match the DB.
+   * Replace local shelf from /api/user/profile `library` (DB: `user_books` + `books`).
+   * Empty array always clears — no placeholder books. Uses each row's `book` payload when present
+   * so the catalog script does not need to have run first.
    */
   function applyLibraryFromServer(rows) {
-    if (!rows || !Array.isArray(rows) || !window.__lexora) return;
-    const L = window.__lexora;
-    if (!L.books || !L.books.length) return;
+    if (!Array.isArray(rows)) return;
 
+    if (rows.length === 0) {
+      saveUserBooks([]);
+      return;
+    }
+
+    const L = window.__lexora;
     let userBooks = [];
     rows.forEach(function (row) {
       const bid = Number(row.book_id);
-      const book =
-        row.book && Number(row.book.id) === bid
-          ? row.book
-          : L.books.find(function (b) {
-              return b.id === bid;
-            });
+      let book = null;
+      if (row.book && Number(row.book.id) === bid) {
+        const raw = row.book;
+        book = {
+          id: bid,
+          title: String(raw.title || ""),
+          author: String(raw.author || ""),
+          genre: String(raw.genre || ""),
+          trending: !!raw.trending,
+          description: String(raw.description || ""),
+          audience: String(raw.audience || "All"),
+          cover: String(raw.cover || "📖"),
+        };
+      } else if (L && L.books && L.books.length) {
+        book = L.books.find(function (b) {
+          return b.id === bid;
+        });
+      }
       if (!book) return;
 
-      const st = row.status === "plan-to-read" ? "plan-to-read" : row.status;
+      const st = row.status === "plan-to-read" || row.status === "plan_to_read"
+        ? "plan-to-read"
+        : row.status;
+      const total = getBookPages(bid).length || 24;
+      const maxIdx = Math.max(0, total - 1);
+      let pp = Number(row.progress_page);
+      if (!Number.isFinite(pp) || pp < 0) {
+        pp = 0;
+      } else {
+        pp = Math.min(Math.floor(pp), maxIdx);
+      }
+
       let progress = row.progress;
       if (progress == null) {
         if (st === "completed") progress = 100;
         else {
-          const total = getBookPages(bid).length || 24;
-          const pp =
-            typeof row.progress_page === "number" ? row.progress_page : 0;
-          progress =
-            total > 0 ? Math.round(((pp + 1) / total) * 100) : 0;
+          progress = total > 0 ? Math.round(((pp + 1) / total) * 100) : 0;
         }
       }
 
       const entry = { book: book, status: st, progress: progress };
       userBooks.push(entry);
-      if (typeof row.progress_page === "number") {
-        memoryProgress[bid] = row.progress_page;
+      if (st === "reading" || st === "completed") {
+        memoryProgress[bid] = pp;
       }
     });
     saveUserBooks(userBooks);

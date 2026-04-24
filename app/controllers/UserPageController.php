@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 require_once CORE_PATH . '/Controller.php';
-require_once APP_PATH  . '/models/UserModel.php';
-require_once APP_PATH  . '/models/BookModel.php';
+require_once APP_PATH . '/models/UserModel.php';
+require_once APP_PATH . '/models/BookModel.php';
 
 /**
  * UserPageController
@@ -22,12 +22,12 @@ class UserPageController extends Controller
     public function profile(): void
     {
         $this->requireAuth();
-        $user       = $this->currentUserData();
-        $library    = UserModel::getUserBooks((int)$_SESSION['user_id']);
+        $user = $this->currentUserData();
+        $library = UserModel::getUserBooks((int) $_SESSION['user_id']);
         $leaderboard = UserModel::leaderboard(10);
 
         $this->renderUserView('users/profile', array_merge($user, [
-            'library'     => $library,
+            'library' => $library,
             'leaderboard' => $leaderboard,
         ]));
     }
@@ -35,7 +35,7 @@ class UserPageController extends Controller
     public function store(): void
     {
         $this->requireAuth();
-        $user  = $this->currentUserData();
+        $user = $this->currentUserData();
         $books = BookModel::all();
         $this->renderUserView('users/store', array_merge($user, ['books' => $books]));
     }
@@ -43,25 +43,30 @@ class UserPageController extends Controller
     public function bookDetail(): void
     {
         $this->requireAuth();
-        $user   = $this->currentUserData();
-        $bookId = (int)($_GET['id'] ?? 0);
-        $book   = $bookId > 0 ? BookModel::findById($bookId) : null;
-        $this->renderUserView('users/book-detail', array_merge($user, ['book' => $book]));
+        $user = $this->currentUserData();
+        $bookId = (int) ($_GET['id'] ?? 0);
+        $book = $bookId > 0 ? BookModel::findById($bookId) : null;
+        $library = UserModel::getUserBooks((int) $_SESSION['user_id']);
+
+        $this->renderUserView('users/book-detail', array_merge($user, [
+            'book' => $book,
+            'library' => $library
+        ]));
     }
 
     public function readBook(): void
     {
         $this->requireAuth();
-        $user   = $this->currentUserData();
-        $bookId = (int)($_GET['id'] ?? 0);
-        $book   = $bookId > 0 ? BookModel::findById($bookId) : null;
+        $user = $this->currentUserData();
+        $bookId = (int) ($_GET['id'] ?? 0);
+        $book = $bookId > 0 ? BookModel::findById($bookId) : null;
 
         if (!$book) {
             $this->redirect('index.php?view=store');
         }
 
         // Record today's reading session start
-        UserModel::touchLastRead((int)$_SESSION['user_id']);
+        UserModel::touchLastRead((int) $_SESSION['user_id']);
 
         $this->renderUserView('users/read-book', array_merge($user, ['book' => $book]));
     }
@@ -71,8 +76,8 @@ class UserPageController extends Controller
     /** Loads full user record from DB and computes derived values */
     private function currentUserData(): array
     {
-        $userId = (int)$_SESSION['user_id'];
-        $row    = UserModel::findById($userId);
+        $userId = (int) $_SESSION['user_id'];
+        $row = UserModel::findById($userId);
 
         if (!$row) {
             // Session is stale — force logout
@@ -80,35 +85,35 @@ class UserPageController extends Controller
             $this->redirect('/PFA/');
         }
 
-        $xp       = (int)$row['xp'];
-        $level    = max(1, (int)$row['level']);
+        $xp = (int) $row['xp'];
+        $level = max(1, (int) $row['level']);
         $xpForNext = $level * 500; // e.g. level 1 needs 500 XP, level 2 needs 1000, etc.
-        $levelPct  = min(100, (int)round(($xp % $xpForNext) / $xpForNext * 100));
+        $levelPct = min(100, (int) round(($xp % $xpForNext) / $xpForNext * 100));
 
         // Lumo state
-        $lumoState   = UserModel::computeLumoState($row);
+        $lumoState = UserModel::computeLumoState($row);
         $lumoMessage = match ($lumoState) {
-            'happy'   => 'Lumo is happy! Keep reading to maintain your streak. 🌟',
-            'dim'     => 'Lumo misses you! You haven\'t read in over 24 hours.',
+            'happy' => 'Lumo is happy! Keep reading to maintain your streak. 🌟',
+            'dim' => 'Lumo misses you! You haven\'t read in over 24 hours.',
             'worried' => 'Lumo is worried… It\'s been more than 3 days since your last read!',
-            default   => '',
+            default => '',
         };
 
         return [
-            'userId'       => $userId,
-            'userName'     => htmlspecialchars($row['nom'], ENT_QUOTES),
+            'userId' => $userId,
+            'userName' => htmlspecialchars($row['nom'], ENT_QUOTES),
             'userInitials' => strtoupper(mb_substr($row['nom'], 0, 1) . (str_contains($row['nom'], ' ') ? mb_substr(strrchr($row['nom'], ' '), 1, 1) : '')),
-            'userRole'     => $row['role'],
-            'userCoins'    => (int)$row['coins'],
-            'userXp'       => $xp,
-            'userLevel'    => $level,
-            'levelPct'     => $levelPct,
-            'xpForNext'    => $xpForNext,
-            'booksRead'    => UserModel::countBooksRead($userId),
-            'streakDays'   => (int)($row['streak_days'] ?? 0),
-            'lumoState'    => $lumoState,
-            'lumoMessage'  => $lumoMessage,
-            'csrf_token'   => $this->generateCsrf(),
+            'userRole' => $row['role'],
+            'userCoins' => (int) $row['coins'],
+            'userXp' => $xp,
+            'userLevel' => $level,
+            'levelPct' => $levelPct,
+            'xpForNext' => $xpForNext,
+            'booksRead' => UserModel::countBooksRead($userId),
+            'streakDays' => (int) ($row['streak_days'] ?? 0),
+            'lumoState' => $lumoState,
+            'lumoMessage' => $lumoMessage,
+            'csrf_token' => $this->generateCsrf(),
         ];
     }
 

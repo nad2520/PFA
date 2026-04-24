@@ -1,18 +1,81 @@
 // ────────────────────────────────────────────────────────────────────────────
 //  app.js  — Lexora Template: all interactive logic
 // ────────────────────────────────────────────────────────────────────────────
-// Requires: data.js (window.__lexora), lexora-state.js (window.LexoraState)
+// Requires: user_data.js (window.__lexora bootstrap), lexora-state.js (window.LexoraState)
+// Catalog `books` / `bookPrices` are replaced from GET /api/catalog/books when the DB responds.
 
 const LX = window.__lexora || {};
 const {
-    books,
     genreCovers,
     genreColors,
     genres,
-    bookPrices,
     mockUser,
     communityPosts,
 } = LX;
+
+/** @type {Array<{id:number,title:string,author:string,genre:string,trending:boolean,description:string,audience:string,cover:string}>} */
+let books = Array.isArray(LX.books) ? LX.books.slice() : [];
+/** @type {Record<number, {cost:number,xpReward:number,coinReward:number}>} */
+let bookPrices = { ...(LX.bookPrices || {}) };
+
+const LX_API_BASE = '/PFA';
+
+function lxMapCatalogApiRow(row) {
+    return {
+        id: Number(row.id),
+        title: String(row.title || ''),
+        author: String(row.author || ''),
+        genre: String(row.genre || ''),
+        trending: !!row.trending,
+        description: String(row.description || ''),
+        audience: String(row.audience || 'All'),
+        cover: String(row.cover || '📖'),
+    };
+}
+
+function lxBookPricesFromApiRows(rows) {
+    const o = {};
+    rows.forEach((r) => {
+        const id = Number(r.id);
+        if (!id) return;
+        o[id] = {
+            cost: Number(r.coinCost) || 0,
+            xpReward: Number(r.xpReward) || 0,
+            coinReward: Number(r.coinReward) || 0,
+        };
+    });
+    return o;
+}
+
+/**
+ * Loads catalog from MySQL (`books` table). On failure keeps `user_data.js` bootstrap.
+ * Updates window.__lexora so LexoraState merges stay consistent.
+ */
+async function syncLexoraCatalogFromApi() {
+    const L = window.__lexora || {};
+    const fallbackBooks = Array.isArray(L.books) ? L.books.slice() : [];
+    const fallbackPrices = { ...(L.bookPrices || {}) };
+
+    try {
+        const res = await fetch(`${LX_API_BASE}/api/catalog/books`, { credentials: 'same-origin' });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok || !j.success || !Array.isArray(j.data)) {
+            throw new Error('catalog_unavailable');
+        }
+        const mapped = j.data.map(lxMapCatalogApiRow).filter((b) => b.id > 0);
+        books = mapped;
+        bookPrices = lxBookPricesFromApiRows(j.data);
+        window.__lexora = window.__lexora || {};
+        window.__lexora.books = mapped;
+        window.__lexora.bookPrices = { ...bookPrices };
+    } catch (_) {
+        books = fallbackBooks;
+        bookPrices = fallbackPrices;
+        window.__lexora = window.__lexora || {};
+        window.__lexora.books = fallbackBooks.slice();
+        window.__lexora.bookPrices = { ...fallbackPrices };
+    }
+}
 
 // ─── Inline SVG Icons ────────────────────────────────────────────────────────
 const SVG = {
@@ -61,14 +124,14 @@ const communityStore = (() => {
     }
 
     function _save(posts) {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); } catch (_) {}
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); } catch (_) { }
     }
 
     function _load() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw) return JSON.parse(raw);
-        } catch (_) {}
+        } catch (_) { }
         // Seed from static data on first visit
         const seed = (window.__lexora?.communityPosts || []).map(p => ({
             id: p.id,
@@ -94,7 +157,7 @@ const communityStore = (() => {
     }
 
     function addPost(bookId, title, content, tag) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         const post = {
             id: 'user-' + Date.now(),
             bookId,
@@ -113,7 +176,7 @@ const communityStore = (() => {
     }
 
     function editPost(postId, title, content) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         _posts = _posts.map(p =>
             p.id === postId && p.author === currentUser ? { ...p, title, content } : p
         );
@@ -121,13 +184,13 @@ const communityStore = (() => {
     }
 
     function deletePost(postId) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         _posts = _posts.filter(p => !(p.id === postId && p.author === currentUser));
         _save(_posts);
     }
 
     function togglePostUpvote(postId) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         _posts = _posts.map(p => {
             if (p.id !== postId) return p;
             const liked = p.upvotedBy.includes(currentUser);
@@ -143,7 +206,7 @@ const communityStore = (() => {
     }
 
     function addComment(postId, content) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         const comment = {
             id: 'c-' + Date.now(),
             postId,
@@ -161,7 +224,7 @@ const communityStore = (() => {
     }
 
     function editComment(postId, commentId, content) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         _posts = _posts.map(p => p.id === postId ? {
             ...p,
             comments: p.comments.map(c =>
@@ -172,7 +235,7 @@ const communityStore = (() => {
     }
 
     function deleteComment(postId, commentId) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         _posts = _posts.map(p => p.id === postId ? {
             ...p,
             comments: p.comments.filter(c => !(c.id === commentId && c.author === currentUser)),
@@ -181,7 +244,7 @@ const communityStore = (() => {
     }
 
     function toggleCommentUpvote(postId, commentId) {
-        const currentUser = window.__lexora?.mockUser?.name || 'Eleanor Vance';
+        const currentUser = lxResolvedUserName();
         _posts = _posts.map(p => p.id === postId ? {
             ...p,
             comments: p.comments.map(c => {
@@ -211,17 +274,36 @@ function genreTagHTML(genre) {
 // ─── Navigate helper ─────────────────────────────────────────────────────────
 function nav(url) { window.location.href = url; }
 
-const LX_SESSION = window.LX_SESSION || {};
+/** Display name: server bootstrap → profile API cache → mock fallback. */
+function lxResolvedUserName() {
+    const b = (typeof window !== 'undefined' && window.__lxBootstrapUser) || null;
+    if (b && typeof b.name === 'string' && b.name.trim()) return b.name.trim();
+    if (typeof window !== 'undefined' && window.__lxProfileName) return String(window.__lxProfileName).trim();
+    return (window.__lexora && window.__lexora.mockUser && window.__lexora.mockUser.name) || 'Reader';
+}
+
+/** Read at request time so pages that set `window.LX_SESSION` in `<head>` always send CSRF. */
 async function lxApi(path, method = 'GET', body = null) {
     const headers = { 'Content-Type': 'application/json' };
-    if (LX_SESSION.csrfToken) headers['X-CSRF-Token'] = LX_SESSION.csrfToken;
+    const token = (typeof window !== 'undefined' && window.LX_SESSION && window.LX_SESSION.csrfToken) || '';
+    if (token) headers['X-CSRF-Token'] = token;
     const res = await fetch('/PFA' + path, {
         method,
         headers,
         credentials: 'same-origin',
+        cache: method === 'GET' ? 'no-store' : 'default',
         body: body ? JSON.stringify(body) : undefined,
     });
-    const json = await res.json();
+    const text = await res.text();
+    let json;
+    try {
+        json = JSON.parse(text);
+    } catch (_) {
+        const hint = text.trimStart().startsWith('<')
+            ? 'Server returned HTML (often a PHP error). Check the Network tab response body and your PHP error log.'
+            : 'Invalid JSON from server.';
+        throw new Error(hint);
+    }
     if (!res.ok || !json.success) {
         throw new Error(json.message || 'Request failed.');
     }
@@ -334,9 +416,32 @@ function initLampOfKnowledgeSection() {
     update();
 }
 
+function initHeaderWalletFromApi() {
+    const has = document.getElementById('coinCount')
+        || document.getElementById('hoverCardUserName')
+        || document.getElementById('headerUserName');
+    if (!has) return;
+    fetch('/PFA/api/user/profile', { credentials: 'same-origin', cache: 'no-store' })
+        .then(r => r.json())
+        .then(j => {
+            if (j.success && j.data && window.LX_applyProfileStats) {
+                window.LX_applyProfileStats({
+                    name: j.data.name,
+                    coins: j.data.coins,
+                    level: j.data.level,
+                    booksRead: j.data.booksRead,
+                });
+            }
+            // Do not call applyLibraryFromServer here — initProfile() owns shelf sync to avoid a second
+            // profile response (possibly stale / reordered) overwriting an empty library after fetch.
+        })
+        .catch(() => { /* guest or offline */ });
+}
+
 function initGlobalHeader() {
     initHeaderNavLinks();
     initLampOfKnowledgeSection();
+    initHeaderWalletFromApi();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -556,7 +661,7 @@ function initCatalog() {
         }
         if (activeFilter === 'trending') result = result.filter(b => b.trending);
         else result = result.filter(b => b.genre === activeFilter);
-        
+
         if (window.LX_USER_ROLE === 'User -18') {
             result = result.filter(b => b.audience !== '+18 Only');
         }
@@ -859,6 +964,20 @@ window.LX_applyProfileStats = function (o) {
     if (!o) return;
     const coins = o.coins != null ? o.coins : o.newCoins;
     const level = o.level != null ? o.level : o.newLevel;
+    if (o.name) {
+        window.__lxProfileName = o.name;
+        const nm = String(o.name);
+        ['profileDisplayName', 'hoverCardUserName', 'headerUserName'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = nm;
+        });
+        const iniEl = document.getElementById('avatarInitials');
+        if (iniEl) {
+            const parts = nm.trim().split(/\s+/).filter(Boolean);
+            const ini = parts.slice(0, 2).map(p => p[0].toUpperCase()).join('') || 'R';
+            iniEl.textContent = ini;
+        }
+    }
     if (coins != null) {
         ['profileCoins', 'coinCount'].forEach(id => {
             const el = document.getElementById(id);
@@ -878,73 +997,69 @@ window.LX_applyProfileStats = function (o) {
     }
 };
 
-function initProfile() {
+/** Circular reading ring: total hours vs daily goal (from /api/user/profile). */
+window.LX_applyReadingRing = function (apiData) {
+    if (!apiData) return;
     const svgEl = document.getElementById('circularSvg');
-    if (svgEl) {
-        const r = 40, circ = 2 * Math.PI * r;
-        const pct = Math.min(mockUser.dailyReadingHours / mockUser.dailyReadingGoal * 100, 100);
-        const offset = circ - (pct / 100) * circ;
-        svgEl.innerHTML = `
+    const label = document.getElementById('circularLabel');
+    const cap = document.getElementById('readingGoalCaption');
+    if (!svgEl) return;
+    const goal = Number(apiData.dailyReadingGoalHours) || 4;
+    const totalH = Number(apiData.totalReadingHours) || 0;
+    const r = 40;
+    const circ = 2 * Math.PI * r;
+    const pct = goal > 0 ? Math.min((totalH / goal) * 100, 100) : 0;
+    const offset = circ - (pct / 100) * circ;
+    svgEl.innerHTML = `
       <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(30,20%,22%)" stroke-width="6"/>
       <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(38,75%,55%)" stroke-width="6"
         stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
         class="transition-all" style="transition:stroke-dashoffset .7s"/>`;
-        const label = document.getElementById('circularLabel');
-        if (label) label.textContent = mockUser.dailyReadingHours + 'h';
+    if (label) {
+        const disp = totalH >= 10 ? totalH.toFixed(1) : (totalH % 1 === 0 ? String(totalH) : totalH.toFixed(1));
+        label.textContent = disp + 'h';
     }
+    if (cap) cap.textContent = 'of ' + goal + 'h goal';
+};
 
-    (async function loadProfileUi() {
-        let apiData = null;
-        try {
-            const res = await fetch('/PFA/api/user/profile', { credentials: 'same-origin' });
-            const j = await res.json();
-            if (j.success && j.data) apiData = j.data;
-        } catch (e) {
-            /* offline or not logged in — keep mock */
-        }
+/**
+ * Re-renders My Library + My List from LexoraState (after profile fetch or Start Reading purchase).
+ * Safe to call from book-detail: no-ops if #libraryGrid / #planGrid are absent.
+ */
+function renderProfileShelvesFromLexoraState() {
+    const libGrid = document.getElementById('libraryGrid');
+    const listGrid = document.getElementById('planGrid');
+    const userBooksAll = window.LexoraState ? window.LexoraState.getUserBooks() : [];
+    const library = userBooksAll.filter(u => u.status === 'reading' || u.status === 'completed');
 
-        if (apiData) {
-            window.LX_applyProfileStats({
-                coins: apiData.coins,
-                level: apiData.level,
-                booksRead: apiData.booksRead,
-            });
-            if (apiData.library && window.LexoraState?.applyLibraryFromServer) {
-                window.LexoraState.applyLibraryFromServer(apiData.library);
-            }
-        } else {
-            initScholarsMap(mockUser.level);
-            const coinEl = document.getElementById('profileCoins');
-            const coinHead = document.getElementById('coinCount');
-            if (coinEl) coinEl.textContent = mockUser.coins.toLocaleString();
-            if (coinHead) coinHead.textContent = mockUser.coins.toLocaleString();
-        }
-
-        const libGrid = document.getElementById('libraryGrid');
-        const userBooksAll = window.LexoraState ? window.LexoraState.getUserBooks() : [];
-        const library = userBooksAll.filter(u => u.status === 'reading' || u.status === 'completed');
-        if (libGrid) {
-            if (library.length === 0) {
-                libGrid.innerHTML = `<div class="empty-library-card">
-        <p class="empty-library-msg">Your library is empty!</p>
-        <a href="index.php#catalog" class="btn-primary empty-library-cta">Browse the catalog ✦</a>
+    if (libGrid) {
+        if (library.length === 0) {
+            libGrid.innerHTML = `<div class="empty-library-card">
+        <p class="empty-library-msg">No books yet. Start exploring and add some!</p>
+        <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">Books you purchase or unlock appear here.</p>
+        <a href="index.php?view=user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
       </div>`;
-            } else {
-                libGrid.innerHTML = library.map(ub => {
-                    const c = genreColors[ub.book.genre];
-                    const cover = genreCovers[ub.book.genre];
-                    const badgeCls = ub.status === 'completed' ? 'completed' : 'reading';
-                    const badgeTxt = ub.status === 'completed' ? '✓ DONE' : 'READING';
-                    let progressPct = ub.progress ?? 0;
-                    if (window.LexoraState && ub.status === 'reading') {
-                        const total = window.LexoraState.getBookPages(ub.book.id).length;
-                        const savedPage = window.LexoraState.getBookProgress(ub.book.id);
-                        progressPct = savedPage > 0 ? Math.round((savedPage / total) * 100) : (ub.progress ?? 0);
-                    }
-                    const progress = (ub.status === 'reading' && progressPct > 0 && progressPct < 100) ? `
+        } else {
+            libGrid.innerHTML = library.map(ub => {
+                const c = genreColors[ub.book.genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
+                const cover = genreCovers[ub.book.genre] || ub.book.cover || '';
+                const badgeCls = ub.status === 'completed' ? 'completed' : 'reading';
+                const badgeTxt = ub.status === 'completed' ? '✓ DONE' : 'READING';
+                let progressPct = ub.progress ?? 0;
+                if (window.LexoraState && ub.status === 'reading') {
+                    const total = window.LexoraState.getBookPages(ub.book.id).length;
+                    const raw = window.LexoraState.getBookProgress(ub.book.id);
+                    const savedPage = typeof raw === 'number' && Number.isFinite(raw)
+                        ? Math.max(0, Math.min(Math.floor(raw), Math.max(0, total - 1)))
+                        : 0;
+                    progressPct = total > 0
+                        ? Math.min(100, Math.round(((savedPage + 1) / total) * 100))
+                        : (ub.progress ?? 0);
+                }
+                const progress = (ub.status === 'reading' && progressPct > 0 && progressPct < 100) ? `
         <div class="progress-bar-wrap"><div class="progress-bar" style="width:${progressPct}%"></div></div>
         <p style="font-family:'Press Start 2P';font-size:.44rem;color:var(--muted-foreground);text-align:right">${progressPct}%</p>` : '';
-                    return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
+                return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
         <div class="cover-wrap">
           <img src="${cover}" alt="${ub.book.title}" loading="lazy">
           <div class="cover-fade"></div>
@@ -957,29 +1072,29 @@ function initProfile() {
           <span class="genre-tag" style="${c.css}">${ub.book.genre}</span>
         </div>
       </div>`;
-                }).join('');
-                libGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
-                    el.addEventListener('click', () => {
-                        const bid = el.getAttribute('data-book-id');
-                        if (bid) nav(`?view=book-detail&id=${bid}`);
-                    });
+            }).join('');
+            libGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const bid = el.getAttribute('data-book-id');
+                    if (bid) nav(`?view=book-detail&id=${bid}`);
                 });
-            }
+            });
         }
+    }
 
-        const listGrid = document.getElementById('planGrid');
-        const planToRead = userBooksAll.filter(u => u.status === 'plan-to-read');
-        if (listGrid) {
-            if (planToRead.length === 0) {
-                listGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:3rem;text-align:center">
-        <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground);margin-bottom:1rem">Your list is empty!</p>
-        <a href="index.php#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Find your first book! ✦</a>
+    const planToRead = userBooksAll.filter(u => u.status === 'plan-to-read');
+    if (listGrid) {
+        if (planToRead.length === 0) {
+            listGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:3rem;text-align:center">
+        <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground);margin-bottom:.75rem">No books yet. Start exploring and add some!</p>
+        <p style="font-size:.9rem;color:var(--muted-foreground);margin-bottom:1.25rem">Use &ldquo;Add to list&rdquo; on a book to save it here before you buy.</p>
+        <a href="index.php?view=user#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Browse the catalog</a>
       </div>`;
-            } else {
-                listGrid.innerHTML = `<div class="book-grid">${planToRead.map(ub => {
-                    const c = genreColors[ub.book.genre];
-                    const cover = genreCovers[ub.book.genre];
-                    return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
+        } else {
+            listGrid.innerHTML = planToRead.map(ub => {
+                const c = genreColors[ub.book.genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
+                const cover = genreCovers[ub.book.genre] || ub.book.cover || '';
+                return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
           <div class="cover-wrap">
             <img src="${cover}" alt="${ub.book.title}" loading="lazy">
             <div class="cover-fade"></div>
@@ -991,8 +1106,175 @@ function initProfile() {
             <span class="genre-tag" style="${c.css}">${ub.book.genre}</span>
           </div>
         </div>`;
-                }).join('')}</div>`;
-                listGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
+            }).join('');
+            listGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const bid = el.getAttribute('data-book-id');
+                    if (bid) nav(`?view=book-detail&id=${bid}`);
+                });
+            });
+        }
+    }
+}
+
+window.LX_renderProfileShelvesFromLexoraState = renderProfileShelvesFromLexoraState;
+
+function initProfile() {
+    const bootstrapLibrary = Array.isArray(window.__lxLibrary) ? window.__lxLibrary : [];
+    if (bootstrapLibrary.length > 0 && window.LexoraState?.applyLibraryFromServer) {
+        window.LexoraState.applyLibraryFromServer(bootstrapLibrary);
+    }
+
+    if (window.LX_applyReadingRing) {
+        window.LX_applyReadingRing({
+            totalReadingHours: 0,
+            dailyReadingGoalHours: (mockUser && mockUser.dailyReadingGoal) || 4,
+        });
+    }
+
+    (async function loadProfileUi() {
+        const libPre = document.getElementById('libraryGrid');
+        const listPre = document.getElementById('planGrid');
+        const profileDisplayNameEl = document.getElementById('profileDisplayName');
+        if (libPre) libPre.innerHTML = '';
+        if (listPre) listPre.innerHTML = '';
+
+        let apiData = null;
+        let profileLoadError = '';
+        try {
+            const j = await lxApi('/api/user/profile', 'GET');
+            if (j && j.data) apiData = j.data;
+        } catch (e) {
+            profileLoadError = (e && e.message) ? String(e.message) : 'Could not load profile data.';
+        }
+
+        if (apiData) {
+            if (profileDisplayNameEl) profileDisplayNameEl.removeAttribute('title');
+            window.LX_applyProfileStats({
+                name: apiData.name,
+                coins: apiData.coins,
+                level: apiData.level,
+                booksRead: apiData.booksRead,
+            });
+            if (window.LX_applyReadingRing) window.LX_applyReadingRing(apiData);
+            if (document.getElementById('scholarsMapCanvas')) {
+                initScholarsMap(Number(apiData.level) || 1);
+            }
+            if (window.LexoraState?.applyLibraryFromServer) {
+                window.LexoraState.applyLibraryFromServer(Array.isArray(apiData.library) ? apiData.library : []);
+            }
+            // Fallback: if API sent rows but strict mapper dropped them, keep a permissive mapping
+            // so shelves are never silently empty.
+            const rawLibraryRows = Array.isArray(apiData.library) ? apiData.library : [];
+            const mappedAfterSync = window.LexoraState?.getUserBooks ? window.LexoraState.getUserBooks() : [];
+            if (rawLibraryRows.length > 0 && mappedAfterSync.length === 0 && window.LexoraState?.saveUserBooks) {
+                const fallbackBooks = rawLibraryRows.map((row) => {
+                    const bid = Number(row?.book_id || row?.book?.id || 0);
+                    if (!bid) return null;
+                    const rawBook = row?.book || {};
+                    const status = row?.status === 'plan_to_read' ? 'plan-to-read' : String(row?.status || '');
+                    if (!['reading', 'completed', 'plan-to-read'].includes(status)) return null;
+                    const book = {
+                        id: bid,
+                        title: String(rawBook.title || `Book #${bid}`),
+                        author: String(rawBook.author || 'Unknown Author'),
+                        genre: String(rawBook.genre || ''),
+                        trending: !!rawBook.trending,
+                        description: String(rawBook.description || ''),
+                        audience: String(rawBook.audience || 'All'),
+                        cover: String(rawBook.cover || '📖'),
+                    };
+                    const progressPage = Number(row?.progress_page || 0);
+                    const progress = status === 'completed'
+                        ? 100
+                        : Math.max(0, Math.min(100, Number(row?.progress ?? (progressPage > 0 ? Math.min(99, progressPage * 4) : 0))));
+                    return { book, status, progress };
+                }).filter(Boolean);
+                if (fallbackBooks.length > 0) {
+                    window.LexoraState.saveUserBooks(fallbackBooks);
+                }
+            }
+        } else {
+            // Keep existing local shelf state instead of force-clearing on transient API failures.
+            if (profileDisplayNameEl) {
+                profileDisplayNameEl.title = 'Live profile sync unavailable. Showing local data.';
+            }
+            if (libPre && profileLoadError) {
+                const err = profileLoadError.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const html = `<div style="border:1px dashed var(--destructive);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:1.25rem;text-align:left">
+        <p style="font-family:'Press Start 2P';font-size:.56rem;color:var(--destructive);margin-bottom:.5rem">PROFILE SYNC ERROR</p>
+        <p style="font-size:.9rem;color:var(--foreground)">${err}</p>
+      </div>`;
+                libPre.innerHTML = html;
+                if (listPre) listPre.innerHTML = html;
+            }
+            initScholarsMap(mockUser.level);
+            const coinEl = document.getElementById('profileCoins');
+            const coinHead = document.getElementById('coinCount');
+            if (coinEl) coinEl.textContent = mockUser.coins.toLocaleString();
+            if (coinHead) coinHead.textContent = mockUser.coins.toLocaleString();
+        }
+
+        if (document.getElementById('bookDetailMain')) {
+            initBookDetail();
+        }
+
+        renderProfileShelvesFromLexoraState();
+        // Last-resort rendering path: if API has rows but state rendering still looks empty,
+        // render directly from API payload so shelves are visible.
+        if (apiData && Array.isArray(apiData.library) && apiData.library.length > 0 && libPre && listPre) {
+            const hasRenderedCards = !!document.querySelector('#libraryGrid .book-card-static, #planGrid .book-card-static');
+            if (!hasRenderedCards) {
+                const normalize = (s) => {
+                    if (s === 'plan_to_read' || s === 'plan-to-read') return 'plan-to-read';
+                    return s;
+                };
+                const rows = apiData.library.map((row) => {
+                    const bid = Number(row?.book_id || row?.book?.id || 0);
+                    if (!bid) return null;
+                    const raw = row?.book || {};
+                    return {
+                        id: bid,
+                        title: String(raw.title || `Book #${bid}`),
+                        author: String(raw.author || 'Unknown Author'),
+                        genre: String(raw.genre || ''),
+                        status: normalize(String(row?.status || '')),
+                    };
+                }).filter(Boolean);
+
+                const libRows = rows.filter((r) => r.status === 'reading' || r.status === 'completed');
+                const listRows = rows.filter((r) => r.status === 'plan-to-read');
+
+                const cardHtml = (r, badgeHtml = '') => {
+                    const c = genreColors[r.genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
+                    const cover = genreCovers[r.genre] || '';
+                    return `<div class="book-card-static" role="link" data-book-id="${r.id}" style="cursor:pointer">
+          <div class="cover-wrap">
+            <img src="${cover}" alt="${r.title}" loading="lazy">
+            <div class="cover-fade"></div>
+            ${badgeHtml}
+          </div>
+          <div class="card-body">
+            <h3 class="line-clamp-1">${r.title}</h3>
+            <p class="line-clamp-1">${r.author}</p>
+            <span class="genre-tag" style="${c.css}">${r.genre || 'General'}</span>
+          </div>
+        </div>`;
+                };
+
+                if (libRows.length > 0) {
+                    libPre.innerHTML = libRows.map((r) => cardHtml(
+                        r,
+                        `<span class="status-badge ${r.status === 'completed' ? 'completed' : 'reading'}">${r.status === 'completed' ? '✓ DONE' : 'READING'}</span>`
+                    )).join('');
+                }
+                if (listPre && listRows.length > 0) {
+                    listPre.innerHTML = listRows.map((r) => cardHtml(
+                        r,
+                        `<span class="status-badge plan">PLAN</span>`
+                    )).join('');
+                }
+                document.querySelectorAll('#libraryGrid .book-card-static[data-book-id], #planGrid .book-card-static[data-book-id]').forEach(el => {
                     el.addEventListener('click', () => {
                         const bid = el.getAttribute('data-book-id');
                         if (bid) nav(`?view=book-detail&id=${bid}`);
@@ -1002,6 +1284,7 @@ function initProfile() {
         }
 
         const booksReadEl = document.getElementById('booksReadCount');
+        const userBooksAll = window.LexoraState ? window.LexoraState.getUserBooks() : [];
         const completedOnly = userBooksAll.filter(u => u.status === 'completed').length;
         if (booksReadEl && !apiData) booksReadEl.textContent = completedOnly;
 
@@ -1046,22 +1329,37 @@ function initProfile() {
         const myLbRoot = document.getElementById('profileLeaderboardRows');
         const myLbRank = document.getElementById('profileLeaderboardRank');
         if (myLbRoot) {
+            const escLb = (s) => String(s ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/"/g, '&quot;');
             try {
                 const lb = await lxApi('/api/leaderboard/me', 'GET');
                 const data = lb.data || {};
-                if (myLbRank) myLbRank.textContent = '#' + (data.rank || '-');
+                const rk = data.rank != null && data.rank !== '' ? `#${data.rank}` : '—';
+                if (myLbRank) myLbRank.textContent = rk;
                 const rows = Array.isArray(data.window) ? data.window : [];
-                myLbRoot.innerHTML = rows.map(r => `
-                    <div class="lb-row${r.isCurrentUser ? ' top3' : ''}">
-                      <div class="lb-rank"><span class="lb-rank-num">#${r.rank}</span></div>
-                      <div class="lb-reader"><span class="lb-name">${r.nom}</span></div>
-                      <div class="lb-score"><span class="lb-score-val">${Number(r.xp || 0).toLocaleString()}</span><span class="lb-score-label">xp</span></div>
-                      <div class="lb-books">${Number(r.books_read || 0)}</div>
-                      <div class="lb-level"><span class="lb-level-badge">Lv.${Number(r.level || 1)}</span></div>
-                    </div>
-                `).join('');
+                if (rows.length === 0) {
+                    myLbRoot.innerHTML = `
+                    <tr class="profile-lb-table__empty">
+                      <td colspan="5">No leaderboard window yet. Keep reading to climb the ranks.</td>
+                    </tr>`;
+                } else {
+                    myLbRoot.innerHTML = rows.map(r => `
+                    <tr class="profile-lb-table__row${r.isCurrentUser ? ' profile-lb-table__row--you' : ''}">
+                      <td class="profile-lb-table__cell--rank"><span class="profile-lb-table__rank">#${r.rank}</span></td>
+                      <td><span class="profile-lb-table__name">${escLb(r.nom)}</span></td>
+                      <td class="profile-lb-table__cell-num"><span class="profile-lb-table__score-val">${Number(r.xp || 0).toLocaleString()}</span><span class="profile-lb-table__score-suffix">xp</span></td>
+                      <td class="profile-lb-table__cell-num">${Number(r.books_read || 0).toLocaleString()}</td>
+                      <td class="profile-lb-table__cell-num"><span class="profile-lb-table__level">Lv.${Number(r.level || 1)}</span></td>
+                    </tr>`).join('');
+                }
             } catch (_) {
-                myLbRoot.innerHTML = '';
+                if (myLbRank) myLbRank.textContent = '—';
+                myLbRoot.innerHTML = `
+                    <tr class="profile-lb-table__empty">
+                      <td colspan="5">Leaderboard could not be loaded.</td>
+                    </tr>`;
             }
         }
     })();
@@ -1089,6 +1387,24 @@ function initBookDetail() {
     if (!mainEl) return;
 
     const params = new URLSearchParams(window.location.search);
+    if (params.get('access_denied') === '1' || params.get('access_error') === '1') {
+        showDetailToast('You cannot buy this book. Try to fulfill your quests or buy coins.');
+        try {
+            const u = new URL(window.location.href);
+            u.searchParams.delete('access_denied');
+            u.searchParams.delete('access_error');
+            window.history.replaceState({}, '', u.pathname + u.search);
+        } catch (_) { /* ignore */ }
+    }
+    if (params.get('book_missing') === '1') {
+        showDetailToast('This book is missing from the database. Run database/migrations/004_lexora_catalog_books_seed.sql (or ask an admin).');
+        try {
+            const u = new URL(window.location.href);
+            u.searchParams.delete('book_missing');
+            window.history.replaceState({}, '', u.pathname + u.search);
+        } catch (_) { /* ignore */ }
+    }
+
     const id = parseInt(params.get('id'));
     const book = books.find(b => b.id === id);
 
@@ -1106,33 +1422,43 @@ function initBookDetail() {
     const price = bookPrices[book.id];
     const userBook = St ? St.getBookStatus(book.id) : null;
     const totalPages = St ? St.getBookPages(book.id).length : 24;
-    const savedPage = St ? St.getBookProgress(book.id) : 0;
-    const hasStarted = savedPage > 0;
+    const maxIdx = Math.max(0, totalPages - 1);
+    const rawSaved = St ? St.getBookProgress(book.id) : 0;
+    const savedPage0 = typeof rawSaved === 'number' && Number.isFinite(rawSaved)
+        ? Math.max(0, Math.min(Math.floor(rawSaved), maxIdx))
+        : 0;
+    const hasStarted = savedPage0 > 0;
     const isCompleted = userBook?.status === 'completed';
     const isReading = hasStarted || userBook?.status === 'reading';
-    const readingPercent = hasStarted
-        ? Math.round((savedPage / totalPages) * 100)
+    const readingPercent = (userBook?.status === 'reading' || savedPage0 > 0) && totalPages > 0
+        ? Math.min(100, Math.round(((savedPage0 + 1) / totalPages) * 100))
         : (userBook?.progress ?? 0);
 
     const progressBlock = isReading && readingPercent > 0 && !isCompleted ? `
     <div style="max-width:24rem" class="detail-reading-progress">
       <div style="display:flex;justify-content:space-between;margin-bottom:.5rem">
         <span style="color:var(--muted-foreground);font-size:.9rem">Reading Progress</span>
-        <span style="color:var(--primary);font-weight:600">${readingPercent}% · Page ${savedPage || 1}/${totalPages}</span>
+        <span style="color:var(--primary);font-weight:600">${readingPercent}% · Page ${savedPage0 + 1}/${totalPages}</span>
       </div>
       <div class="progress-bar-wrap"><div class="progress-bar" style="width:${readingPercent}%"></div></div>
     </div>` : '';
     const completedBadge = isCompleted ? `<span class="completed-badge">✓ COMPLETED</span>` : '';
 
-    const inLibrary = St ? St.isInLibrary(book.id) : !!(userBook && (userBook.status === 'reading' || userBook.status === 'completed'));
-    const inList = St ? St.isInList(book.id) : userBook?.status === 'plan-to-read';
+    const bootstrapLibraryRows = Array.isArray(window.__lxLibrary) ? window.__lxLibrary : [];
+    const inLibraryFromBootstrap = bootstrapLibraryRows.some((row) => {
+        const bid = Number(row?.book_id || row?.book?.id || 0);
+        const st = String(row?.status || '').toLowerCase();
+        return bid === book.id && (st === 'reading' || st === 'completed');
+    });
+    const inLibrary = (St ? St.isInLibrary(book.id) : false)
+        || inLibraryFromBootstrap
+        || !!(userBook && (userBook.status === 'reading' || userBook.status === 'completed'));
+    const inList = St ? St.isInList(book.id) : (userBook?.status === 'plan-to-read' || userBook?.status === 'plan_to_read');
     const ctaText = inLibrary
-        ? (isCompleted ? 'READ AGAIN' : 'CONTINUE READING')
-        : (inList ? 'IN YOUR LIST' : 'UNLOCK / READ');
+        ? (isCompleted ? 'READ AGAIN' : (hasStarted ? 'CONTINUE READING' : 'START READING'))
+        : 'ADD TO LIBRARY';
 
-    const listBtn = inList
-        ? `<button type="button" class="btn-detail-secondary" disabled>IN YOUR LIST</button>`
-        : `<button type="button" class="btn-detail-secondary" data-action="add-list">ADD TO LIST</button>`;
+    const addListBtn = `<button type="button" class="btn-detail-secondary" data-action="add-list">ADD TO LIST</button>`;
 
     document.title = `${book.title} — Lexora`;
 
@@ -1161,8 +1487,9 @@ function initBookDetail() {
       ${completedBadge}
       <div class="detail-actions">
         <button type="button" class="cta-btn" id="detailReadCta">${SVG.bookOpen} ${ctaText}</button>
-        ${(!inLibrary && !inList) ? listBtn : ''}
+        ${addListBtn}
       </div>
+      <p id="detailActionStatus" style="min-height:1.2rem;color:var(--muted-foreground);font-size:.9rem;margin-top:.35rem"></p>
     </div>
   </section>
 
@@ -1182,13 +1509,13 @@ function initBookDetail() {
     </div>
     <div id="createPostArea">
       <button class="create-post-trigger" id="createPostTrigger">
-        <span class="avatar-pill cp-avatar">${(_initials(mockUser.name))}</span>
+        <span class="avatar-pill cp-avatar">${(_initials(lxResolvedUserName()))}</span>
         <span class="cp-placeholder">Share your thoughts about this book…</span>
       </button>
       <div class="create-post-form hidden" id="createPostForm">
         <div class="cp-author-row">
-          <span class="avatar-pill cp-avatar">${(_initials(mockUser.name))}</span>
-          <span class="cp-author-name">${mockUser.name}</span>
+          <span class="avatar-pill cp-avatar">${(_initials(lxResolvedUserName()))}</span>
+          <span class="cp-author-name">${lxResolvedUserName()}</span>
         </div>
         <input id="cpTitle" class="post-composer-input" placeholder="Post title…" maxlength="120">
         <textarea id="cpContent" class="post-composer-textarea" placeholder="What are your thoughts?" rows="3" maxlength="2000"></textarea>
@@ -1212,41 +1539,122 @@ function initBookDetail() {
   </section>`;
 
     const readCta = document.getElementById('detailReadCta');
-    readCta?.addEventListener('click', () => {
-        if (inLibrary) {
-            nav(`?view=read-book&id=${book.id}`);
-            return;
+    const detailActionStatus = document.getElementById('detailActionStatus');
+    const INSUFFICIENT_MSG = 'You cannot buy this book. Try to fulfill your quests or buy coins.';
+    let actionInFlight = false;
+    function setActionStatus(message, isError = false) {
+        if (!detailActionStatus) return;
+        detailActionStatus.textContent = message || '';
+        detailActionStatus.style.color = isError ? 'var(--destructive)' : 'var(--muted-foreground)';
+    }
+
+    async function syncProfileAfterBookAction() {
+        const profile = await lxApi('/api/user/profile', 'GET');
+        if (window.LexoraState?.applyLibraryFromServer) {
+            window.LexoraState.applyLibraryFromServer(
+                Array.isArray(profile?.data?.library) ? profile.data.library : []
+            );
         }
-        if (inList) {
-            showDetailToast(`"${book.title}" is already in your list.`);
-            return;
+        if (profile?.data && window.LX_applyProfileStats) {
+            window.LX_applyProfileStats({
+                name: profile.data.name,
+                coins: profile.data.coins,
+                level: profile.data.level,
+                booksRead: profile.data.booksRead,
+            });
         }
-        nav('?view=store');
-    });
+        renderProfileShelvesFromLexoraState();
+    }
 
     updateBookDetailHeaderNav(book.id, !!isReading);
 
-    mainEl.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const act = btn.getAttribute('data-action');
-            if (act === 'add-list') {
-                try {
-                    await lxApi('/api/user/book/list/add', 'POST', { book_id: book.id });
-                    showDetailToast(`"${book.title}" added to your reading list.`);
-                    const profile = await lxApi('/api/user/profile', 'GET');
-                    if (profile?.data?.library && window.LexoraState?.applyLibraryFromServer) {
-                        window.LexoraState.applyLibraryFromServer(profile.data.library);
-                    }
-                } catch (e) {
-                    showDetailToast(e.message || 'Could not update your list.');
-                }
+    mainEl.addEventListener('click', async (event) => {
+        const targetBtn = event.target.closest('button');
+        if (!targetBtn || !mainEl.contains(targetBtn) || actionInFlight) return;
+
+        if (targetBtn.id === 'detailReadCta') {
+            if (inLibrary) {
+                nav(`?view=read-book&id=${book.id}`);
+                return;
             }
-            initBookDetail();
-        });
+            const prevHtml = targetBtn.innerHTML;
+            targetBtn.disabled = true;
+            actionInFlight = true;
+            targetBtn.innerHTML = `${SVG.bookOpen} PROCESSING...`;
+            setActionStatus('Processing purchase...');
+            try {
+                const purchase = await lxApi('/api/user/book/purchase', 'POST', { book_id: book.id });
+                if (!purchase.already_in_library && window.LexoraState?.addToLibrary) {
+                    window.LexoraState.addToLibrary(book.id);
+                }
+                if (typeof purchase.newCoins === 'number' && window.LX_applyProfileStats) {
+                    window.LX_applyProfileStats({ coins: purchase.newCoins });
+                }
+                renderProfileShelvesFromLexoraState();
+                await syncProfileAfterBookAction();
+                if (purchase?.already_in_library) {
+                    showDetailToast('This book is already in My Library.');
+                    setActionStatus('Already in your library.');
+                } else {
+                    const spent = Number(purchase.coinsSpent) || 0;
+                    showDetailToast(
+                        spent > 0
+                            ? `"${book.title}" added to My Library (−${spent} coins).`
+                            : `"${book.title}" is now in My Library.`
+                    );
+                    setActionStatus(
+                        spent > 0
+                            ? `Added to library. Spent ${spent} coins.`
+                            : 'Added to library.'
+                    );
+                }
+                initBookDetail();
+            } catch (e) {
+                const msg = (e && e.message) ? String(e.message) : '';
+                showDetailToast(msg.trim() ? msg : INSUFFICIENT_MSG);
+                setActionStatus(msg.trim() ? msg : INSUFFICIENT_MSG, true);
+            } finally {
+                actionInFlight = false;
+                targetBtn.disabled = false;
+                targetBtn.innerHTML = prevHtml;
+            }
+            return;
+        }
+
+        const act = targetBtn.getAttribute('data-action');
+        if (act === 'add-list') {
+            const prevText = targetBtn.textContent;
+            targetBtn.disabled = true;
+            actionInFlight = true;
+            targetBtn.textContent = 'PROCESSING...';
+            setActionStatus('Adding to your list...');
+            try {
+                const resp = await lxApi('/api/user/book/list/add', 'POST', { book_id: book.id });
+                if (resp.already_in_list) {
+                    showDetailToast(`"${book.title}" is already in your list.`);
+                    setActionStatus('Already in your list.');
+                } else if (resp.in_library) {
+                    showDetailToast(resp.message || 'This book is already in your library.');
+                    setActionStatus(resp.message || 'This book is already in your library.');
+                } else {
+                    showDetailToast(`"${book.title}" added to your reading list.`);
+                    setActionStatus('Added to your list.');
+                }
+                await syncProfileAfterBookAction();
+                initBookDetail();
+            } catch (e) {
+                showDetailToast(e.message || 'Could not update your list.');
+                setActionStatus(e.message || 'Could not update your list.', true);
+            } finally {
+                actionInFlight = false;
+                targetBtn.disabled = false;
+                targetBtn.textContent = prevText;
+            }
+        }
     });
 
     // ─── Community feed helpers ───────────────────────────────────────────────
-    const currentUser = mockUser.name;
+    const currentUser = lxResolvedUserName();
 
     function _initials(name) {
         return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -1264,9 +1672,9 @@ function initBookDetail() {
 
     const TAG_COLORS = {
         discussion: 'background:hsl(150,30%,25%);color:hsl(38,50%,90%)',
-        review:     'background:hsl(38,75%,55%,.2);color:hsl(38,75%,55%)',
-        theory:     'background:hsl(345,45%,30%,.3);color:hsl(38,50%,90%)',
-        spoiler:    'background:hsl(0,62%,50%,.2);color:hsl(0,62%,50%)',
+        review: 'background:hsl(38,75%,55%,.2);color:hsl(38,75%,55%)',
+        theory: 'background:hsl(345,45%,30%,.3);color:hsl(38,50%,90%)',
+        spoiler: 'background:hsl(0,62%,50%,.2);color:hsl(0,62%,50%)',
     };
 
     // Track which posts have comments expanded
@@ -1363,8 +1771,8 @@ function initBookDetail() {
 
     function renderCommunityFeed() {
         let posts = communityStore.getPosts(book.id);
-        if (sortMode === 'top')      posts = [...posts].sort((a, b) => b.upvotes - a.upvotes);
-        if (sortMode === 'recent')   posts = [...posts].sort((a, b) => b.createdAt - a.createdAt);
+        if (sortMode === 'top') posts = [...posts].sort((a, b) => b.upvotes - a.upvotes);
+        if (sortMode === 'recent') posts = [...posts].sort((a, b) => b.createdAt - a.createdAt);
         if (sortMode === 'trending') posts = [...posts].sort((a, b) => b.comments.length - a.comments.length);
 
         const list = document.getElementById('postsList');
@@ -1410,8 +1818,8 @@ function initBookDetail() {
     // ─── Create-post composer ────────────────────────────────────────────────
     let selectedTag = '';
     const trigger = document.getElementById('createPostTrigger');
-    const form    = document.getElementById('createPostForm');
-    const cpTitle   = () => document.getElementById('cpTitle');
+    const form = document.getElementById('createPostForm');
+    const cpTitle = () => document.getElementById('cpTitle');
     const cpContent = () => document.getElementById('cpContent');
 
     trigger?.addEventListener('click', () => {
@@ -1456,10 +1864,10 @@ function initBookDetail() {
     document.getElementById('postsList')?.addEventListener('click', e => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
-        const action    = btn.dataset.action;
-        const postId    = btn.dataset.postId;
+        const action = btn.dataset.action;
+        const postId = btn.dataset.postId;
         const commentId = btn.dataset.commentId;
-        const postCard  = btn.closest('.post-card');
+        const postCard = btn.closest('.post-card');
 
         if (action === 'upvote-post') {
             communityStore.togglePostUpvote(postId);
@@ -1495,7 +1903,7 @@ function initBookDetail() {
         }
 
         if (action === 'save-post') {
-            const title   = postCard?.querySelector('.post-edit-title-input')?.value.trim();
+            const title = postCard?.querySelector('.post-edit-title-input')?.value.trim();
             const content = postCard?.querySelector('.post-edit-content-ta')?.value.trim();
             if (title && content) {
                 communityStore.editPost(postId, title, content);
@@ -1666,9 +2074,16 @@ function initReadBook() {
 // ═══════════════════════════════════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initGlobalHeader();
     initChatbot();
+    await syncLexoraCatalogFromApi();
+
+    // Seed LexoraState with server-sent library if available, before UI renders
+    if (window.__lxLibrary && window.LexoraState?.applyLibraryFromServer) {
+        window.LexoraState.applyLibraryFromServer(window.__lxLibrary);
+    }
+
     initCatalog();
     initMapModal();
     initLumoWelcomeModal();
@@ -1677,4 +2092,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initProfile();
     initBookDetail();
     initReadBook();
+});
+
+// bfcache restore can bring back an old profile DOM + in-memory shelf; re-sync from the server.
+window.addEventListener('pageshow', (ev) => {
+    if (ev.persisted && document.getElementById('libraryGrid')) {
+        initProfile();
+    }
 });

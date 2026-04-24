@@ -70,6 +70,11 @@ return function (Router $router): void {
         (new BooksController())->search();
     });
 
+    $router->get('/api/catalog/books', function () {
+        require_once APP_PATH . '/controllers/BooksController.php';
+        (new BooksController())->catalogBooks();
+    });
+
     // User JSON API (session auth)
     $router->get('/api/user/profile', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';

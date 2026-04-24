@@ -1,9 +1,39 @@
 <?php
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../core/Controller.php';
 require_once __DIR__ . '/../models/BookModel.php';
 
 class BooksController extends Controller
 {
+    /**
+     * GET /api/catalog/books — public catalog for the user SPA (titles, prices, meta).
+     */
+    public function catalogBooks(): void
+    {
+        $rows = BookModel::all();
+        usort($rows, static function (array $a, array $b): int {
+            return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+        });
+        $out = [];
+        foreach ($rows as $r) {
+            $out[] = [
+                'id'          => (int)($r['id'] ?? 0),
+                'title'       => (string)($r['title'] ?? ''),
+                'author'      => (string)($r['author'] ?? ''),
+                'genre'       => (string)($r['genre'] ?? ''),
+                'cover'       => (string)($r['cover'] ?? '📖'),
+                'trending'    => !empty($r['trending']),
+                'description' => (string)($r['description'] ?? ''),
+                'audience'    => (string)($r['audience'] ?? 'All'),
+                'coinCost'    => (int)($r['coinCost'] ?? 0),
+                'xpReward'    => (int)($r['xpReward'] ?? 0),
+                'coinReward'  => (int)($r['coinReward'] ?? 0),
+            ];
+        }
+        $this->json(['success' => true, 'data' => $out]);
+    }
+
     public function create(): void
     {
         if (!isset($_POST['title'])) {

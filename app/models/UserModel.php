@@ -3,6 +3,31 @@ require_once __DIR__ . '/../../core/Database.php';
 
 class UserModel
 {
+    /** Shown when userCoins < book coin cost (purchase / unlock). */
+    public const MSG_INSUFFICIENT_COINS = 'You cannot buy this book. Try to fulfill your quests or buy coins.';
+    /** @var array<string,bool> */
+    private static array $tableExistsCache = [];
+
+    private static function tableExists(string $tableName): bool
+    {
+        if (array_key_exists($tableName, self::$tableExistsCache)) {
+            return self::$tableExistsCache[$tableName];
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'SELECT COUNT(*)
+                 FROM information_schema.TABLES
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?'
+            );
+            $stmt->execute([$tableName]);
+            self::$tableExistsCache[$tableName] = ((int)$stmt->fetchColumn() > 0);
+        } catch (\Throwable) {
+            self::$tableExistsCache[$tableName] = false;
+        }
+        return self::$tableExistsCache[$tableName];
+    }
+
     public static function all(): array
     {
         try {
@@ -69,6 +94,81 @@ class UserModel
         }
     }
 
+    /**
+     * True if the user may open the reader: owns the book as reading or completed (not plan_to_read only).
+     */
+    public static function userHasReadableAccess(int $userId, int $bookId): bool
+    {
+        if ($userId <= 0 || $bookId <= 0) {
+            return false;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'SELECT 1 FROM user_books
+                 WHERE user_id = ? AND book_id = ? AND status IN ("reading", "completed")
+                 LIMIT 1'
+            );
+            $stmt->execute([$userId, $bookId]);
+            return (bool)$stmt->fetchColumn();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Aggregates from reading_sessions for profile UI.
+     *
+     * @return array{
+     *   totalReadingMinutes:int,
+     *   totalReadingHours:float,
+     *   averageReadingMinutes:int,
+     *   averageReadingHours:float,
+     *   dailyReadingGoalHours:float
+     * }
+     */
+    public static function getReadingTimeAggregates(int $userId): array
+    {
+        $defaults = [
+            'totalReadingMinutes' => 0,
+            'totalReadingHours' => 0.0,
+            'averageReadingMinutes' => 0,
+            'averageReadingHours' => 0.0,
+            'dailyReadingGoalHours' => 4.0,
+        ];
+        if ($userId <= 0) {
+            return $defaults;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'SELECT
+                    COALESCE(SUM(minutes_read), 0) AS total_minutes,
+                    NULLIF(COUNT(DISTINCT CASE WHEN minutes_read > 0 OR pages_read > 0 THEN session_date END), 0) AS active_days
+                 FROM reading_sessions
+                 WHERE user_id = ?'
+            );
+            $stmt->execute([$userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                return $defaults;
+            }
+            $total = (int)($row['total_minutes'] ?? 0);
+            $activeDays = (int)($row['active_days'] ?? 0);
+            $avg = ($activeDays > 0) ? (int)round($total / $activeDays) : 0;
+
+            return [
+                'totalReadingMinutes' => $total,
+                'totalReadingHours' => round($total / 60, 2),
+                'averageReadingMinutes' => $avg,
+                'averageReadingHours' => round($avg / 60, 2),
+                'dailyReadingGoalHours' => 4.0,
+            ];
+        } catch (Throwable $e) {
+            return $defaults;
+        }
+    }
+
     public static function countBooksRead(int $userId): int
     {
         try {
@@ -92,15 +192,33 @@ class UserModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->prepare(
-                'SELECT ub.book_id, ub.status, ub.progress_page, ub.rating, ub.completed_at,
-                        b.id AS bid, b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward,
-                        b.audience, b.trending, b.description
-                 FROM user_books ub
-                 INNER JOIN books b ON b.id = ub.book_id
-                 WHERE ub.user_id = ?
-                 ORDER BY ub.id DESC'
-            );
+            $hasReadingProgress = self::tableExists('reading_progress');
+            if ($hasReadingProgress) {
+                $stmt = $pdo->prepare(
+                    'SELECT ub.book_id, ub.status,
+                            GREATEST(COALESCE(ub.progress_page, 0), COALESCE(rp.last_page, 0)) AS progress_page,
+                            ub.rating, ub.completed_at,
+                            b.id AS bid, b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward,
+                            b.audience, b.trending, b.description
+                     FROM user_books ub
+                     INNER JOIN books b ON b.id = ub.book_id
+                     LEFT JOIN reading_progress rp ON rp.user_id = ub.user_id AND rp.book_id = ub.book_id
+                     WHERE ub.user_id = ?
+                     ORDER BY ub.id DESC'
+                );
+            } else {
+                $stmt = $pdo->prepare(
+                    'SELECT ub.book_id, ub.status,
+                            COALESCE(ub.progress_page, 0) AS progress_page,
+                            ub.rating, ub.completed_at,
+                            b.id AS bid, b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward,
+                            b.audience, b.trending, b.description
+                     FROM user_books ub
+                     INNER JOIN books b ON b.id = ub.book_id
+                     WHERE ub.user_id = ?
+                     ORDER BY ub.id DESC'
+                );
+            }
             $stmt->execute([$userId]);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $out = [];
@@ -366,16 +484,22 @@ class UserModel
             $pdo = Database::pdo();
             $pdo->beginTransaction();
 
-            $okLibrary = self::ensureBookInLibrary($userId, $bookId);
-            if (!$okLibrary) {
-                throw new RuntimeException('Could not ensure library row.');
+            $chk = $pdo->prepare(
+                'SELECT status FROM user_books WHERE user_id = ? AND book_id = ? LIMIT 1 FOR UPDATE'
+            );
+            $chk->execute([$userId, $bookId]);
+            $row = $chk->fetch(PDO::FETCH_ASSOC);
+            $st = (string)($row['status'] ?? '');
+            if (!in_array($st, ['reading', 'completed'], true)) {
+                $pdo->rollBack();
+                return false;
             }
 
             $stmtProgress = $pdo->prepare(
                 'INSERT INTO reading_progress (user_id, book_id, last_page, updated_at)
                  VALUES (?, ?, ?, NOW())
                  ON DUPLICATE KEY UPDATE
-                   last_page = VALUES(last_page),
+                   last_page = GREATEST(last_page, VALUES(last_page)),
                    updated_at = NOW()'
             );
             $stmtProgress->execute([$userId, $bookId, $page]);
@@ -383,7 +507,7 @@ class UserModel
             $stmtBook = $pdo->prepare(
                 'UPDATE user_books
                  SET progress_page = GREATEST(progress_page, ?)
-                 WHERE user_id = ? AND book_id = ?'
+                 WHERE user_id = ? AND book_id = ? AND status IN ("reading", "completed")'
             );
             $stmtBook->execute([$page, $userId, $bookId]);
 

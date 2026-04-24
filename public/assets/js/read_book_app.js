@@ -22,6 +22,7 @@ async function api(path, method = 'GET', body = null) {
         method,
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
         credentials: 'same-origin',
+        cache: method === 'GET' ? 'no-store' : 'default',
     };
     if (body) opts.body = JSON.stringify(body);
     try {
@@ -143,9 +144,9 @@ async function goToPage(newPage) {
         book_id: BOOK.id,
         page:    newPage,
     });
-    if (progressResp?._httpStatus === 403 && progressResp?.error === 'NOT_ENOUGH_COINS') {
-        alert("You don't have enough coins");
-        window.location.href = 'index.php?view=store';
+    if (progressResp?._httpStatus === 403 && (progressResp?.error === 'ACCESS_DENIED' || progressResp?.error === 'NOT_ENOUGH_COINS')) {
+        alert(progressResp?.message || 'You cannot buy this book. Try to fulfill your quests or buy coins.');
+        window.location.href = 'index.php?view=book-detail&id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
         return;
     }
 
@@ -323,12 +324,8 @@ btnSave?.addEventListener('click', async () => {
         renderPage();
 
         const prof = await api('/api/user/profile', 'GET');
-        if (
-            prof.success &&
-            prof.data?.library &&
-            window.LexoraState?.applyLibraryFromServer
-        ) {
-            window.LexoraState.applyLibraryFromServer(prof.data.library);
+        if (prof.success && prof.data && window.LexoraState?.applyLibraryFromServer) {
+            window.LexoraState.applyLibraryFromServer(Array.isArray(prof.data.library) ? prof.data.library : []);
         }
 
         window.dispatchEvent(new CustomEvent('lexora:bookCompleted', {
@@ -367,51 +364,45 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft'  && currentPage > 0)                goToPage(currentPage - 1);
 });
 
-// ── Restore progress & completion flag from server ───────────────────────────
-(async function syncFromServer() {
+// ── Boot: sync shelf + resume page before any progress POST (avoids clobbering DB with page 0) ──
+async function bootReader() {
     const data = await api('/api/user/profile', 'GET');
-    if (!data.success || !data.data || !Array.isArray(data.data.library)) return;
+    const lib = data.success && data.data && Array.isArray(data.data.library) ? data.data.library : [];
 
     if (window.LexoraState?.applyLibraryFromServer) {
-        window.LexoraState.applyLibraryFromServer(data.data.library);
+        window.LexoraState.applyLibraryFromServer(lib);
     }
 
-    const entry = data.data.library.find(l => Number(l.book_id) === Number(BOOK.id));
-    if (!entry) return;
+    const entry = lib.find(l => Number(l.book_id) === Number(BOOK.id));
+    if (entry) {
+        if (entry.status === 'completed') {
+            BOOK.alreadyCompleted = true;
+        }
+        const pp = entry.progress_page;
+        if (typeof pp === 'number' && Number.isFinite(pp) && pages.length > 0) {
+            const clamped = Math.min(Math.max(0, Math.floor(pp)), pages.length - 1);
+            currentPage = clamped;
+        }
+    }
 
-    if (entry.status === 'completed') {
-        BOOK.alreadyCompleted = true;
-    }
-    const pp = entry.progress_page;
-    if (typeof pp === 'number' && pp >= 0 && pages.length > 0) {
-        currentPage = Math.min(pp, pages.length - 1);
-    }
     renderPage();
+
     const resumeResp = await api('/api/user/book/progress', 'POST', {
         book_id: BOOK.id,
         page: currentPage,
     });
-    if (resumeResp?._httpStatus === 403 && resumeResp?.error === 'NOT_ENOUGH_COINS') {
-        alert("You don't have enough coins");
-        window.location.href = 'index.php?view=store';
+    if (resumeResp?._httpStatus === 403 && (resumeResp?.error === 'ACCESS_DENIED' || resumeResp?.error === 'NOT_ENOUGH_COINS')) {
+        alert(resumeResp?.message || 'You cannot buy this book. Try to fulfill your quests or buy coins.');
+        window.location.href = 'index.php?view=book-detail&id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
         return;
     }
     if (getProgressPercent(currentPage) === 100 && !BOOK.alreadyCompleted && !finishAutoOffered) {
         finishAutoOffered = true;
         setTimeout(openFinishModal, 800);
     }
-})();
+}
 
-// ── Init ──────────────────────────────────────────────────────────────────────
 renderPage();
-api('/api/user/book/progress', 'POST', {
-    book_id: BOOK.id,
-    page: currentPage,
-}).then((firstResp) => {
-    if (firstResp?._httpStatus === 403 && firstResp?.error === 'NOT_ENOUGH_COINS') {
-        alert("You don't have enough coins");
-        window.location.href = 'index.php?view=store';
-    }
-});
+bootReader();
 
 })();

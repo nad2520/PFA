@@ -88,7 +88,7 @@ function renderGrid() {
     if (noRes) noRes.style.display = 'none';
 
     grid.innerHTML = books.map(b => {
-        const affordable = currentCoins >= (b.coinCost || 0);
+        const affordable = true;
         const coverSrc   = GENRE_COVERS[b.genre] || '';
         const genreStyle = GENRE_CSS[b.genre] || '';
         return `

@@ -28,8 +28,16 @@ if ($view !== null) {
     }
     $allowedUserViews = ['user', 'profile', 'store', 'book-detail', 'read-book'];
     if (in_array($view, $allowedUserViews, true)) {
-        $file = $view === 'user' ? 'index.php' : $view . '.php';
-        require APP_PATH . "/views/users/$file";
+        require APP_PATH . '/controllers/UserPageController.php';
+        $page = new UserPageController();
+        match ($view) {
+            'user' => $page->home(),
+            'profile' => $page->profile(),
+            'store' => $page->store(),
+            'book-detail' => $page->bookDetail(),
+            'read-book' => $page->readBook(),
+            default => require APP_PATH . '/views/home/index.php',
+        };
         exit;
     }
     require APP_PATH . '/views/home/index.php';

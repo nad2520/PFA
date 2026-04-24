@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once CORE_PATH . '/Database.php';
 require_once APP_PATH . '/models/BookModel.php';
+require_once APP_PATH . '/models/UserModel.php';
 
 session_start();
 
@@ -15,7 +16,13 @@ $bookId = (int)($_GET['id'] ?? 0);
 $book    = $bookId > 0 ? BookModel::findById($bookId) : null;
 
 if (!$book) {
-    header('Location: index.php?view=store');
+    // No row in `books` (or DB error): frontend catalog still uses ids 1–16 from JS — run
+    // database/migrations/004_lexora_catalog_books_seed.sql so ids match. Prefer book-detail over store.
+    if ($bookId > 0) {
+        header('Location: index.php?view=book-detail&id=' . $bookId . '&book_missing=1');
+    } else {
+        header('Location: index.php?view=user');
+    }
     exit;
 }
 
@@ -26,62 +33,21 @@ $csrfToken = (string)$_SESSION['csrf_token'];
 
 $userId = (int)$_SESSION['user_id'];
 $alreadyCompleted = false;
+
+// Fail-closed: pages are only reachable after Start Reading + successful POST /api/user/book/purchase.
 try {
+    if (!UserModel::userHasReadableAccess($userId, (int)$book['id'])) {
+        header('Location: index.php?view=book-detail&id=' . (int)$book['id'] . '&access_denied=1');
+        exit;
+    }
     $pdo = Database::pdo();
     $chk = $pdo->prepare('SELECT status FROM user_books WHERE user_id = ? AND book_id = ? LIMIT 1');
     $chk->execute([$userId, (int)$book['id']]);
     $ubRow = $chk->fetch(PDO::FETCH_ASSOC);
     $alreadyCompleted = ($ubRow['status'] ?? '') === 'completed';
-
-    // Paid-read gate: read access requires ownership when coinCost > 0.
-    // plan_to_read is wishlist only and does not grant read access.
-    if (!$ubRow || (($ubRow['status'] ?? '') === 'plan_to_read')) {
-        $coinCost = max(0, (int)($book['coinCost'] ?? 0));
-        if ($coinCost > 0) {
-            $pdo->beginTransaction();
-            $userStmt = $pdo->prepare('SELECT coins FROM users WHERE id = ? FOR UPDATE');
-            $userStmt->execute([$userId]);
-            $coins = (int)($userStmt->fetchColumn() ?: 0);
-            if ($coins < $coinCost) {
-                $pdo->rollBack();
-                header('Location: index.php?view=store&coin_error=' . rawurlencode('You don’t have enough coins to read this book.'));
-                exit;
-            }
-
-            $ded = $pdo->prepare('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?');
-            $ded->execute([$coinCost, $userId, $coinCost]);
-            if ($ded->rowCount() === 0) {
-                $pdo->rollBack();
-                header('Location: index.php?view=store&coin_error=' . rawurlencode('You don’t have enough coins to read this book.'));
-                exit;
-            }
-
-            $pdo->prepare(
-                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
-                 VALUES (?, ?, "reading", 0, NOW())
-                 ON DUPLICATE KEY UPDATE
-                   status = "reading",
-                   started_at = IFNULL(started_at, NOW())'
-            )->execute([$userId, (int)$book['id']]);
-            $pdo->prepare(
-                'INSERT INTO economy_logs (user_id, log_date, coins_spent, event_type) VALUES (?, CURDATE(), ?, ?)'
-            )->execute([$userId, $coinCost, 'book_access']);
-            $pdo->commit();
-        } else {
-            $pdo->prepare(
-                'INSERT INTO user_books (user_id, book_id, status, progress_page, started_at)
-                 VALUES (?, ?, "reading", 0, NOW())
-                 ON DUPLICATE KEY UPDATE
-                   status = "reading",
-                   started_at = IFNULL(started_at, NOW())'
-            )->execute([$userId, (int)$book['id']]);
-        }
-    }
 } catch (Throwable $e) {
-    if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-    $alreadyCompleted = false;
+    header('Location: index.php?view=book-detail&id=' . (int)$book['id'] . '&access_error=1');
+    exit;
 }
 
 $totalPages = 24;
@@ -95,6 +61,7 @@ $lxBook = [
 ];
 $lxBookJson = json_encode($lxBook, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 $lxSessionJson = json_encode(['csrfToken' => $csrfToken], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+require_once __DIR__ . '/_lx_public_urls.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -104,7 +71,7 @@ $lxSessionJson = json_encode(['csrfToken' => $csrfToken], JSON_HEX_TAG | JSON_HE
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading — <?= htmlspecialchars($book['title'], ENT_QUOTES) ?> — Lexora</title>
     <meta name="description" content="Continue reading your book on Lexora.">
-    <link rel="stylesheet" href="public/assets/css/user/main.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars(lx_main_css_href(), ENT_QUOTES, 'UTF-8') ?>">
     <script>
         window.LX_SESSION = <?= $lxSessionJson ?>;
         window.LX_CURRENT_BOOK = <?= $lxBookJson ?>;
@@ -210,7 +177,7 @@ $lxSessionJson = json_encode(['csrfToken' => $csrfToken], JSON_HEX_TAG | JSON_HE
         </div>
     </div>
 
-    <div id="lumo-chatbot-root" data-asset-base="public/assets/images/" data-lumo-greeting="Hi there! I'm Lumo — enjoy your reading session!"></div>
+    <div id="lumo-chatbot-root" data-asset-base="<?= htmlspecialchars(lx_public_asset('assets/images/'), ENT_QUOTES, 'UTF-8') ?>" data-lumo-greeting="Hi there! I'm Lumo — enjoy your reading session!"></div>
 
     <style>
         .read-finish-modal-inner {
@@ -266,11 +233,11 @@ $lxSessionJson = json_encode(['csrfToken' => $csrfToken], JSON_HEX_TAG | JSON_HE
         }
     </style>
 
-    <script src="public/assets/js/models/user_data.js"></script>
-    <script src="public/assets/js/models/lexora-state.js"></script>
-    <script src="public/assets/js/lumo-chatbot.js"></script>
-    <script src="public/assets/js/user_app.js"></script>
-    <script src="public/assets/js/read_book_app.js"></script>
+    <script src="<?= htmlspecialchars(lx_public_asset('assets/js/models/user_data.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script src="<?= htmlspecialchars(lx_public_asset('assets/js/models/lexora-state.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script src="<?= htmlspecialchars(lx_public_asset('assets/js/lumo-chatbot.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script src="<?= htmlspecialchars(lx_public_asset('assets/js/user_app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script src="<?= htmlspecialchars(lx_public_asset('assets/js/read_book_app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
 
 </html>
