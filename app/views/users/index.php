@@ -2,6 +2,17 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
   session_start();
 }
+// 🔐 BLOCK ACCESS if not logged in
+if (!isset($_SESSION['user_id'])) {
+  header("Location: index.php");
+  exit();
+}
+
+// 🚫 PREVENT BACK BUTTON (disable cache)
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -53,7 +64,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
-        <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
+        <button type="button" class="btn-disconnect" onclick="window.location.href='/PFA/logout'">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

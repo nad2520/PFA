@@ -4,22 +4,18 @@ require_once __DIR__ . '/../../core/Database.php';
 
 class AuthController extends Controller
 {
-    private function hashPassword(string $plain): string
-    {
-        // Backward-compatible with current DB contents.
-        return md5($plain);
-    }
-
     public function handle(): void
     {
         session_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
+
             if ($action === 'signup') {
                 $this->signup();
                 return;
             }
+
             if ($action === 'login') {
                 $this->login();
                 return;
@@ -39,20 +35,21 @@ class AuthController extends Controller
         try {
             $pdo = Database::pdo();
         } catch (Throwable $e) {
-            $_SESSION['auth_error'] = "Unable to connect to the database. Please start MySQL in XAMPP and try again.";
+            $_SESSION['auth_error'] = "Database connection error.";
             $this->redirect('index.php#auth-modal');
         }
 
-        $username = trim((string)($_POST['username'] ?? ''));
-        $email = trim((string)($_POST['email'] ?? ''));
-        $password = trim((string)($_POST['password'] ?? ''));
-        $birthdate = isset($_POST['birthdate']) ? trim((string)$_POST['birthdate']) : null;
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        $birthdate = trim($_POST['birthdate'] ?? '');
 
         if ($username === '' || $email === '' || $password === '') {
-            $_SESSION['auth_error'] = "Please fill in all required fields.";
+            $_SESSION['auth_error'] = "Please fill all fields.";
             $this->redirect('index.php#auth-modal');
         }
 
+        // Check if email exists
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
@@ -60,38 +57,44 @@ class AuthController extends Controller
             $this->redirect('index.php#auth-modal');
         }
 
+        // Role calculation
         $role = 'user';
         if (!empty($birthdate)) {
             try {
                 $bday = new DateTime($birthdate);
-                $today = new DateTime('today');
+                $today = new DateTime();
                 $age = $bday->diff($today)->y;
                 $role = ($age < 18) ? 'User -18' : 'User +18';
-            } catch (Exception $e) {
-                // Ignore parsing errors; keep default role.
-            }
+            } catch (Exception $e) {}
         }
 
-        $hashed = $this->hashPassword($password);
-        // New-user invariant: only insert into `users`. Do not seed user_books, reading_progress,
-        // or reading_sessions here — implicit unread / empty library is "no rows" for those tables.
-        $req = "INSERT INTO users(nom, email, password, role, birthdate, coins) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $pdo->prepare($req);
-        $ok = $stmt->execute([$username, $email, $hashed, $role, $birthdate ?: null, 1000]);
+        // ✅ SECURE HASH
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $stmt = $pdo->prepare("
+            INSERT INTO users(nom, email, password, role, birthdate, coins)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+
+        $ok = $stmt->execute([
+            $username,
+            $email,
+            $hashedPassword,
+            $role,
+            $birthdate ?: null,
+            1000
+        ]);
 
         if (!$ok) {
-            $_SESSION['auth_error'] = "Error creating account.";
+            $_SESSION['auth_error'] = "Signup failed.";
             $this->redirect('index.php#auth-modal');
         }
 
         session_regenerate_id(true);
-        $_SESSION['user_id'] = (int)$pdo->lastInsertId();
+        $_SESSION['user_id'] = $pdo->lastInsertId();
         $_SESSION['user_name'] = $username;
         $_SESSION['user_role'] = $role;
 
-        if ($email === 'lexora25@gmail.com' || $role === 'admin') {
-            $this->redirect('index.php?view=admin');
-        }
         $this->redirect('index.php?view=user');
     }
 
@@ -100,44 +103,69 @@ class AuthController extends Controller
         try {
             $pdo = Database::pdo();
         } catch (Throwable $e) {
-            $_SESSION['auth_error'] = "Unable to connect to the database. Please start MySQL in XAMPP and try again.";
+            $_SESSION['auth_error'] = "Database connection error.";
             $this->redirect('index.php#auth-modal');
         }
 
-        $email = trim((string)($_POST['email'] ?? ''));
-        $password = trim((string)($_POST['password'] ?? ''));
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
 
         if ($email === '' || $password === '') {
-            $_SESSION['auth_error'] = "Please enter email and password.";
+            $_SESSION['auth_error'] = "Enter email and password.";
             $this->redirect('index.php#auth-modal');
         }
 
-        $hashed = $this->hashPassword($password);
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
-        $stmt->execute([$email, $hashed]);
+        // Get user by email ONLY
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
         $user = $stmt->fetch();
 
         if (!$user) {
-            $_SESSION['auth_error'] = "Invalid email or password.";
+            $_SESSION['auth_error'] = "Invalid credentials.";
+            $this->redirect('index.php#auth-modal');
+        }
+
+        // ✅ VERIFY PASSWORD
+        $isValid = password_verify($password, $user['password']);
+
+        // 🔥 OPTIONAL: support old md5 passwords (remove later)
+        if (!$isValid && md5($password) === $user['password']) {
+            // Upgrade old password to new hash
+            $newHash = password_hash($password, PASSWORD_DEFAULT);
+            $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $update->execute([$newHash, $user['id']]);
+
+            $isValid = true;
+        }
+
+        if (!$isValid) {
+            $_SESSION['auth_error'] = "Invalid credentials.";
             $this->redirect('index.php#auth-modal');
         }
 
         session_regenerate_id(true);
-        $_SESSION['user_id'] = (int)$user['id'];
-        $_SESSION['user_name'] = (string)$user['nom'];
-        $_SESSION['user_role'] = (string)$user['role'];
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['nom'];
+        $_SESSION['user_role'] = $user['role'];
 
-        if ($email === 'lexora25@gmail.com' || $user['role'] === 'admin') {
+        if ($user['role'] === 'admin') {
             $this->redirect('index.php?view=admin');
         }
+
         $this->redirect('index.php?view=user');
     }
 
     public function logout(): void
     {
         session_start();
+
+        $_SESSION = [];
         session_destroy();
-        $this->redirect('index.php');
+
+        // ✅ Prevent back button
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+        header("Location: /PFA"); // not index.php?action=logout
+        exit();
     }
 }
-

@@ -2,6 +2,15 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
+// Prevent cache (blocks back button)
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+
+// Block access if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
 $lxUserName = isset($_SESSION['user_name']) ? (string)$_SESSION['user_name'] : 'Reader';
 $lxUserNameEsc = htmlspecialchars($lxUserName, ENT_QUOTES, 'UTF-8');
 require_once __DIR__ . '/_lx_public_urls.php';
@@ -31,8 +40,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
         <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
         <a href="?view=store" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
-        <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
+        <button type="button" class="btn-disconnect" onclick="logout()">          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
@@ -76,13 +84,14 @@ require_once __DIR__ . '/_lx_public_urls.php';
 
                 <div class="auth-box">
                     <h2 id="authFormTitle">Sign In</h2>
-                    <form id="authForm">
+                    <form id="authForm" method="POST" action="index.php">
+                        <input type="hidden" name="action" value="login">
                         <!-- Username -->
                         <div class="field">
                             <label>
                                 <span style="font-size:1.1rem">??</span> Username
                             </label>
-                            <input type="text" id="username" placeholder="Username" required>
+                            <input type="text"  name="email" id="username" placeholder="Username" required>
                         </div>
                         <!-- Password -->
                         <div class="field">
@@ -95,7 +104,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
                                 </svg>
                                 Password
                             </label>
-                            <input type="password" id="password" placeholder="??????" required>
+                            <input type="password" name="password" id="password" placeholder="??????" required>
                         </div>
                         <!-- Confirm Password (sign-up only) -->
                         <div class="field" id="confirmWrap" style="display:none">
@@ -141,6 +150,12 @@ require_once __DIR__ . '/_lx_public_urls.php';
     <script src="<?= htmlspecialchars(lx_public_asset('assets/js/models/lexora-state.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
     <script src="<?= htmlspecialchars(lx_public_asset('assets/js/lumo-chatbot.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
     <script src="<?= htmlspecialchars(lx_public_asset('assets/js/user_app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+    <script>
+    function logout() {
+        fetch('index.php?action=logout')
+            .then(() => window.location.href = 'index.php');
+    }
+    </script>
 </body>
 
 </html>
