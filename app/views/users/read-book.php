@@ -5,7 +5,7 @@ require_once CORE_PATH . '/Database.php';
 require_once APP_PATH . '/models/BookModel.php';
 require_once APP_PATH . '/models/UserModel.php';
 
-session_start();
+//session_start();
 
 if (empty($_SESSION['user_id'])) {
     header('Location: index.php');
