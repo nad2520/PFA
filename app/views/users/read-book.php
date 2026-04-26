@@ -8,7 +8,7 @@ require_once APP_PATH . '/models/UserModel.php';
 //session_start();
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: index.php');
+    header('Location: /PFA/');
     exit;
 }
 
@@ -19,9 +19,9 @@ if (!$book) {
     // No row in `books` (or DB error): frontend catalog still uses ids 1–16 from JS — run
     // database/migrations/004_lexora_catalog_books_seed.sql so ids match. Prefer book-detail over store.
     if ($bookId > 0) {
-        header('Location: index.php?view=book-detail&id=' . $bookId . '&book_missing=1');
+        header('Location: /PFA/book-detail?id=' . $bookId . '&book_missing=1');
     } else {
-        header('Location: index.php?view=user');
+        header('Location: /PFA/user');
     }
     exit;
 }
@@ -37,7 +37,7 @@ $alreadyCompleted = false;
 // Fail-closed: pages are only reachable after Start Reading + successful POST /api/user/book/purchase.
 try {
     if (!UserModel::userHasReadableAccess($userId, (int)$book['id'])) {
-        header('Location: index.php?view=book-detail&id=' . (int)$book['id'] . '&access_denied=1');
+        header('Location: /PFA/book-detail?id=' . (int)$book['id'] . '&access_denied=1');
         exit;
     }
     $pdo = Database::pdo();
@@ -46,7 +46,7 @@ try {
     $ubRow = $chk->fetch(PDO::FETCH_ASSOC);
     $alreadyCompleted = ($ubRow['status'] ?? '') === 'completed';
 } catch (Throwable $e) {
-    header('Location: index.php?view=book-detail&id=' . (int)$book['id'] . '&access_error=1');
+    header('Location: /PFA/book-detail?id=' . (int)$book['id'] . '&access_error=1');
     exit;
 }
 

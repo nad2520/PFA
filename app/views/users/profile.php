@@ -59,13 +59,13 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="?view=user" class="logo"> LEXORA</a>
+      <a href="<?= htmlspecialchars(lx_app_href('/user'), ENT_QUOTES, 'UTF-8') ?>" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none"> Back to
+        <a id="navBackLecture" class="header-link-primary" href="<?= htmlspecialchars(lx_app_href('/read-book'), ENT_QUOTES, 'UTF-8') ?>" style="display:none"> Back to
           lecture</a>
-        <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
-        <a href="?view=store" class="header-nav-link">My Store</a>
+        <a href="<?= htmlspecialchars(lx_app_href('/user'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link header-nav-active">My Home</a>
+        <a href="<?= htmlspecialchars(lx_app_href('/store'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
         <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
@@ -77,7 +77,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
           DISCONNECT
         </button>
         <div class="hover-card">
-          <button class="avatar-btn" onclick="nav('?view=profile')">
+          <button class="avatar-btn" onclick="nav('<?= htmlspecialchars(lx_app_href('/profile'), ENT_QUOTES, 'UTF-8') ?>')">
             <img id="avatarImg" src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="User avatar">
           </button>
           <div class="hover-card-content">
@@ -243,7 +243,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 $status = strtolower((string)($entry['status'] ?? 'reading'));
                                 $badgeClass = $status === 'completed' ? 'completed' : 'reading';
                                 $badgeText = $status === 'completed' ? '✓ DONE' : 'READING';
-                                $detailHref = 'index.php?view=book-detail&id=' . $bookId;
+                                $detailHref = '/PFA/book-detail?id=' . $bookId;
                                 ?>
                                 <div class="book-card-static" role="link" data-book-id="<?= $bookId ?>" style="cursor:pointer" onclick="window.location.href='<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8') ?>'">
                                     <div class="card-body">
@@ -267,7 +267,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">
                                     Books you add from Book Detail will appear here.
                                 </p>
-                                <a href="index.php?view=user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
+                                <a href="/PFA/user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -297,7 +297,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                     $fallbackGenre = trim((string)($book['genre'] ?? ''));
                                     $bookGenres = $fallbackGenre !== '' ? [$fallbackGenre] : ['General'];
                                 }
-                                $detailHref = 'index.php?view=book-detail&id=' . $bookId;
+                                $detailHref = '/PFA/book-detail?id=' . $bookId;
                                 ?>
                                 <div class="book-card-static" role="link" data-book-id="<?= $bookId ?>" style="cursor:pointer" onclick="window.location.href='<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8') ?>'">
                                     <div class="card-body">
@@ -321,7 +321,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">
                                     Use “Add to list” on a book to save it here.
                                 </p>
-                                <a href="index.php?view=user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
+                                <a href="/PFA/user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
                             </div>
                         <?php endif; ?>
                     </div>

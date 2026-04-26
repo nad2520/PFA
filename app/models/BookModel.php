@@ -63,8 +63,9 @@ class BookModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query("SELECT * FROM books ORDER BY id DESC");
-            return $stmt->fetchAll();
+            $stmt = $pdo->prepare("SELECT * FROM books ORDER BY id DESC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             // If the table doesn't exist (or DB not initialized yet), don't crash the app.
             return [];

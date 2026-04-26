@@ -21,7 +21,23 @@ abstract class Controller
         if (str_contains($uri, '/api/')) {
             $this->json(['success' => false, 'message' => 'Unauthorized.'], 401);
         }
-        $this->redirect($this->baseUrl() . '/index.php');
+        $this->redirect($this->baseUrl() . '/');
+    }
+
+    protected function requireAdmin(): void
+    {
+        $this->requireAuth();
+        $role = (string)($_SESSION['user_role'] ?? '');
+        if ($role === 'admin') {
+            return;
+        }
+
+        $uri = (string)($_SERVER['REQUEST_URI'] ?? '');
+        if (str_contains($uri, '/api/')) {
+            $this->json(['success' => false, 'message' => 'Forbidden.'], 403);
+        }
+
+        $this->redirect('user');
     }
 
     protected function json(array $payload, int $status = 200): void

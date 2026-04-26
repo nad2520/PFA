@@ -6,6 +6,7 @@ class PostsController extends Controller
 {
     public function update(): void
     {
+        $this->requireAdmin();
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         $action = $_GET['action'] ?? '';
         if ($id <= 0) {
@@ -21,6 +22,7 @@ class PostsController extends Controller
 
     public function delete(): void
     {
+        $this->requireAdmin();
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         $ok = $id > 0 ? PostModel::delete($id) : false;
         $this->redirectBack('index.php?view=admin&postdelete=' . ($ok ? 'ok' : 'error'));

@@ -49,13 +49,13 @@ require_once __DIR__ . '/_lx_public_urls.php';
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="?view=user" class="logo"> LEXORA</a>
+      <a href="<?= htmlspecialchars(lx_app_href('/user'), ENT_QUOTES, 'UTF-8') ?>" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
-        <a id="navBackLecture" class="header-link-primary" href="?view=read-book" style="display:none"> Back to
+        <a id="navBackLecture" class="header-link-primary" href="<?= htmlspecialchars(lx_app_href('/read-book'), ENT_QUOTES, 'UTF-8') ?>" style="display:none"> Back to
           lecture</a>
-        <a href="?view=user" class="header-nav-link header-nav-active">My Home</a>
-        <a href="?view=store" class="header-nav-link">My Store</a>
+        <a href="<?= htmlspecialchars(lx_app_href('/user'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link header-nav-active">My Home</a>
+        <a href="<?= htmlspecialchars(lx_app_href('/store'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
         <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
@@ -67,7 +67,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
           DISCONNECT
         </button>
         <div class="hover-card">
-          <button class="avatar-btn" onclick="nav('?view=profile')">
+          <button class="avatar-btn" onclick="nav('<?= htmlspecialchars(lx_app_href('/profile'), ENT_QUOTES, 'UTF-8') ?>')">
             <img id="avatarImg" src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="User avatar">
           </button>
           <div class="hover-card-content">

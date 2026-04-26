@@ -129,6 +129,10 @@ function setAuthMode(isLogin) {
 
     if (window.lucide) lucide.createIcons();
     setAuthMode(true);
+
+    if (window.location.hash === '#auth-modal') {
+      openAuthModal(isLoginMode ? 'login' : 'signup');
+    }
   });
 })();
 

@@ -369,20 +369,20 @@ function initHeaderNavLinks() {
     lxApi('/api/user/back-to-lecture', 'GET')
         .then(({ data }) => {
             if (data?.book_id) {
-                el.href = `?view=read-book&id=${data.book_id}`;
+                el.href = `${LX_API_BASE}/read-book?id=${data.book_id}`;
                 el.style.display = '';
                 return;
             }
             const last = window.LexoraState?.getLastBookReadId?.();
             if (last) {
-                el.href = `?view=read-book&id=${last}`;
+                el.href = `${LX_API_BASE}/read-book?id=${last}`;
                 el.style.display = '';
             }
         })
         .catch(() => {
             const last = window.LexoraState?.getLastBookReadId?.();
             if (last) {
-                el.href = `?view=read-book&id=${last}`;
+                el.href = `${LX_API_BASE}/read-book?id=${last}`;
                 el.style.display = '';
             }
         });
@@ -392,7 +392,7 @@ function updateBookDetailHeaderNav(bookId, showLecture) {
     const navL = document.getElementById('navBackLecture');
     if (!navL) return;
     if (showLecture) {
-        navL.href = `?view=read-book&id=${bookId}`;
+        navL.href = `${LX_API_BASE}/read-book?id=${bookId}`;
         navL.style.display = '';
     } else {
         navL.style.display = 'none';
@@ -574,7 +574,7 @@ function buildCatalogBookCardHTML(book, index) {
     const costStr = price ? price.cost.toLocaleString() : 'FREE';
     const delay = index * 0.05;
     return `
-    <div class="catalog-book-card" style="animation-delay:${delay}s" onclick="nav('?view=book-detail&id=${book.id}')">
+    <div class="catalog-book-card" style="animation-delay:${delay}s" onclick="nav('${LX_API_BASE}/book-detail?id=${book.id}')">
       <div class="catalog-book-card__cover">
         <img src="${cover}" alt="${book.title}" loading="lazy">
         <div class="catalog-book-card__cover-fade"></div>
@@ -605,7 +605,7 @@ function buildBookCardHTML(book, index, flip = true) {
 
     if (flip) {
         return `
-    <div class="book-card-container animate-float-up" style="animation-delay:${index * 0.05}s" onclick="nav('?view=book-detail&id=${book.id}')">
+    <div class="book-card-container animate-float-up" style="animation-delay:${index * 0.05}s" onclick="nav('${LX_API_BASE}/book-detail?id=${book.id}')">
       <div class="book-card-inner" style="min-height:320px">
         <div class="book-card-front">
           <div class="cover-wrap">
@@ -1272,7 +1272,7 @@ function renderProfileShelvesFromLexoraState() {
             libGrid.innerHTML = `<div class="empty-library-card">
         <p class="empty-library-msg">No books yet. Start exploring and add some!</p>
         <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">Books you purchase or unlock appear here.</p>
-        <a href="index.php?view=user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
+        <a href="${LX_API_BASE}/user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
       </div>`;
         } else {
             libGrid.innerHTML = library.map(ub => {
@@ -1314,7 +1314,7 @@ function renderProfileShelvesFromLexoraState() {
             libGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
                 el.addEventListener('click', () => {
                     const bid = el.getAttribute('data-book-id');
-                    if (bid) nav(`?view=book-detail&id=${bid}`);
+                    if (bid) nav(`${LX_API_BASE}/book-detail?id=${bid}`);
                 });
             });
         }
@@ -1326,7 +1326,7 @@ function renderProfileShelvesFromLexoraState() {
             listGrid.innerHTML = `<div style="border:1px dashed var(--border);border-radius:.75rem;background:hsl(24,20%,14%/.5);padding:3rem;text-align:center">
         <p style="font-family:'Press Start 2P';font-size:.75rem;color:var(--muted-foreground);margin-bottom:.75rem">No books yet. Start exploring and add some!</p>
         <p style="font-size:.9rem;color:var(--muted-foreground);margin-bottom:1.25rem">Use &ldquo;Add to list&rdquo; on a book to save it here before you buy.</p>
-        <a href="index.php?view=user#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Browse the catalog</a>
+        <a href="${LX_API_BASE}/user#catalog" class="btn-primary" style="display:inline-block;padding:.75rem 1.5rem">Browse the catalog</a>
       </div>`;
         } else {
             listGrid.innerHTML = planToRead.map(ub => {
@@ -1350,7 +1350,7 @@ function renderProfileShelvesFromLexoraState() {
             listGrid.querySelectorAll('.book-card-static[data-book-id]').forEach(el => {
                 el.addEventListener('click', () => {
                     const bid = el.getAttribute('data-book-id');
-                    if (bid) nav(`?view=book-detail&id=${bid}`);
+                    if (bid) nav(`${LX_API_BASE}/book-detail?id=${bid}`);
                 });
             });
         }
@@ -1522,7 +1522,7 @@ function initProfile() {
                 document.querySelectorAll('#libraryGrid .book-card-static[data-book-id], #planGrid .book-card-static[data-book-id]').forEach(el => {
                     el.addEventListener('click', () => {
                         const bid = el.getAttribute('data-book-id');
-                        if (bid) nav(`?view=book-detail&id=${bid}`);
+                        if (bid) nav(`${LX_API_BASE}/book-detail?id=${bid}`);
                     });
                 });
             }
@@ -1858,7 +1858,7 @@ function initBookDetail() {
 
         if (targetBtn.id === 'detailReadCta') {
             if (inLibrary) {
-                nav(`?view=read-book&id=${book.id}`);
+                nav(`${LX_API_BASE}/read-book?id=${book.id}`);
                 return;
             }
             const prevHtml = targetBtn.innerHTML;

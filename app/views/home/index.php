@@ -1,5 +1,16 @@
-Home  index.php
-<?php session_start(); ?>
+<?php
+if (session_status() !== PHP_SESSION_ACTIVE) {
+  session_start();
+}
+
+$authModalMode = 'login';
+if (isset($_SESSION['auth_mode']) && in_array($_SESSION['auth_mode'], ['login', 'signup'], true)) {
+  $authModalMode = $_SESSION['auth_mode'];
+}
+
+$shouldOpenAuthModal = isset($_SESSION['auth_error']) || isset($_SESSION['auth_success']) || isset($_SESSION['auth_mode']);
+unset($_SESSION['auth_mode']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -994,6 +1005,13 @@ Home  index.php
   <script src="public/assets/js/landing/footer/script.js"></script>
   <script src="public/assets/js/landing/leaderboard/script.js"></script>
   <script src="public/assets/js/landing-common/global.js"></script>
+  <?php if ($shouldOpenAuthModal): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        openAuthModal(<?= json_encode($authModalMode, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>);
+      });
+    </script>
+  <?php endif; ?>
 </body>
 
 </html>

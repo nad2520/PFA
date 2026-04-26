@@ -49,6 +49,8 @@ class BooksController extends Controller
 
     public function create(): void
     {
+        $this->requireAdmin();
+
         if (!isset($_POST['title'])) {
             $this->redirectBack('index.php?view=admin&addbook=error');
         }
@@ -73,6 +75,8 @@ class BooksController extends Controller
 
     public function update(): void
     {
+        $this->requireAdmin();
+
         if (!isset($_POST['idb'])) {
             $this->redirectBack('index.php?view=admin&editbook=error');
         }
@@ -98,20 +102,22 @@ class BooksController extends Controller
 
     public function delete(): void
     {
+        $this->requireAdmin();
         $id = isset($_GET['idb']) ? (int)$_GET['idb'] : 0;
         $ok = $id > 0 ? BookModel::delete($id) : false;
         $this->redirectBack('index.php?view=admin&deletebook=' . ($ok ? 'ok' : 'error'));
     }
-public function search(): void
-{
-    $query = trim((string)($_GET['q'] ?? ''));
 
-    if ($query === '') {
-        $this->json(['success' => false, 'message' => 'Query is required'], 400);
+    public function search(): void
+    {
+        $query = trim((string)($_GET['q'] ?? ''));
+
+        if ($query === '') {
+            $this->json(['success' => false, 'message' => 'Query is required'], 400);
+        }
+
+        $books = BookModel::searchByTitle($query);
+        $this->json(['success' => true, 'data' => $books, 'count' => count($books)]);
     }
-
-    $books = BookModel::searchByTitle($query);
-    $this->json(['success' => true, 'data' => $books, 'count' => count($books)]);
-}
 }
 

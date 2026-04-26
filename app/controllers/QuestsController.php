@@ -8,6 +8,7 @@ class QuestsController extends Controller
 {
     public function create(): void
     {
+        $this->requireAdmin();
         if (!isset($_POST['quest_key'], $_POST['title'])) {
             $this->redirectBack('index.php?view=admin&addquest=error');
         }
@@ -29,6 +30,7 @@ class QuestsController extends Controller
 
     public function update(): void
     {
+        $this->requireAdmin();
         if (!isset($_POST['idq'], $_POST['title'])) {
             $this->redirectBack('index.php?view=admin&editquest=error');
         }
@@ -50,6 +52,7 @@ class QuestsController extends Controller
 
     public function delete(): void
     {
+        $this->requireAdmin();
         $id = 0;
         if (isset($_POST['idq'])) {
             $id = (int)$_POST['idq'];

@@ -7,8 +7,9 @@ class PostModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query("SELECT * FROM posts ORDER BY id DESC");
-            return $stmt->fetchAll();
+            $stmt = $pdo->prepare("SELECT * FROM posts ORDER BY id DESC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];
         }

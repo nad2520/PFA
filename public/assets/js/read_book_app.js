@@ -67,7 +67,7 @@ function clearProfileRedirectTimer() {
 
 function goToProfilePage() {
     clearProfileRedirectTimer();
-    window.location.href = 'index.php?view=profile';
+    window.location.href = '/PFA/profile';
 }
 
 function scheduleProfileRedirect() {
@@ -174,7 +174,7 @@ async function goToPage(newPage) {
     });
     if (progressResp?._httpStatus === 403 && (progressResp?.error === 'ACCESS_DENIED' || progressResp?.error === 'NOT_ENOUGH_COINS')) {
         alert(progressResp?.message || 'You cannot buy this book. Try to fulfill your quests or buy coins.');
-        window.location.href = 'index.php?view=book-detail&id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
+        window.location.href = '/PFA/book-detail?id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
         return;
     }
     if (!progressResp?.success) {
@@ -436,7 +436,7 @@ async function bootReader() {
     });
     if (resumeResp?._httpStatus === 403 && (resumeResp?.error === 'ACCESS_DENIED' || resumeResp?.error === 'NOT_ENOUGH_COINS')) {
         alert(resumeResp?.message || 'You cannot buy this book. Try to fulfill your quests or buy coins.');
-        window.location.href = 'index.php?view=book-detail&id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
+        window.location.href = '/PFA/book-detail?id=' + encodeURIComponent(String(BOOK.id)) + '&access_denied=1';
         return;
     }
     if (!resumeResp?.success) {

@@ -7,23 +7,40 @@
  */
 
 return function (Router $router): void {
-    // Landing (default)
     $router->get('/', function () {
         require APP_PATH . '/views/home/index.php';
     });
 
-    // Query-string compatible entry
     $router->get('/index.php', function () {
         require APP_PATH . '/views/home/index.php';
     });
 
-    // Simple path aliases (optional)
+    $router->get('/user', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->home();
+    });
+    $router->get('/profile', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->profile();
+    });
+    $router->get('/store', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->store();
+    });
+    $router->get('/book-detail', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->bookDetail();
+    });
+    $router->get('/read-book', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->readBook();
+    });
+
     $router->get('/admin', function () {
         require APP_PATH . '/controllers/AdminController.php';
         (new AdminController())->index();
     });
 
-    // Auth
     $router->post('/auth', function () {
         require APP_PATH . '/controllers/AuthController.php';
         (new AuthController())->handle();
@@ -33,7 +50,6 @@ return function (Router $router): void {
         (new AuthController())->logout();
     });
 
-    // Admin actions (keep simple, no JS/HTML here)
     $router->post('/admin/users/update', function () {
         require APP_PATH . '/controllers/UsersController.php';
         (new UsersController())->update();
@@ -92,7 +108,6 @@ return function (Router $router): void {
         (new BooksController())->catalogBooks();
     });
 
-    // User JSON API (session auth)
     $router->get('/api/user/profile', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->profile();

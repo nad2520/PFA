@@ -3,27 +3,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-// MVC path: controllers should provide $users, $books, $posts, $quests.
-// Legacy fallback: if not provided, load from DB here (kept temporarily for compatibility).
-if (!isset($users, $books, $posts, $quests)) {
-    include("config/database.php");
-
-    $stmt = $cnx->query("SELECT * FROM users ORDER BY id DESC");
-    $users = $stmt->fetchAll();
-
-    $stmtBooks = $cnx->query("SELECT * FROM books ORDER BY id DESC");
-    $books = $stmtBooks->fetchAll();
-
-    $stmtPosts = $cnx->query("SELECT * FROM posts ORDER BY id DESC");
-    $posts = $stmtPosts->fetchAll();
-
-    try {
-        $stmtQuests = $cnx->query("SELECT * FROM quests ORDER BY sort_order ASC, id ASC");
-        $quests = $stmtQuests->fetchAll();
-    } catch (Throwable $e) {
-        $quests = [];
-    }
-}
+$users = $users ?? [];
+$books = $books ?? [];
+$posts = $posts ?? [];
+$quests = $quests ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
