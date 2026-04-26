@@ -629,6 +629,25 @@ class UserApiController extends Controller
         $this->json(['success' => true, 'data' => $window]);
     }
 
+    // ── GET /api/leaderboard/search?q=... ───────────────────────────────────────
+    public function searchLeaderboard(): void
+    {
+        $this->requireAuth();
+        $q = trim((string)($_GET['q'] ?? ''));
+        if ($q === '') {
+            $this->json(['success' => false, 'message' => 'Search query is required.'], 400);
+        }
+        $targetUserId = UserModel::findLeaderboardUserIdByName($q);
+        if (!$targetUserId) {
+            $this->json(['success' => false, 'message' => 'User not found in leaderboard.'], 404);
+        }
+        $window = UserModel::relativeLeaderboard($targetUserId, 4, 2);
+        if ($window === null) {
+            $this->json(['success' => false, 'message' => 'Leaderboard not available.'], 404);
+        }
+        $this->json(['success' => true, 'data' => $window]);
+    }
+
     // ── GET /api/user/preferences/categories ───────────────────────────────────
     public function getCategoryPreferences(): void
     {

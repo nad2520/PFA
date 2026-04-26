@@ -145,6 +145,10 @@ return function (Router $router): void {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->myLeaderboard();
     });
+    $router->get('/api/leaderboard/search', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->searchLeaderboard();
+    });
     $router->get('/api/user/preferences/categories', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->getCategoryPreferences();

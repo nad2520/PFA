@@ -174,11 +174,20 @@
       let book = null;
       if (row.book && Number(row.book.id) === bid) {
         const raw = row.book;
+        const rawGenres = Array.isArray(raw.genres) ? raw.genres : [];
+        const cleanedGenres = rawGenres
+          .map(function (g) { return String(g || "").trim(); })
+          .filter(function (g) { return g !== ""; });
+        const fallbackGenre = String(raw.genre || "").trim();
         book = {
           id: bid,
           title: String(raw.title || ""),
           author: String(raw.author || ""),
+          publicationYear: Number(raw.publicationYear || raw.publication_year || 0),
           genre: String(raw.genre || ""),
+          genres: cleanedGenres.length > 0
+            ? cleanedGenres
+            : (fallbackGenre ? [fallbackGenre] : []),
           trending: !!raw.trending,
           description: String(raw.description || ""),
           audience: String(raw.audience || "All"),

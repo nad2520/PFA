@@ -193,36 +193,47 @@ class UserModel
         try {
             $pdo = Database::pdo();
             $hasReadingProgress = self::tableExists('reading_progress');
-            if ($hasReadingProgress) {
-                $stmt = $pdo->prepare(
-                    'SELECT ub.book_id, ub.status,
-                            GREATEST(COALESCE(ub.progress_page, 0), COALESCE(rp.last_page, 0)) AS progress_page,
-                            ub.rating, ub.completed_at,
-                            b.id AS bid, b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward,
-                            b.audience, b.trending, b.description
-                     FROM user_books ub
-                     INNER JOIN books b ON b.id = ub.book_id
-                     LEFT JOIN reading_progress rp ON rp.user_id = ub.user_id AND rp.book_id = ub.book_id
-                     WHERE ub.user_id = ?
-                     ORDER BY ub.id DESC'
-                );
-            } else {
-                $stmt = $pdo->prepare(
-                    'SELECT ub.book_id, ub.status,
-                            COALESCE(ub.progress_page, 0) AS progress_page,
-                            ub.rating, ub.completed_at,
-                            b.id AS bid, b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward,
-                            b.audience, b.trending, b.description
-                     FROM user_books ub
-                     INNER JOIN books b ON b.id = ub.book_id
-                     WHERE ub.user_id = ?
-                     ORDER BY ub.id DESC'
-                );
-            }
+            $hasBookGenres = self::tableExists('book_genres');
+            $progressExpr = $hasReadingProgress
+                ? 'GREATEST(COALESCE(ub.progress_page, 0), COALESCE(rp.last_page, 0))'
+                : 'COALESCE(ub.progress_page, 0)';
+            $readingJoin = $hasReadingProgress
+                ? 'LEFT JOIN reading_progress rp ON rp.user_id = ub.user_id AND rp.book_id = ub.book_id'
+                : '';
+            $genresSelect = $hasBookGenres
+                ? ", GROUP_CONCAT(DISTINCT bg.genre_name ORDER BY bg.genre_name SEPARATOR '||') AS genres_csv"
+                : ", '' AS genres_csv";
+            $genresJoin = $hasBookGenres
+                ? 'LEFT JOIN book_genres bg ON bg.book_id = b.id'
+                : '';
+            $groupBy = $hasBookGenres
+                ? 'GROUP BY ub.book_id, ub.status, ub.progress_page, ub.rating, ub.completed_at, b.id, b.title, b.author, b.publication_year, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward, b.audience, b.trending, b.description'
+                : '';
+
+            $stmt = $pdo->prepare(
+                "SELECT ub.book_id, ub.status,
+                        {$progressExpr} AS progress_page,
+                        ub.rating, ub.completed_at,
+                        b.id AS bid, b.title, b.author, b.publication_year, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward,
+                        b.audience, b.trending, b.description
+                        {$genresSelect}
+                 FROM user_books ub
+                 INNER JOIN books b ON b.id = ub.book_id
+                 {$readingJoin}
+                 {$genresJoin}
+                 WHERE ub.user_id = ?
+                 {$groupBy}
+                 ORDER BY ub.id DESC"
+            );
             $stmt->execute([$userId]);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $out = [];
             foreach ($rows as $row) {
+                $genresCsv = (string)($row['genres_csv'] ?? '');
+                $genres = array_values(array_filter(array_map('trim', explode('||', $genresCsv))));
+                if (count($genres) === 0 && !empty($row['genre'])) {
+                    $genres = [(string)$row['genre']];
+                }
                 $out[] = [
                     'book_id'       => (int)$row['book_id'],
                     'status'        => self::statusToFrontend((string)$row['status']),
@@ -233,7 +244,9 @@ class UserModel
                         'id'         => (int)$row['bid'],
                         'title'      => $row['title'],
                         'author'     => $row['author'],
+                        'publicationYear' => (int)($row['publication_year'] ?? 0),
                         'genre'      => $row['genre'],
+                        'genres'     => $genres,
                         'cover'      => $row['cover'],
                         'coinCost'   => (int)$row['coinCost'],
                         'xpReward'   => (int)$row['xpReward'],
@@ -662,6 +675,34 @@ class UserModel
                 'rank' => $rank,
                 'window' => $rows,
             ];
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    public static function findLeaderboardUserIdByName(string $name): ?int
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return null;
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'SELECT u.id
+                 FROM users u
+                 WHERE u.nom LIKE ?
+                 ORDER BY
+                   CASE WHEN LOWER(u.nom) = LOWER(?) THEN 0 ELSE 1 END,
+                   u.xp DESC, u.coins DESC, u.id ASC
+                 LIMIT 1'
+            );
+            $stmt->execute(['%' . $name . '%', $name]);
+            $id = $stmt->fetchColumn();
+            if ($id === false) {
+                return null;
+            }
+            return (int)$id;
         } catch (PDOException $e) {
             return null;
         }

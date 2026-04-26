@@ -60,7 +60,13 @@ $lxBook = [
     'alreadyCompleted' => $alreadyCompleted,
 ];
 $lxBookJson = json_encode($lxBook, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-$lxSessionJson = json_encode(['csrfToken' => $csrfToken], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+$lxUserCoins = isset($userCoins) ? (int)$userCoins : 0;
+$lxUserLevel = isset($userLevel) ? max(1, (int)$userLevel) : 1;
+$lxSessionJson = json_encode([
+    'csrfToken' => $csrfToken,
+    'userCoins' => $lxUserCoins,
+    'userLevel' => $lxUserLevel,
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 require_once __DIR__ . '/_lx_public_urls.php';
 ?>
 <!DOCTYPE html>

@@ -9,7 +9,6 @@ const {
     genreCovers,
     genreColors,
     genres,
-    mockUser,
     communityPosts,
 } = LX;
 
@@ -19,6 +18,11 @@ let books = Array.isArray(LX.books) ? LX.books.slice() : [];
 let bookPrices = { ...(LX.bookPrices || {}) };
 
 const LX_API_BASE = '/PFA';
+const LX_SESSION = (typeof window !== 'undefined' && window.LX_SESSION) ? window.LX_SESSION : {};
+const lxProfileRuntime = {
+    coins: Number.isFinite(Number(LX_SESSION.userCoins)) ? Number(LX_SESSION.userCoins) : null,
+    level: Number.isFinite(Number(LX_SESSION.userLevel)) ? Number(LX_SESSION.userLevel) : null,
+};
 
 function lxMapCatalogApiRow(row) {
     const rowGenres = Array.isArray(row.genres)
@@ -402,11 +406,9 @@ function initLampOfKnowledgeSection() {
     const lampDot = document.getElementById('lampDot');
     const statusEl = document.getElementById('lampStatus');
     const lumoThumb = document.getElementById('lumoThumbLamp');
-    const coinEl = document.getElementById('coinCount');
-
     if (!slider) return;
 
-    let coins = mockUser.coins;
+    const baseCoins = lxProfileRuntime.coins != null ? lxProfileRuntime.coins : 0;
     let penaltyApplied = false;
 
     function update() {
@@ -429,18 +431,15 @@ function initLampOfKnowledgeSection() {
         }
 
         const isWorried = h >= 18;
-        const level = mockUser.level;
+        const level = lxProfileRuntime.level != null ? lxProfileRuntime.level : 1;
         const penPct = level <= 5 ? 10 : level <= 15 ? 30 : level <= 25 ? 50 : 70;
 
         let lostThisStep = 0;
         if (state === 'dark' && !penaltyApplied) {
-            lostThisStep = Math.floor(coins * (penPct / 100));
-            coins = Math.max(0, coins - lostThisStep);
+            lostThisStep = Math.floor(baseCoins * (penPct / 100));
             penaltyApplied = true;
         }
         if (state !== 'dark' && penaltyApplied) penaltyApplied = false;
-
-        if (coinEl) coinEl.textContent = coins.toLocaleString();
 
         if (statusEl) {
             if (state === 'dark') {
@@ -1194,6 +1193,12 @@ window.LX_applyProfileStats = function (o) {
     if (!o) return;
     const coins = o.coins != null ? o.coins : o.newCoins;
     const level = o.level != null ? o.level : o.newLevel;
+    if (coins != null && Number.isFinite(Number(coins))) {
+        lxProfileRuntime.coins = Number(coins);
+    }
+    if (level != null && Number.isFinite(Number(level))) {
+        lxProfileRuntime.level = Number(level);
+    }
     if (o.name) {
         window.__lxProfileName = o.name;
         const nm = String(o.name);
@@ -1363,7 +1368,7 @@ function initProfile() {
     if (window.LX_applyReadingRing) {
         window.LX_applyReadingRing({
             totalReadingHours: 0,
-            dailyReadingGoalHours: (mockUser && mockUser.dailyReadingGoal) || 4,
+            dailyReadingGoalHours: 4,
         });
     }
 
@@ -1443,11 +1448,12 @@ function initProfile() {
                 libPre.innerHTML = html;
                 if (listPre) listPre.innerHTML = html;
             }
-            initScholarsMap(mockUser.level);
+            initScholarsMap(lxProfileRuntime.level != null ? lxProfileRuntime.level : 1);
             const coinEl = document.getElementById('profileCoins');
             const coinHead = document.getElementById('coinCount');
-            if (coinEl) coinEl.textContent = mockUser.coins.toLocaleString();
-            if (coinHead) coinHead.textContent = mockUser.coins.toLocaleString();
+            const fallbackCoins = lxProfileRuntime.coins != null ? lxProfileRuntime.coins : 0;
+            if (coinEl) coinEl.textContent = fallbackCoins.toLocaleString();
+            if (coinHead) coinHead.textContent = fallbackCoins.toLocaleString();
         }
 
         if (document.getElementById('bookDetailMain')) {
@@ -1537,24 +1543,24 @@ function initProfile() {
 
         const myLbRoot = document.getElementById('profileLeaderboardRows');
         const myLbRank = document.getElementById('profileLeaderboardRank');
+        const myLbSearchInput = document.getElementById('leaderboardSearchInput');
+        const myLbSearchBtn = document.getElementById('leaderboardSearchBtn');
+        const myLbResetBtn = document.getElementById('leaderboardSearchResetBtn');
+        const myLbSearchMsg = document.getElementById('leaderboardSearchMsg');
         if (myLbRoot) {
             const escLb = (s) => String(s ?? '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/"/g, '&quot;');
-            try {
-                const lb = await lxApi('/api/leaderboard/me', 'GET');
-                const data = lb.data || {};
-                const rk = data.rank != null && data.rank !== '' ? `#${data.rank}` : '—';
-                if (myLbRank) myLbRank.textContent = rk;
-                const rows = Array.isArray(data.window) ? data.window : [];
-                if (rows.length === 0) {
+            const renderLbRows = (rows) => {
+                if (!Array.isArray(rows) || rows.length === 0) {
                     myLbRoot.innerHTML = `
                     <tr class="profile-lb-table__empty">
                       <td colspan="5">No leaderboard window yet. Keep reading to climb the ranks.</td>
                     </tr>`;
-                } else {
-                    myLbRoot.innerHTML = rows.map(r => `
+                    return;
+                }
+                myLbRoot.innerHTML = rows.map(r => `
                     <tr class="profile-lb-table__row${r.isCurrentUser ? ' profile-lb-table__row--you' : ''}">
                       <td class="profile-lb-table__cell--rank"><span class="profile-lb-table__rank">#${r.rank}</span></td>
                       <td><span class="profile-lb-table__name">${escLb(r.nom)}</span></td>
@@ -1562,13 +1568,76 @@ function initProfile() {
                       <td class="profile-lb-table__cell-num">${Number(r.books_read || 0).toLocaleString()}</td>
                       <td class="profile-lb-table__cell-num"><span class="profile-lb-table__level">Lv.${Number(r.level || 1)}</span></td>
                     </tr>`).join('');
-                }
+            };
+            const setLbMsg = (text, isError = false) => {
+                if (!myLbSearchMsg) return;
+                myLbSearchMsg.textContent = text || '';
+                myLbSearchMsg.style.color = isError ? 'var(--destructive)' : 'var(--muted-foreground)';
+            };
+            let myRankData = null;
+            const loadMyLb = async () => {
+                const lb = await lxApi('/api/leaderboard/me', 'GET');
+                const data = lb.data || {};
+                myRankData = data;
+                const rk = data.rank != null && data.rank !== '' ? `#${data.rank}` : '—';
+                if (myLbRank) myLbRank.textContent = rk;
+                renderLbRows(Array.isArray(data.window) ? data.window : []);
+            };
+            try {
+                await loadMyLb();
             } catch (_) {
                 if (myLbRank) myLbRank.textContent = '—';
                 myLbRoot.innerHTML = `
                     <tr class="profile-lb-table__empty">
                       <td colspan="5">Leaderboard could not be loaded.</td>
                     </tr>`;
+            }
+
+            const searchLeaderboardUser = async () => {
+                const q = (myLbSearchInput?.value || '').trim();
+                if (!q) {
+                    setLbMsg('Enter a reader name to search.', true);
+                    return;
+                }
+                try {
+                    const lb = await lxApi(`/api/leaderboard/search?q=${encodeURIComponent(q)}`, 'GET');
+                    const data = lb.data || {};
+                    const rk = data.rank != null && data.rank !== '' ? `#${data.rank}` : '—';
+                    if (myLbRank) myLbRank.textContent = rk;
+                    renderLbRows(Array.isArray(data.window) ? data.window : []);
+                    setLbMsg(`Showing ranking around "${q}".`);
+                } catch (e) {
+                    setLbMsg((e && e.message) ? String(e.message) : 'User not found in leaderboard.', true);
+                }
+            };
+
+            if (myLbSearchBtn) {
+                myLbSearchBtn.addEventListener('click', () => { searchLeaderboardUser(); });
+            }
+            if (myLbSearchInput) {
+                myLbSearchInput.addEventListener('keydown', (ev) => {
+                    if (ev.key === 'Enter') {
+                        ev.preventDefault();
+                        searchLeaderboardUser();
+                    }
+                });
+            }
+            if (myLbResetBtn) {
+                myLbResetBtn.addEventListener('click', async () => {
+                    if (myLbSearchInput) myLbSearchInput.value = '';
+                    setLbMsg('');
+                    if (myRankData) {
+                        const rk = myRankData.rank != null && myRankData.rank !== '' ? `#${myRankData.rank}` : '—';
+                        if (myLbRank) myLbRank.textContent = rk;
+                        renderLbRows(Array.isArray(myRankData.window) ? myRankData.window : []);
+                        return;
+                    }
+                    try {
+                        await loadMyLb();
+                    } catch (_) {
+                        if (myLbRank) myLbRank.textContent = '—';
+                    }
+                });
             }
         }
     })();

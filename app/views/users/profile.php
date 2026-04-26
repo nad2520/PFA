@@ -7,6 +7,8 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrfToken = (string)$_SESSION['csrf_token'];
 $lxUserName = isset($_SESSION['user_name']) ? (string)$_SESSION['user_name'] : 'Reader';
+$lxUserCoins = isset($userCoins) ? (int)$userCoins : 0;
+$lxUserLevel = isset($userLevel) ? max(1, (int)$userLevel) : 1;
 $lxUserNameEsc = htmlspecialchars($lxUserName, ENT_QUOTES, 'UTF-8');
 $parts = preg_split('/\s+/', trim($lxUserName));
 $lxInitials = '';
@@ -41,7 +43,11 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
         content="Your Lexora reading profile  track progress, view your library, and explore the Scholar's Map.">
     <link rel="stylesheet" href="<?= htmlspecialchars(lx_main_css_href(), ENT_QUOTES, 'UTF-8') ?>">
     <script>
-      window.LX_SESSION = { csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>" };
+      window.LX_SESSION = {
+        csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>",
+        userCoins: <?= $lxUserCoins ?>,
+        userLevel: <?= $lxUserLevel ?>
+      };
       window.__lxBootstrapUser = <?= json_encode(['name' => $lxUserName, 'initials' => $lxInitials], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
       window.__lxLibrary = <?= json_encode($library ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
     </script>
@@ -80,7 +86,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
               <p id="hoverCardUserName" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700"><?= $lxUserNameEsc ?></p>
               <p id="hoverLevelBadge"
                 style="font-family:'Press Start 2P';font-size:.5rem;color:var(--primary);letter-spacing:.05em;margin-top:.25rem">
-                LVL 1</p>
+                LVL <?= $lxUserLevel ?></p>
             </div>
             <div class="coins-badge">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor"
@@ -89,7 +95,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <path d="M12 17h.01" />
               </svg>
-              <span id="coinCount">0</span> COINS
+              <span id="coinCount"><?= number_format($lxUserCoins) ?></span> COINS
             </div>
           </div>
         </div>
@@ -133,7 +139,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 </svg>
                             </div>
                             <span id="profileCoins" class="font-display"
-                                style="font-size:1.1rem;font-weight:700">0</span>
+                                style="font-size:1.1rem;font-weight:700"><?= number_format($lxUserCoins) ?></span>
                             <span style="font-size:.875rem;color:var(--muted-foreground)">Coins</span>
                         </div>
                         <!-- Books Read -->
@@ -170,7 +176,6 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                         <li>Quest complete → <strong>XP + Coins reward</strong></li>
                     </ul>
                     <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-                        <button type="button" class="btn-primary" id="claimQuestRewardBtn">Claim Quest Reward</button>
                         <span id="coinSystemMsg" style="color:var(--muted-foreground);font-size:.9rem"></span>
                     </div>
                 </div>
@@ -215,7 +220,6 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
             <section class="lamp-of-knowledge" aria-labelledby="my-library-heading">
                 <div class="lamp-card-head">
                     <h2 id="my-library-heading" class="font-display lamp-card-title">My Library</h2>
-                    <p style="margin:0;color:var(--muted-foreground);font-size:.9rem">Books you added from the book detail page appear here.</p>
                 </div>
                 <div class="lamp-card-body" style="display:block">
                     <div id="libraryGrid" class="book-grid" aria-live="polite">
@@ -227,6 +231,15 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 $bookTitle = htmlspecialchars((string)($book['title'] ?? 'Untitled Book'), ENT_QUOTES, 'UTF-8');
                                 $bookAuthor = htmlspecialchars((string)($book['author'] ?? 'Unknown Author'), ENT_QUOTES, 'UTF-8');
                                 $bookGenre = htmlspecialchars((string)($book['genre'] ?? 'General'), ENT_QUOTES, 'UTF-8');
+                                $bookPublicationYear = (int)($book['publicationYear'] ?? $book['publication_year'] ?? 0);
+                                $bookGenresRaw = $book['genres'] ?? [];
+                                $bookGenres = is_array($bookGenresRaw)
+                                    ? array_values(array_filter(array_map(static fn($g) => trim((string)$g), $bookGenresRaw)))
+                                    : [];
+                                if (count($bookGenres) === 0) {
+                                    $fallbackGenre = trim((string)($book['genre'] ?? ''));
+                                    $bookGenres = $fallbackGenre !== '' ? [$fallbackGenre] : ['General'];
+                                }
                                 $status = strtolower((string)($entry['status'] ?? 'reading'));
                                 $badgeClass = $status === 'completed' ? 'completed' : 'reading';
                                 $badgeText = $status === 'completed' ? '✓ DONE' : 'READING';
@@ -237,7 +250,14 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                         <span class="status-badge <?= htmlspecialchars($badgeClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($badgeText, ENT_QUOTES, 'UTF-8') ?></span>
                                         <h3 class="line-clamp-1"><?= $bookTitle ?></h3>
                                         <p class="line-clamp-1"><?= $bookAuthor ?></p>
-                                        <span class="genre-tag"><?= $bookGenre ?></span>
+                                        <?php if ($bookPublicationYear > 0): ?>
+                                            <p class="book-pub-year">Published: <?= (int)$bookPublicationYear ?></p>
+                                        <?php endif; ?>
+                                        <div class="genre-tags-wrap">
+                                            <?php foreach ($bookGenres as $genreLabel): ?>
+                                                <span class="genre-tag"><?= htmlspecialchars($genreLabel, ENT_QUOTES, 'UTF-8') ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -257,7 +277,6 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
             <section class="lamp-of-knowledge" aria-labelledby="my-list-heading">
                 <div class="lamp-card-head">
                     <h2 id="my-list-heading" class="font-display lamp-card-title">My List</h2>
-                    <p style="margin:0;color:var(--muted-foreground);font-size:.9rem">Books you save for later appear here.</p>
                 </div>
                 <div class="lamp-card-body" style="display:block">
                     <div id="planGrid" class="book-grid" aria-live="polite">
@@ -269,6 +288,15 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 $bookTitle = htmlspecialchars((string)($book['title'] ?? 'Untitled Book'), ENT_QUOTES, 'UTF-8');
                                 $bookAuthor = htmlspecialchars((string)($book['author'] ?? 'Unknown Author'), ENT_QUOTES, 'UTF-8');
                                 $bookGenre = htmlspecialchars((string)($book['genre'] ?? 'General'), ENT_QUOTES, 'UTF-8');
+                                $bookPublicationYear = (int)($book['publicationYear'] ?? $book['publication_year'] ?? 0);
+                                $bookGenresRaw = $book['genres'] ?? [];
+                                $bookGenres = is_array($bookGenresRaw)
+                                    ? array_values(array_filter(array_map(static fn($g) => trim((string)$g), $bookGenresRaw)))
+                                    : [];
+                                if (count($bookGenres) === 0) {
+                                    $fallbackGenre = trim((string)($book['genre'] ?? ''));
+                                    $bookGenres = $fallbackGenre !== '' ? [$fallbackGenre] : ['General'];
+                                }
                                 $detailHref = 'index.php?view=book-detail&id=' . $bookId;
                                 ?>
                                 <div class="book-card-static" role="link" data-book-id="<?= $bookId ?>" style="cursor:pointer" onclick="window.location.href='<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8') ?>'">
@@ -276,7 +304,14 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                         <span class="status-badge plan">PLAN</span>
                                         <h3 class="line-clamp-1"><?= $bookTitle ?></h3>
                                         <p class="line-clamp-1"><?= $bookAuthor ?></p>
-                                        <span class="genre-tag"><?= $bookGenre ?></span>
+                                        <?php if ($bookPublicationYear > 0): ?>
+                                            <p class="book-pub-year">Published: <?= (int)$bookPublicationYear ?></p>
+                                        <?php endif; ?>
+                                        <div class="genre-tags-wrap">
+                                            <?php foreach ($bookGenres as $genreLabel): ?>
+                                                <span class="genre-tag"><?= htmlspecialchars($genreLabel, ENT_QUOTES, 'UTF-8') ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -312,6 +347,13 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                         Your rank
                         <span class="profile-leaderboard__rank-badge" id="profileLeaderboardRank">—</span>
                     </p>
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.75rem">
+                        <input id="leaderboardSearchInput" type="text" placeholder="Search reader name..." aria-label="Search reader ranking"
+                            style="flex:1;min-width:220px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid var(--border);background:var(--background);color:var(--foreground)">
+                        <button id="leaderboardSearchBtn" type="button" class="btn-primary" style="padding:.55rem .9rem">Search</button>
+                        <button id="leaderboardSearchResetBtn" type="button" class="btn-outline" style="padding:.55rem .9rem">Reset</button>
+                    </div>
+                    <p id="leaderboardSearchMsg" style="margin:.5rem 0 0;color:var(--muted-foreground);font-size:.85rem"></p>
                 </div>
                 <div class="profile-leaderboard__tablewrap">
                     <table class="profile-lb-table" role="table" aria-label="Reading leaderboard window">

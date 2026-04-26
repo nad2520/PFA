@@ -7,6 +7,8 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrfToken = (string) $_SESSION['csrf_token'];
 $lxUserName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : 'Reader';
+$lxUserCoins = isset($userCoins) ? (int)$userCoins : 0;
+$lxUserLevel = isset($userLevel) ? max(1, (int)$userLevel) : 1;
 $lxUserNameEsc = htmlspecialchars($lxUserName, ENT_QUOTES, 'UTF-8');
 $parts = preg_split('/\s+/', trim($lxUserName));
 $lxInitials = '';
@@ -32,7 +34,11 @@ require_once __DIR__ . '/_lx_public_urls.php';
     content="Read more about this book, see your progress, and join the community discussion on Lexora.">
   <link rel="stylesheet" href="<?= htmlspecialchars(lx_main_css_href(), ENT_QUOTES, 'UTF-8') ?>">
   <script>
-    window.LX_SESSION = { csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>" };
+    window.LX_SESSION = {
+      csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>",
+      userCoins: <?= $lxUserCoins ?>,
+      userLevel: <?= $lxUserLevel ?>
+    };
     window.__lxBootstrapUser = <?= json_encode(['name' => $lxUserName, 'initials' => $lxInitials], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
     window.__lxLibrary = <?= json_encode($library ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
   </script>
@@ -75,7 +81,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
                   <?= $lxUserNameEsc ?></p>
                 <p id="hoverLevelBadge"
                   style="font-family:'Press Start 2P';font-size:.5rem;color:var(--primary);letter-spacing:.05em;margin-top:.25rem">
-                  LVL 1</p>
+                  LVL <?= $lxUserLevel ?></p>
               </div>
               <div class="coins-badge">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor"
@@ -84,7 +90,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
                   <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                   <path d="M12 17h.01" />
                 </svg>
-                <span id="coinCount">0</span> COINS
+                <span id="coinCount"><?= number_format($lxUserCoins) ?></span> COINS
               </div>
             </div>
           </div>
