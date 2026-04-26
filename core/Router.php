@@ -13,36 +13,20 @@ class Router
         $this->routes['POST'][$path] = $handler;
     }
 
-public function dispatch(string $method, string $path): void
-{
-    
+    public function dispatch(string $method, string $path): void
+    {
+        header("Cache-Control: no-cache, no-store, must-revalidate");
+        header("Pragma: no-cache");
+        header("Expires: 0");
 
-    // 🚫 Prevent cache
-    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-    header("Pragma: no-cache");
+        $handler = $this->routes[$method][$path] ?? null;
 
-    // 🔐 Protect certain paths
-    $protectedPaths = [
-        '/user',
-        '/store',
-        '/profile',
-        '/api/user/profile'
-    ];
+        if (!$handler) {
+            http_response_code(404);
+            echo "404 Not Found";
+            return;
+        }
 
-    if (in_array($path, $protectedPaths) && !isset($_SESSION['user_id'])) {
-        header("Location: /index.php");
-        exit();
+        $handler();
     }
-
-    $handler = $this->routes[$method][$path] ?? null;
-
-    if (!$handler) {
-        http_response_code(404);
-        echo "404 Not Found";
-        return;
-    }
-
-    $handler();
 }
-}
-

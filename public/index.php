@@ -17,8 +17,6 @@ $router = new Router();
 $register = require CONFIG_PATH . '/routes.php';
 $register($router);
 
-// Compatibility routing: preserve legacy `?view=` behavior.
-// This keeps existing links working while we migrate to controllers/views.
 $view = $_GET['view'] ?? null;
 if ($view !== null) {
     if ($view === 'admin') {
@@ -36,21 +34,21 @@ if ($view !== null) {
             'store' => $page->store(),
             'book-detail' => $page->bookDetail(),
             'read-book' => $page->readBook(),
-            default => require APP_PATH . '/views/home/index.php',
         };
         exit;
     }
-    require APP_PATH . '/views/home/index.php';
+    http_response_code(404);
+    require APP_PATH . '/views/users/404.php';
     exit;
 }
 
-// Clean-path routing.
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// If hosted at /PFA, strip that base prefix for route matching.
 $basePrefix = '/PFA';
-if (strncmp($path, $basePrefix . '/', strlen($basePrefix) + 1) === 0) {
+if ($path === $basePrefix) {
+    $path = '/';
+} elseif (strncmp($path, $basePrefix . '/', strlen($basePrefix) + 1) === 0) {
     $path = substr($path, strlen($basePrefix));
 }
 

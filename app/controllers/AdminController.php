@@ -9,9 +9,8 @@ class AdminController extends Controller
 {
     public function index(): void
     {
-        session_start();
+        $this->requireAdmin();
 
-        // Optional: basic gate (keeps existing behavior permissive; tighten later if desired).
         $users = UserModel::all();
         $books = BookModel::all();
         $posts = PostModel::all();

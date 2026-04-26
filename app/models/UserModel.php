@@ -3,6 +3,8 @@ require_once __DIR__ . '/../../core/Database.php';
 
 class UserModel
 {
+    public const STARTING_COINS = 1000;
+    public const MIN_PASSWORD_LENGTH = 8;
     /** Shown when userCoins < book coin cost (purchase / unlock). */
     public const MSG_INSUFFICIENT_COINS = 'You cannot buy this book. Try to fulfill your quests or buy coins.';
     /** @var array<string,bool> */
@@ -28,11 +30,108 @@ class UserModel
         return self::$tableExistsCache[$tableName];
     }
 
+    public static function findByEmail(string $email): ?array
+    {
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
+            $stmt->execute([$email]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    public static function emailExists(string $email, ?int $excludeId = null): bool
+    {
+        try {
+            $pdo = Database::pdo();
+            if ($excludeId !== null && $excludeId > 0) {
+                $stmt = $pdo->prepare('SELECT 1 FROM users WHERE email = ? AND id <> ? LIMIT 1');
+                $stmt->execute([$email, $excludeId]);
+            } else {
+                $stmt = $pdo->prepare('SELECT 1 FROM users WHERE email = ? LIMIT 1');
+                $stmt->execute([$email]);
+            }
+            return (bool)$stmt->fetchColumn();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public static function create(
+        string $name,
+        string $email,
+        string $passwordHash,
+        string $role,
+        ?string $birthdate,
+        int $coins = self::STARTING_COINS
+    ): ?int {
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'INSERT INTO users (nom, email, password, role, birthdate, coins)
+                 VALUES (?, ?, ?, ?, ?, ?)'
+            );
+            $ok = $stmt->execute([$name, $email, $passwordHash, $role, $birthdate, $coins]);
+            if (!$ok) {
+                return null;
+            }
+            return (int)$pdo->lastInsertId();
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    public static function hashPassword(string $plain): string
+    {
+        return password_hash($plain, PASSWORD_DEFAULT);
+    }
+
+    public static function verifyPassword(string $plain, string $storedHash): bool
+    {
+        if ($storedHash === '') {
+            return false;
+        }
+
+        if (password_verify($plain, $storedHash)) {
+            return true;
+        }
+
+        return strlen($storedHash) === 32 && ctype_xdigit($storedHash) && md5($plain) === $storedHash;
+    }
+
+    public static function passwordNeedsRehash(string $storedHash): bool
+    {
+        if ($storedHash === '') {
+            return false;
+        }
+
+        if (strlen($storedHash) === 32 && ctype_xdigit($storedHash)) {
+            return true;
+        }
+
+        return password_needs_rehash($storedHash, PASSWORD_DEFAULT);
+    }
+
+    public static function updatePasswordHash(int $id, string $hash): bool
+    {
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE id = ?');
+            return (bool)$stmt->execute([$hash, $id]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
     public static function all(): array
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query('SELECT * FROM users ORDER BY id DESC');
+            $stmt = $pdo->prepare('SELECT * FROM users ORDER BY id DESC');
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];
@@ -588,7 +687,7 @@ class UserModel
         $limit = max(1, min(50, $limit));
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query(
+            $stmt = $pdo->prepare(
                 'SELECT
                     u.id,
                     u.nom,
@@ -598,12 +697,14 @@ class UserModel
                     COALESCE((
                       SELECT COUNT(*)
                       FROM user_books ub
-                      WHERE ub.user_id = u.id AND ub.status = "completed"
+                     WHERE ub.user_id = u.id AND ub.status = "completed"
                     ), 0) AS books_read
                  FROM users u
                  ORDER BY u.xp DESC, u.coins DESC, u.id ASC
-                 LIMIT ' . (int)$limit
+                 LIMIT ?'
             );
+            $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+            $stmt->execute();
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($rows as $idx => &$row) {
                 $row['rank'] = $idx + 1;
@@ -627,7 +728,7 @@ class UserModel
         $below = max(0, $below);
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query(
+            $stmt = $pdo->prepare(
                 'SELECT
                     u.id,
                     u.nom,
@@ -642,6 +743,7 @@ class UserModel
                  FROM users u
                  ORDER BY u.xp DESC, u.coins DESC, u.id ASC'
             );
+            $stmt->execute();
             $allRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $rank = 0;
             foreach ($allRows as $idx => $row) {
@@ -713,11 +815,12 @@ class UserModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query(
+            $stmt = $pdo->prepare(
                 'SELECT DISTINCT genre FROM books
                  WHERE genre IS NOT NULL AND TRIM(genre) <> ""
                  ORDER BY genre ASC'
             );
+            $stmt->execute();
             $rows = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
             return array_values(array_filter(array_map(static fn($g) => trim((string)$g), $rows)));
         } catch (PDOException $e) {

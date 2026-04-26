@@ -62,7 +62,7 @@ class UserPageController extends Controller
         $book = $bookId > 0 ? BookModel::findById($bookId) : null;
 
         if (!$book) {
-            $this->redirect('index.php?view=store');
+            $this->redirect('store');
         }
 
         // Record today's reading session start
@@ -81,6 +81,7 @@ class UserPageController extends Controller
 
         if (!$row) {
             // Session is stale — force logout
+            session_unset();
             session_destroy();
             $this->redirect('/PFA/');
         }

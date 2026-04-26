@@ -2,28 +2,18 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
-
-// MVC path: controllers should provide $users, $books, $posts, $quests.
-// Legacy fallback: if not provided, load from DB here (kept temporarily for compatibility).
-if (!isset($users, $books, $posts, $quests)) {
-    include("config/database.php");
-
-    $stmt = $cnx->query("SELECT * FROM users ORDER BY id DESC");
-    $users = $stmt->fetchAll();
-
-    $stmtBooks = $cnx->query("SELECT * FROM books ORDER BY id DESC");
-    $books = $stmtBooks->fetchAll();
-
-    $stmtPosts = $cnx->query("SELECT * FROM posts ORDER BY id DESC");
-    $posts = $stmtPosts->fetchAll();
-
-    try {
-        $stmtQuests = $cnx->query("SELECT * FROM quests ORDER BY sort_order ASC, id ASC");
-        $quests = $stmtQuests->fetchAll();
-    } catch (Throwable $e) {
-        $quests = [];
-    }
+if (empty($_SESSION['user_id']) || (string)($_SESSION['user_role'] ?? '') !== 'admin') {
+    header("Location: /PFA/");
+    exit();
 }
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+$users = $users ?? [];
+$books = $books ?? [];
+$posts = $posts ?? [];
+$quests = $quests ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,6 +24,11 @@ if (!isset($users, $books, $posts, $quests)) {
     <title>Lexora Admin Kingdom Management</title>
     <link rel="stylesheet" href="public/assets/css/admin/main.css">
     <link rel="stylesheet" href="public/assets/css/admin/admin.css">
+    <script>
+        window.LX_REQUIRED_ROLE = 'admin';
+        document.documentElement.style.visibility = 'hidden';
+    </script>
+    <script src="public/assets/js/session_guard.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>

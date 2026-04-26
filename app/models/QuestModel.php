@@ -34,7 +34,8 @@ class QuestModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query('SELECT * FROM quests ORDER BY sort_order ASC, id ASC');
+            $stmt = $pdo->prepare('SELECT * FROM quests ORDER BY sort_order ASC, id ASC');
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Throwable) {
             return [];
@@ -71,12 +72,13 @@ class QuestModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->query(
+            $stmt = $pdo->prepare(
                 'SELECT quest_key, title, description, coins_reward, xp_reward, quest_type, target_value
                  FROM quests
                  WHERE is_active = 1
                  ORDER BY sort_order ASC, id ASC'
             );
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Throwable) {
             return [];

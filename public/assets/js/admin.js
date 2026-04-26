@@ -50,6 +50,13 @@ const ADMIN_DATA = {
     ],
 };
 
+window.addEventListener('pageshow', (ev) => {
+    const navEntry = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+    if (ev.persisted || (navEntry && navEntry.type === 'back_forward')) {
+        window.location.reload();
+    }
+});
+
 const AdminState = {
     activeSection: "dashboard",
     sidebarOpen: true,

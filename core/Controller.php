@@ -1,6 +1,40 @@
 <?php
 abstract class Controller
 {
+    protected function invalidateSession(bool $restart = false): void
+    {
+        $this->ensureSession();
+
+        $_SESSION = [];
+        session_unset();
+
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
+
+        session_destroy();
+
+        if ($restart) {
+            session_start();
+        }
+    }
+
+    protected function setNoCacheHeaders(): void
+    {
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+    }
+
     protected function ensureSession(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -14,6 +48,7 @@ abstract class Controller
     protected function requireAuth(): void
     {
         $this->ensureSession();
+        $this->setNoCacheHeaders();
         if (!empty($_SESSION['user_id'])) {
             return;
         }
@@ -21,7 +56,23 @@ abstract class Controller
         if (str_contains($uri, '/api/')) {
             $this->json(['success' => false, 'message' => 'Unauthorized.'], 401);
         }
-        $this->redirect($this->baseUrl() . '/index.php');
+        $this->redirect($this->baseUrl() . '/');
+    }
+
+    protected function requireAdmin(): void
+    {
+        $this->requireAuth();
+        $role = (string)($_SESSION['user_role'] ?? '');
+        if ($role === 'admin') {
+            return;
+        }
+
+        $uri = (string)($_SERVER['REQUEST_URI'] ?? '');
+        if (str_contains($uri, '/api/')) {
+            $this->json(['success' => false, 'message' => 'Forbidden.'], 403);
+        }
+
+        $this->redirect('user');
     }
 
     protected function json(array $payload, int $status = 200): void

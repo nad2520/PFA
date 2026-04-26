@@ -23,7 +23,7 @@ class UserApiController extends Controller
             return self::$hasUserBooksPurchasedAt;
         }
         try {
-            $q = $pdo->query(
+            $q = $pdo->prepare(
                 "SELECT 1
                  FROM information_schema.COLUMNS
                  WHERE TABLE_SCHEMA = DATABASE()
@@ -31,6 +31,7 @@ class UserApiController extends Controller
                    AND COLUMN_NAME = 'purchased_at'
                  LIMIT 1"
             );
+            $q->execute();
             self::$hasUserBooksPurchasedAt = (bool)$q->fetchColumn();
         } catch (\Throwable) {
             self::$hasUserBooksPurchasedAt = false;
