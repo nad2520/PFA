@@ -725,6 +725,40 @@ class UserApiController extends Controller
         ]);
     }
 
+    // ── GET /api/user/recommendations/chatbot ──────────────────────────────────
+    public function chatbotRecommendations(): void
+    {
+        $this->requireAuth();
+        $userId = (int)$_SESSION['user_id'];
+        $limit = (int)($_GET['limit'] ?? 3);
+        $limit = max(3, min(12, $limit));
+        $genreHint = trim((string)($_GET['genre'] ?? ''));
+        $excludeCsv = trim((string)($_GET['exclude_ids'] ?? ''));
+        $excludeIds = [];
+        if ($excludeCsv !== '') {
+            foreach (explode(',', $excludeCsv) as $rawId) {
+                $id = (int)trim($rawId);
+                if ($id > 0) {
+                    $excludeIds[$id] = true;
+                }
+            }
+        }
+
+        $rows = BookModel::personalizedRecommendations(
+            $userId,
+            $limit,
+            $genreHint !== '' ? $genreHint : null,
+            array_map('intval', array_keys($excludeIds))
+        );
+        $this->json([
+            'success' => true,
+            'data' => $rows,
+            'count' => count($rows),
+            'algorithm' => 'dfs_personalized_hybrid',
+            'genreHint' => $genreHint,
+        ]);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
     private function jsonBody(): array
     {

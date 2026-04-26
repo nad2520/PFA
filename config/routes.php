@@ -161,6 +161,10 @@ return function (Router $router): void {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->forYouRecommendations();
     });
+    $router->get('/api/user/recommendations/chatbot', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->chatbotRecommendations();
+    });
 };
 
 

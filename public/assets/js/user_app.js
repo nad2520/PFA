@@ -502,12 +502,84 @@ const LUMO_RESPONSES = {
     help: "I can help you with:\n• 📚 Book recommendations\n• 🪙 How coins & XP work\n• 📖 Reading progress\n• 🗺️ The Reading Kingdom Map\n• 🏪 The Store\n\nJust ask me anything!",
     default: "That's a wonderful question! Ask me about coins, books, the map, or recommendations! 🐻",
 };
+const LUMO_CHAT_REC_STATE = {
+    seenIds: new Set(),
+    lastGenreHint: '',
+};
 
-function getLumoReply(input) {
+function parseGenreFromInput(input) {
+    const normalized = String(input || '').toLowerCase();
+    const knownGenres = Array.isArray(genres) ? genres : [];
+    for (const genre of knownGenres) {
+        const label = String(genre || '').trim();
+        if (!label) continue;
+        const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escaped.toLowerCase()}\\b`, 'i');
+        if (regex.test(normalized)) {
+            return label;
+        }
+    }
+    return '';
+}
+
+async function fetchPersonalizedChatRecommendations(genreHint) {
+    const params = new URLSearchParams();
+    params.set('limit', '3');
+    if (genreHint) params.set('genre', genreHint);
+    if (LUMO_CHAT_REC_STATE.seenIds.size > 0) {
+        params.set('exclude_ids', Array.from(LUMO_CHAT_REC_STATE.seenIds).join(','));
+    }
+    const url = `${LX_API_BASE}/api/user/recommendations/chatbot?${params.toString()}`;
+    const response = await fetch(url, { credentials: 'same-origin' });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success || !Array.isArray(data.data)) {
+        return [];
+    }
+    data.data.forEach((b) => {
+        const id = Number(b?.id || 0);
+        if (id > 0) LUMO_CHAT_REC_STATE.seenIds.add(id);
+    });
+    return data.data;
+}
+
+async function getLumoReply(input) {
     const l = input.toLowerCase();
+    const asksForMore = /\bmore\b|\banother\b|\bnext\b|\bencore\b|\bautre\b/.test(l);
+    const asksForBooks = /book|books|genre|category|what should i read|something to read|i want to read/.test(l);
+    const wantsRecommendations = /recommend|suggest|pick|read next|i want to read|book from|genre|category|like/.test(l) || asksForMore || asksForBooks;
+    if (wantsRecommendations) {
+        const detectedGenre = parseGenreFromInput(l);
+        const genreHint = detectedGenre || (asksForMore ? LUMO_CHAT_REC_STATE.lastGenreHint : '');
+        if (detectedGenre) {
+            LUMO_CHAT_REC_STATE.lastGenreHint = detectedGenre;
+        }
+        try {
+            const recs = await fetchPersonalizedChatRecommendations(genreHint);
+            if (recs.length >= 3) {
+                const titles = recs
+                    .map((b) => String(b.title || '').trim())
+                    .filter(Boolean)
+                    .slice(0, 3);
+                if (titles.length > 0) {
+                    const prefix = asksForMore
+                        ? 'Here are more personalized recommendations for you'
+                        : 'Based on your reading history and preferences, here are some recommendations';
+                    const genrePart = genreHint ? ` in ${genreHint}` : '';
+                    return `${prefix}${genrePart}: 📚 ${titles[0]} 📚 ${titles[1]} 📚 ${titles[2]}`;
+                }
+            }
+            if (genreHint) {
+                return `I could not find 3 fresh ${genreHint} picks yet. Try rating a few books so I can personalize better, then ask again for more recommendations.`;
+            }
+            return 'I need a little more reading history to generate 3 fresh personalized recommendations. Rate completed books and set favorite categories, then ask again.';
+        } catch (_) {
+            return "I couldn't load personalized recommendations right now. Please try again in a moment.";
+        }
+    }
+
     if (/hello|hi|hey|greet/.test(l)) return LUMO_RESPONSES.hello;
     if (/coin|money|currency|cost|price/.test(l)) return LUMO_RESPONSES.coins;
-    if (/book|read|catalog|genre/.test(l)) return LUMO_RESPONSES.books;
+    if (/book|read|catalog|genre/.test(l)) return "Tell me what mood or genre you want, and I'll give you personalized book picks.";
     if (/progress|level|xp|streak/.test(l)) return LUMO_RESPONSES.progress;
     if (/map|kingdom|region|world/.test(l)) return LUMO_RESPONSES.map;
     if (/recommend|suggest|pick/.test(l)) return LUMO_RESPONSES.recommend;
@@ -551,8 +623,9 @@ function initChatbot() {
         appendMsg('user', val);
         input.value = '';
         sendBtn.disabled = true;
-        setTimeout(() => {
-            appendMsg('lumo', getLumoReply(val));
+        setTimeout(async () => {
+            const reply = await getLumoReply(val);
+            appendMsg('lumo', reply);
             sendBtn.disabled = false;
         }, 600);
     }
