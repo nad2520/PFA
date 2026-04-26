@@ -2416,9 +2416,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     initReadBook();
 });
 
-// bfcache restore can bring back an old profile DOM + in-memory shelf; re-sync from the server.
+// Browser back/forward can restore protected pages from BFCache without hitting the server.
+// Force a reload so the server-side session guard decides whether the page is still allowed.
 window.addEventListener('pageshow', (ev) => {
-    if (ev.persisted && document.getElementById('libraryGrid')) {
+    const navEntry = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+    const isHistoryRestore = ev.persisted || (navEntry && navEntry.type === 'back_forward');
+
+    if (isHistoryRestore) {
+        window.location.reload();
+        return;
+    }
+
+    if (document.getElementById('libraryGrid')) {
         initProfile();
     }
 });

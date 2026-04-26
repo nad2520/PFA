@@ -15,8 +15,9 @@ class Router
 
     public function dispatch(string $method, string $path): void
     {
-        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Cache-Control: no-cache, no-store, must-revalidate");
         header("Pragma: no-cache");
+        header("Expires: 0");
 
         $handler = $this->routes[$method][$path] ?? null;
 

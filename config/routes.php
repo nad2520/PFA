@@ -8,14 +8,28 @@
 
 return function (Router $router): void {
     $router->get('/', function () {
-        require APP_PATH . '/views/home/index.php';
+        require APP_PATH . '/controllers/LandingController.php';
+        (new LandingController())->index();
     });
 
     $router->get('/index.php', function () {
-        require APP_PATH . '/views/home/index.php';
+        require APP_PATH . '/controllers/LandingController.php';
+        (new LandingController())->index();
     });
 
     $router->get('/user', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->home();
+    });
+    $router->get('/user/home.php', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->home();
+    });
+    $router->get('/user/index.php', function () {
+        require APP_PATH . '/controllers/UserPageController.php';
+        (new UserPageController())->home();
+    });
+    $router->get('/home/index.php', function () {
         require APP_PATH . '/controllers/UserPageController.php';
         (new UserPageController())->home();
     });
@@ -40,6 +54,10 @@ return function (Router $router): void {
         require APP_PATH . '/controllers/AdminController.php';
         (new AdminController())->index();
     });
+    $router->get('/admin/index.php', function () {
+        require APP_PATH . '/controllers/AdminController.php';
+        (new AdminController())->index();
+    });
 
     $router->post('/auth', function () {
         require APP_PATH . '/controllers/AuthController.php';
@@ -48,6 +66,10 @@ return function (Router $router): void {
     $router->get('/logout', function () {
         require APP_PATH . '/controllers/AuthController.php';
         (new AuthController())->logout();
+    });
+    $router->get('/api/auth/session', function () {
+        require APP_PATH . '/controllers/AuthController.php';
+        (new AuthController())->sessionStatus();
     });
 
     $router->post('/admin/users/update', function () {

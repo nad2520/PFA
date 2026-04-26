@@ -2,6 +2,13 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
+if (empty($_SESSION['user_id'])) {
+    header("Location: /PFA/");
+    exit();
+}
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -42,6 +49,11 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
     <meta name="description"
         content="Your Lexora reading profile  track progress, view your library, and explore the Scholar's Map.">
     <link rel="stylesheet" href="<?= htmlspecialchars(lx_main_css_href(), ENT_QUOTES, 'UTF-8') ?>">
+    <script>
+      window.LX_REQUIRED_ROLE = 'user';
+      document.documentElement.style.visibility = 'hidden';
+    </script>
+    <script src="<?= htmlspecialchars(lx_public_js_href('assets/js/session_guard.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
     <script>
       window.LX_SESSION = {
         csrfToken: "<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>",

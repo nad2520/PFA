@@ -76,10 +76,14 @@ function setAuthMode(isLogin) {
     }
     if (birthdateInput) {
       birthdateInput.disabled = true;
+      birthdateInput.required = false;
       birthdateInput.value = '';
     }
     if (emailInput) emailInput.required = true;
-    if (passwordInput) passwordInput.required = true;
+    if (passwordInput) {
+      passwordInput.required = true;
+      passwordInput.minLength = 0;
+    }
     submitText.textContent = "Enter the Library";
   } else {
     document.getElementById('auth-action').value = 'signup';
@@ -93,9 +97,15 @@ function setAuthMode(isLogin) {
       usernameInput.disabled = false;
       usernameInput.required = true;
     }
-    if (birthdateInput) birthdateInput.disabled = false;
+    if (birthdateInput) {
+      birthdateInput.disabled = false;
+      birthdateInput.required = true;
+    }
     if (emailInput) emailInput.required = true;
-    if (passwordInput) passwordInput.required = true;
+    if (passwordInput) {
+      passwordInput.required = true;
+      passwordInput.minLength = 8;
+    }
     submitText.textContent = "Start Adventure";
   }
 }
@@ -124,7 +134,26 @@ function setAuthMode(isLogin) {
     }
 
     if (authForm) {
-      // PHP handles the authentication now via standard form submission.
+      authForm.addEventListener('submit', (event) => {
+        const actionInput = document.getElementById('auth-action');
+        const currentAction = actionInput ? actionInput.value : 'login';
+        const currentPassword = passwordInput ? passwordInput.value : '';
+        const birthdate = document.getElementById('birthdate');
+
+        if (currentAction === 'signup') {
+          if (!birthdate || birthdate.value.trim() === '') {
+            event.preventDefault();
+            showAuthMessage('Birthday is required.', true);
+            return;
+          }
+
+          if (currentPassword.length < 8) {
+            event.preventDefault();
+            showAuthMessage('Password must be at least 8 characters long.', true);
+            return;
+          }
+        }
+      });
     }
 
     if (window.lucide) lucide.createIcons();

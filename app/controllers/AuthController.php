@@ -45,6 +45,11 @@ class AuthController extends Controller
             $this->redirectToAuthHome(self::AUTH_MODE_SIGNUP);
         }
 
+        if ($birthdate === '') {
+            $_SESSION['auth_error'] = 'Birthday is required.';
+            $this->redirectToAuthHome(self::AUTH_MODE_SIGNUP);
+        }
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['auth_error'] = 'Please enter a valid email address.';
             $this->redirectToAuthHome(self::AUTH_MODE_SIGNUP);
@@ -56,7 +61,7 @@ class AuthController extends Controller
         }
 
         if (mb_strlen($password) < UserModel::MIN_PASSWORD_LENGTH) {
-            $_SESSION['auth_error'] = 'Password must be at least ' . UserModel::MIN_PASSWORD_LENGTH . ' characters.';
+            $_SESSION['auth_error'] = 'Password must be at least 8 characters long.';
             $this->redirectToAuthHome(self::AUTH_MODE_SIGNUP);
         }
 
@@ -67,17 +72,15 @@ class AuthController extends Controller
 
         $role = 'user';
         $normalizedBirthdate = null;
-        if ($birthdate !== '') {
-            try {
-                $bday = new DateTimeImmutable($birthdate);
-                $today = new DateTimeImmutable('today');
-                $age = $bday->diff($today)->y;
-                $role = ($age < 18) ? 'User -18' : 'User +18';
-                $normalizedBirthdate = $bday->format('Y-m-d');
-            } catch (Exception) {
-                $_SESSION['auth_error'] = 'Birthdate is invalid.';
-                $this->redirectToAuthHome(self::AUTH_MODE_SIGNUP);
-            }
+        try {
+            $bday = new DateTimeImmutable($birthdate);
+            $today = new DateTimeImmutable('today');
+            $age = $bday->diff($today)->y;
+            $role = ($age < 18) ? 'User -18' : 'User +18';
+            $normalizedBirthdate = $bday->format('Y-m-d');
+        } catch (Exception) {
+            $_SESSION['auth_error'] = 'Birthdate is invalid.';
+            $this->redirectToAuthHome(self::AUTH_MODE_SIGNUP);
         }
 
         $userId = UserModel::create(
@@ -144,14 +147,25 @@ class AuthController extends Controller
     public function logout(): void
     {
         $this->ensureSession();
-
-        $_SESSION = [];
-        session_destroy();
-
-        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-        header("Pragma: no-cache");
+        $this->invalidateSession(false);
+        $this->setNoCacheHeaders();
         header('Location: ' . $this->baseUrl() . '/');
         exit();
+    }
+
+    public function sessionStatus(): void
+    {
+        $this->ensureSession();
+        $this->setNoCacheHeaders();
+
+        $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+        $role = (string)($_SESSION['user_role'] ?? '');
+
+        $this->json([
+            'authenticated' => $userId > 0,
+            'userId' => $userId > 0 ? $userId : null,
+            'role' => $role,
+        ]);
     }
 
     private function redirectToAuthHome(string $mode): void

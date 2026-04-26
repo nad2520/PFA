@@ -2,6 +2,13 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
+if (empty($_SESSION['user_id']) || (string)($_SESSION['user_role'] ?? '') !== 'admin') {
+    header("Location: /PFA/");
+    exit();
+}
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 
 $users = $users ?? [];
 $books = $books ?? [];
@@ -17,6 +24,11 @@ $quests = $quests ?? [];
     <title>Lexora Admin Kingdom Management</title>
     <link rel="stylesheet" href="public/assets/css/admin/main.css">
     <link rel="stylesheet" href="public/assets/css/admin/admin.css">
+    <script>
+        window.LX_REQUIRED_ROLE = 'admin';
+        document.documentElement.style.visibility = 'hidden';
+    </script>
+    <script src="public/assets/js/session_guard.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>

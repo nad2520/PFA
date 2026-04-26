@@ -81,6 +81,7 @@ class UserPageController extends Controller
 
         if (!$row) {
             // Session is stale — force logout
+            session_unset();
             session_destroy();
             $this->redirect('/PFA/');
         }

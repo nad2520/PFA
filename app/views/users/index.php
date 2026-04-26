@@ -3,15 +3,15 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
   session_start();
 }
 // 🔐 BLOCK ACCESS if not logged in
-if (!isset($_SESSION['user_id'])) {
-  header("Location: index.php");
+if (empty($_SESSION['user_id'])) {
+  header("Location: /PFA/");
   exit();
 }
 
 // 🚫 PREVENT BACK BUTTON (disable cache)
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
+header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
+header("Expires: 0");
 
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -47,6 +47,11 @@ require_once __DIR__ . '/_lx_public_urls.php';
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&display=swap');
   </style>
   <link rel="stylesheet" href="<?= htmlspecialchars(lx_main_css_href(), ENT_QUOTES, 'UTF-8') ?>">
+  <script>
+    window.LX_REQUIRED_ROLE = 'user';
+    document.documentElement.style.visibility = 'hidden';
+  </script>
+  <script src="<?= htmlspecialchars(lx_public_js_href('assets/js/session_guard.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script>
     window.LX_USER_ROLE = "<?php echo isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user'; ?>";
     window.LX_SESSION = {
