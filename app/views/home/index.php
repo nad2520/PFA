@@ -957,10 +957,6 @@ Home  index.php
             </button>
           </div>
 
-          <div id="forgot-password-link" class="forgot-password-wrapper flex">
-            <button type="button" class="forgot-password-link">Forgot your passphrase?</button>
-          </div>
-
           <?php if (isset($_SESSION['auth_error'])): ?>
             <div id="auth-message" class="auth-message error-text"><?= $_SESSION['auth_error'] ?></div>
             <?php unset($_SESSION['auth_error']); ?>
@@ -977,19 +973,6 @@ Home  index.php
             <span id="submit-text">Enter the Library</span>
           </button>
         </form>
-
-        <!-- Divider -->
-        <div class="divider">
-          <div class="divider-line"></div>
-          <span class="divider-text">OR</span>
-          <div class="divider-line"></div>
-        </div>
-
-        <!-- Social Auth -->
-        <button class="btn-auth btn-auth-secondary btn-auth-full">
-          <i data-lucide="book-open" class="icon-sm"></i>
-          Continue with Google
-        </button>
       </div>
 
       <!-- Footer -->

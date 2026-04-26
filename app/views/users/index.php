@@ -128,7 +128,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
           </svg>
-          <input id="bookSearch" type="text" placeholder="Search by title or author...">
+          <input id="bookSearch" type="text" placeholder="Search by title, author, or year...">
         </div>
       </div>
       <div class="genre-filter">
@@ -199,37 +199,11 @@ require_once __DIR__ . '/_lx_public_urls.php';
         <img src="<?= htmlspecialchars(lx_public_asset('assets/images/lumo-happy.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Lumo the bear" class="animate-breathe">
         <h2> LUMO'S BOUNTY BOARD </h2>
         <p class="sub">Complete these quests to level up and unlock new map regions!</p>
-        <div class="bounty-list">
+        <div class="bounty-list" id="bountyList">
           <div class="bounty-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
             <div>
-              <h3>The Midnight Scholar</h3>
-              <p>Read 20 pages after 11 PM.</p><span class="reward">+200 XP, +50 Coins</span>
-            </div>
-          </div>
-          <div class="bounty-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-            <div>
-              <h3>Genre Explorer</h3>
-              <p>Add a Historical Fiction book to your list.</p><span class="reward">+150 XP, +30 Coins</span>
-            </div>
-          </div>
-          <div class="bounty-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-            <div>
-              <h3>Speed Reader</h3>
-              <p>Finish a book in under 3 days.</p><span class="reward">+500 XP, +100 Coins</span>
+              <h3>Loading quests...</h3>
+              <p>Lumo is preparing your latest bounty board.</p>
             </div>
           </div>
         </div>

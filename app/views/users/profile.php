@@ -25,6 +25,10 @@ $libraryOnlyRows = array_values(array_filter($libraryRows, static function ($row
     $status = strtolower((string)($row['status'] ?? ''));
     return in_array($status, ['reading', 'completed'], true);
 }));
+$planToReadRows = array_values(array_filter($libraryRows, static function ($row): bool {
+    $status = strtolower((string)($row['status'] ?? ''));
+    return in_array($status, ['plan_to_read', 'plan-to-read'], true);
+}));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -163,10 +167,10 @@ $libraryOnlyRows = array_values(array_filter($libraryRows, static function ($row
                     <ul style="display:grid;gap:.5rem;list-style:none;padding:0;margin:0 0 1rem 0">
                         <li>Read 10 pages → <strong>+20 coins</strong></li>
                         <li>Daily streak → <strong>+50 coins</strong></li>
-                        <li>Quest complete → <strong>+200 coins</strong></li>
+                        <li>Quest complete → <strong>XP + Coins reward</strong></li>
                     </ul>
                     <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-                        <button type="button" class="btn-primary" id="claimQuestRewardBtn">Claim Quest Reward (+200)</button>
+                        <button type="button" class="btn-primary" id="claimQuestRewardBtn">Claim Quest Reward</button>
                         <span id="coinSystemMsg" style="color:var(--muted-foreground);font-size:.9rem"></span>
                     </div>
                 </div>
@@ -242,6 +246,45 @@ $libraryOnlyRows = array_values(array_filter($libraryRows, static function ($row
                                 <p class="empty-library-msg">No books yet. Start exploring and add some!</p>
                                 <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">
                                     Books you add from Book Detail will appear here.
+                                </p>
+                                <a href="index.php?view=user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </section>
+
+            <section class="lamp-of-knowledge" aria-labelledby="my-list-heading">
+                <div class="lamp-card-head">
+                    <h2 id="my-list-heading" class="font-display lamp-card-title">My List</h2>
+                    <p style="margin:0;color:var(--muted-foreground);font-size:.9rem">Books you save for later appear here.</p>
+                </div>
+                <div class="lamp-card-body" style="display:block">
+                    <div id="planGrid" class="book-grid" aria-live="polite">
+                        <?php if (count($planToReadRows) > 0): ?>
+                            <?php foreach ($planToReadRows as $entry): ?>
+                                <?php
+                                $book = is_array($entry['book'] ?? null) ? $entry['book'] : [];
+                                $bookId = (int)($book['id'] ?? $entry['book_id'] ?? 0);
+                                $bookTitle = htmlspecialchars((string)($book['title'] ?? 'Untitled Book'), ENT_QUOTES, 'UTF-8');
+                                $bookAuthor = htmlspecialchars((string)($book['author'] ?? 'Unknown Author'), ENT_QUOTES, 'UTF-8');
+                                $bookGenre = htmlspecialchars((string)($book['genre'] ?? 'General'), ENT_QUOTES, 'UTF-8');
+                                $detailHref = 'index.php?view=book-detail&id=' . $bookId;
+                                ?>
+                                <div class="book-card-static" role="link" data-book-id="<?= $bookId ?>" style="cursor:pointer" onclick="window.location.href='<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8') ?>'">
+                                    <div class="card-body">
+                                        <span class="status-badge plan">PLAN</span>
+                                        <h3 class="line-clamp-1"><?= $bookTitle ?></h3>
+                                        <p class="line-clamp-1"><?= $bookAuthor ?></p>
+                                        <span class="genre-tag"><?= $bookGenre ?></span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="empty-library-card">
+                                <p class="empty-library-msg">Your list is empty for now.</p>
+                                <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">
+                                    Use “Add to list” on a book to save it here.
                                 </p>
                                 <a href="index.php?view=user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
                             </div>

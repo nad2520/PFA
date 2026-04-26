@@ -12,16 +12,29 @@ class BooksController extends Controller
     public function catalogBooks(): void
     {
         $rows = BookModel::all();
+        $bookIds = array_map(static function (array $r): int {
+            return (int)($r['id'] ?? 0);
+        }, $rows);
+        $genresMap = BookModel::genresMapByBookIds($bookIds);
+
         usort($rows, static function (array $a, array $b): int {
             return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
         });
         $out = [];
         foreach ($rows as $r) {
+            $id = (int)($r['id'] ?? 0);
+            $legacyGenre = (string)($r['genre'] ?? '');
+            $genres = $genresMap[$id] ?? [];
+            if (!$genres && $legacyGenre !== '') {
+                $genres = [$legacyGenre];
+            }
             $out[] = [
-                'id'          => (int)($r['id'] ?? 0),
+                'id'          => $id,
                 'title'       => (string)($r['title'] ?? ''),
                 'author'      => (string)($r['author'] ?? ''),
-                'genre'       => (string)($r['genre'] ?? ''),
+                'publicationYear' => (int)($r['publication_year'] ?? 0),
+                'genre'       => $legacyGenre,
+                'genres'      => array_values($genres),
                 'cover'       => (string)($r['cover'] ?? '📖'),
                 'trending'    => !empty($r['trending']),
                 'description' => (string)($r['description'] ?? ''),
@@ -43,6 +56,7 @@ class BooksController extends Controller
         $data = [
             'title' => trim((string)$_POST['title']),
             'author' => trim((string)($_POST['author'] ?? '')),
+            'publication_year' => (int)($_POST['publication_year'] ?? 0),
             'genre' => trim((string)($_POST['genre'] ?? '')),
             'cover' => trim((string)($_POST['cover'] ?? '')),
             'coinCost' => (int)($_POST['coinCost'] ?? 0),
@@ -67,6 +81,7 @@ class BooksController extends Controller
         $data = [
             'title' => trim((string)$_POST['title']),
             'author' => trim((string)($_POST['author'] ?? '')),
+            'publication_year' => (int)($_POST['publication_year'] ?? 0),
             'genre' => trim((string)($_POST['genre'] ?? '')),
             'cover' => trim((string)($_POST['cover'] ?? '')),
             'coinCost' => (int)($_POST['coinCost'] ?? 0),

@@ -57,6 +57,11 @@ let activeGenre   = 'All';
 let searchQuery   = '';
 let pendingBookId = null;
 
+function publicationYearValue(book) {
+    const y = Number(book?.publicationYear ?? book?.publication_year ?? 0);
+    return Number.isFinite(y) && y > 0 ? Math.floor(y) : null;
+}
+
 // ── Filter & render ───────────────────────────────────────────────────────────
 function visibleBooks() {
     return ALL_BOOKS.filter(b => {
@@ -64,7 +69,8 @@ function visibleBooks() {
         const q          = searchQuery.toLowerCase();
         const matchSearch = q === ''
             || b.title.toLowerCase().includes(q)
-            || (b.author || '').toLowerCase().includes(q);
+            || (b.author || '').toLowerCase().includes(q)
+            || String(publicationYearValue(b) || '').includes(q);
         // Age-gate
         const matchAge = b.audience === 'All'
             || b.audience === USER_ROLE
@@ -91,6 +97,7 @@ function renderGrid() {
         const affordable = true;
         const coverSrc   = GENRE_COVERS[b.genre] || '';
         const genreStyle = GENRE_CSS[b.genre] || '';
+        const pubYear    = publicationYearValue(b);
         return `
         <div class="book-card" data-book-id="${b.id}">
             <div class="book-cover-wrap" style="position:relative;overflow:hidden;border-radius:.5rem .5rem 0 0">
@@ -111,6 +118,7 @@ function renderGrid() {
                 <p style="font-size:.75rem;color:var(--muted-foreground);margin-bottom:.75rem">
                     ${escHtml(b.author)}
                 </p>
+                ${pubYear ? `<p style="font-size:.72rem;color:var(--muted-foreground);margin:-.35rem 0 .75rem">Published: ${pubYear}</p>` : ''}
                 <div style="display:flex;justify-content:space-between;align-items:center">
                     <span style="font-family:'Press Start 2P';font-size:.6rem;color:var(--primary)">
                         ${b.coinCost} COINS

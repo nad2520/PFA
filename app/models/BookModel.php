@@ -3,6 +3,46 @@ require_once __DIR__ . '/../../core/Database.php';
 
 class BookModel
 {
+    public static function genresMapByBookIds(array $bookIds): array
+    {
+        $bookIds = array_values(array_filter(array_map('intval', $bookIds), static function ($id): bool {
+            return $id > 0;
+        }));
+        if (!$bookIds) {
+            return [];
+        }
+
+        try {
+            $pdo = Database::pdo();
+            $placeholders = implode(',', array_fill(0, count($bookIds), '?'));
+            $stmt = $pdo->prepare(
+                "SELECT book_id, genre_name
+                 FROM book_genres
+                 WHERE book_id IN ($placeholders)
+                 ORDER BY book_id ASC, genre_name ASC"
+            );
+            $stmt->execute($bookIds);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $map = [];
+            foreach ($rows as $row) {
+                $bookId = (int)($row['book_id'] ?? 0);
+                $genre = trim((string)($row['genre_name'] ?? ''));
+                if ($bookId <= 0 || $genre === '') {
+                    continue;
+                }
+                if (!isset($map[$bookId])) {
+                    $map[$bookId] = [];
+                }
+                $map[$bookId][] = $genre;
+            }
+            return $map;
+        } catch (PDOException $e) {
+            // If book_genres doesn't exist yet, fall back gracefully.
+            return [];
+        }
+    }
+
     public static function findById(int $id): ?array
     {
         if ($id <= 0) {
@@ -36,12 +76,13 @@ class BookModel
         try {
             $pdo = Database::pdo();
             $stmt = $pdo->prepare(
-                "INSERT INTO books (title, author, genre, cover, coinCost, xpReward, coinReward, audience, trending)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                "INSERT INTO books (title, author, publication_year, genre, cover, coinCost, xpReward, coinReward, audience, trending)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
             );
             return (bool) $stmt->execute([
                 $data['title'],
                 $data['author'],
+                (int)($data['publication_year'] ?? 0),
                 $data['genre'],
                 $data['cover'] ?? '📖',
                 (int)($data['coinCost'] ?? 0),
@@ -61,12 +102,13 @@ class BookModel
             $pdo = Database::pdo();
             $stmt = $pdo->prepare(
                 "UPDATE books
-                 SET title = ?, author = ?, genre = ?, cover = ?, coinCost = ?, xpReward = ?, coinReward = ?, audience = ?, trending = ?
+                 SET title = ?, author = ?, publication_year = ?, genre = ?, cover = ?, coinCost = ?, xpReward = ?, coinReward = ?, audience = ?, trending = ?
                  WHERE id = ?"
             );
             return (bool) $stmt->execute([
                 $data['title'],
                 $data['author'],
+                (int)($data['publication_year'] ?? 0),
                 $data['genre'],
                 $data['cover'] ?? '📖',
                 (int)($data['coinCost'] ?? 0),

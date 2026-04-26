@@ -765,25 +765,50 @@ class UserModel
         try {
             $pdo = Database::pdo();
             $ph = implode(',', array_fill(0, count($genres), '?'));
-            $sql = "SELECT b.id, b.title, b.author, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward, b.audience, b.trending, b.description
+            $sql = "SELECT
+                        b.id,
+                        b.title,
+                        b.author,
+                        b.publication_year,
+                        b.genre,
+                        b.cover,
+                        b.coinCost,
+                        b.xpReward,
+                        b.coinReward,
+                        b.audience,
+                        b.trending,
+                        b.description,
+                        GROUP_CONCAT(DISTINCT bg_all.genre_name ORDER BY bg_all.genre_name SEPARATOR '||') AS genres_csv
                     FROM books b
-                    WHERE b.genre IN ($ph)
+                    LEFT JOIN book_genres bg_pref ON bg_pref.book_id = b.id
+                    LEFT JOIN book_genres bg_all ON bg_all.book_id = b.id
+                    WHERE (b.genre IN ($ph) OR bg_pref.genre_name IN ($ph))
                       AND NOT EXISTS (
                         SELECT 1 FROM user_books ub
                         WHERE ub.user_id = ? AND ub.book_id = b.id
                       )
+                    GROUP BY b.id, b.title, b.author, b.publication_year, b.genre, b.cover, b.coinCost, b.xpReward, b.coinReward, b.audience, b.trending, b.description
                     ORDER BY b.trending DESC, b.id DESC
                     LIMIT $limit";
             $stmt = $pdo->prepare($sql);
-            $params = array_merge($genres, [$userId]);
+            $params = array_merge($genres, $genres, [$userId]);
             $stmt->execute($params);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
             return array_map(static function (array $r): array {
+                $genresCsv = (string)($r['genres_csv'] ?? '');
+                $genres = array_values(array_filter(array_map('trim', explode('||', $genresCsv)), static function ($g) {
+                    return $g !== '';
+                }));
+                if (count($genres) === 0 && !empty($r['genre'])) {
+                    $genres = [(string)$r['genre']];
+                }
                 return [
                     'id' => (int)($r['id'] ?? 0),
                     'title' => (string)($r['title'] ?? ''),
                     'author' => (string)($r['author'] ?? ''),
+                    'publicationYear' => (int)($r['publication_year'] ?? 0),
                     'genre' => (string)($r['genre'] ?? ''),
+                    'genres' => $genres,
                     'cover' => (string)($r['cover'] ?? '📖'),
                     'coinCost' => (int)($r['coinCost'] ?? 0),
                     'xpReward' => (int)($r['xpReward'] ?? 0),

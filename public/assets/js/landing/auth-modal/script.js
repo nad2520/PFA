@@ -50,9 +50,12 @@ function setAuthMode(isLogin) {
   const authSubtitle = document.getElementById('auth-subtitle');
   const usernameField = document.getElementById('username-field');
   const ageField = document.getElementById('birthdate-field');
-  const forgotPasswordLink = document.getElementById('forgot-password-link');
   const submitText = document.getElementById('submit-text');
   const authMessage = document.getElementById('auth-message');
+  const usernameInput = document.getElementById('username');
+  const birthdateInput = document.getElementById('birthdate');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
 
   if (!tabLogin || !tabSignup) return;
 
@@ -66,8 +69,17 @@ function setAuthMode(isLogin) {
     authSubtitle.textContent = "Enter the library and continue your quest";
     usernameField.classList.add('hidden');
     if (ageField) ageField.classList.add('hidden');
-    forgotPasswordLink.classList.remove('hidden');
-    forgotPasswordLink.classList.add('flex');
+    if (usernameInput) {
+      usernameInput.required = false;
+      usernameInput.disabled = true;
+      usernameInput.value = '';
+    }
+    if (birthdateInput) {
+      birthdateInput.disabled = true;
+      birthdateInput.value = '';
+    }
+    if (emailInput) emailInput.required = true;
+    if (passwordInput) passwordInput.required = true;
     submitText.textContent = "Enter the Library";
   } else {
     document.getElementById('auth-action').value = 'signup';
@@ -77,8 +89,13 @@ function setAuthMode(isLogin) {
     authSubtitle.textContent = "Create your account and explore infinite worlds";
     usernameField.classList.remove('hidden');
     if (ageField) ageField.classList.remove('hidden');
-    forgotPasswordLink.classList.remove('flex');
-    forgotPasswordLink.classList.add('hidden');
+    if (usernameInput) {
+      usernameInput.disabled = false;
+      usernameInput.required = true;
+    }
+    if (birthdateInput) birthdateInput.disabled = false;
+    if (emailInput) emailInput.required = true;
+    if (passwordInput) passwordInput.required = true;
     submitText.textContent = "Start Adventure";
   }
 }
@@ -111,6 +128,7 @@ function setAuthMode(isLogin) {
     }
 
     if (window.lucide) lucide.createIcons();
+    setAuthMode(true);
   });
 })();
 

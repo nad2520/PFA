@@ -111,8 +111,25 @@ const communityPosts = [
 
 // Expose for other scripts (classic scripts do not share const/let across files).
 // `books` / `bookPrices` are bootstrap fallbacks; `user_app.js` replaces them from GET /api/catalog/books.
+const publicationYearsById = {
+  1: 2018, 2: 2020, 3: 2019, 4: 2021, 5: 2017, 6: 2016, 7: 2015, 8: 2022,
+  9: 2020, 10: 2019, 11: 2018, 12: 2023, 13: 2017, 14: 2014, 15: 2021, 16: 2022,
+  17: 2024, 18: 2021, 19: 2020, 20: 2023, 21: 2016, 22: 2019, 23: 2022, 24: 2015,
+  25: 2024, 26: 2018,
+};
+
+const booksWithGenres = books.map((b) => {
+  const g = String(b.genre || '').trim();
+  const id = Number(b.id);
+  return {
+    ...b,
+    publicationYear: Number(b.publicationYear || publicationYearsById[id] || 2000),
+    genres: Array.isArray(b.genres) && b.genres.length ? b.genres : (g ? [g] : []),
+  };
+});
+
 window.__lexora = {
-  books,
+  books: booksWithGenres,
   genreCovers,
   genreColors,
   genres,

@@ -858,6 +858,8 @@ function initAdmin() {
     let targetSection = "dashboard";
     if (params.has("section")) {
         targetSection = params.get("section");
+    } else if (window.location.search.includes("quest")) {
+        targetSection = "quests";
     } else if (window.location.search.includes("book")) {
         targetSection = "books";
     } else if (window.location.search.includes("post") || params.has("tab") && params.get("tab") === "community") {

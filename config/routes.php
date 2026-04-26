@@ -64,6 +64,23 @@ return function (Router $router): void {
         require APP_PATH . '/controllers/PostsController.php';
         (new PostsController())->delete();
     });
+
+    $router->post('/admin/quests/create', function () {
+        require APP_PATH . '/controllers/QuestsController.php';
+        (new QuestsController())->create();
+    });
+    $router->post('/admin/quests/update', function () {
+        require APP_PATH . '/controllers/QuestsController.php';
+        (new QuestsController())->update();
+    });
+    $router->get('/admin/quests/delete', function () {
+        require APP_PATH . '/controllers/QuestsController.php';
+        (new QuestsController())->delete();
+    });
+    $router->post('/admin/quests/delete', function () {
+        require APP_PATH . '/controllers/QuestsController.php';
+        (new QuestsController())->delete();
+    });
     
     $router->get('/api/books/search', function () {
         require_once APP_PATH . '/controllers/BooksController.php';
@@ -103,6 +120,10 @@ return function (Router $router): void {
     $router->get('/api/user/back-to-lecture', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';
         (new UserApiController())->backToLecture();
+    });
+    $router->get('/api/user/quests', function () {
+        require_once APP_PATH . '/controllers/UserApiController.php';
+        (new UserApiController())->getQuests();
     });
     $router->post('/api/user/book/complete', function () {
         require_once APP_PATH . '/controllers/UserApiController.php';

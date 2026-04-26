@@ -62,22 +62,42 @@ input, textarea {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: linear-gradient(180deg, hsla(26, 18%, 16%, 0.52), hsla(24, 16%, 12%, 0.52));
+  border: 1px solid hsla(30, 28%, 24%, 0.35);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary);
+  background: linear-gradient(180deg, hsl(34, 62%, 56%), hsl(24, 48%, 42%));
   border-radius: 999px;
-  border: 2px solid var(--background);
+  border: 2px solid hsl(22, 18%, 11%);
+  box-shadow: inset 0 0 0 1px hsla(39, 90%, 84%, 0.2), 0 3px 10px hsla(25, 55%, 6%, 0.25);
+  transition: background 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: linear-gradient(180deg, hsl(36, 70%, 62%), hsl(26, 55%, 48%));
+  box-shadow: inset 0 0 0 1px hsla(42, 96%, 86%, 0.25), 0 5px 14px hsla(28, 62%, 8%, 0.35);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, hsl(38, 80%, 68%), hsl(28, 62%, 52%));
+  border-color: hsl(24, 22%, 10%);
+  box-shadow: inset 0 0 0 1px hsla(42, 96%, 90%, 0.3), 0 0 0 2px hsla(34, 72%, 58%, 0.22);
+}
+
+::-webkit-scrollbar-corner {
+  background: hsla(24, 16%, 12%, 0.7);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsla(31, 58%, 50%, 0.94) hsla(26, 18%, 16%, 0.52);
 }
 
 .font-display, h1, h2, h3, h4, h5, h6 {
@@ -234,6 +254,19 @@ input, textarea {
   font-size: 0.55rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.genre-tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.book-pub-year {
+  margin: 0.2rem 0 0.45rem;
+  font-size: 0.72rem;
+  color: var(--muted-foreground);
 }
 
 .line-clamp-1 {
@@ -762,9 +795,8 @@ input, textarea {
   display: none;
 }
 .for-you-item {
-  min-width: 220px;
-  max-width: 260px;
-  flex: 0 0 auto;
+  flex: 0 0 240px;
+  width: 240px;
   scroll-snap-align: start;
 }
 .for-you-nav {
@@ -791,7 +823,8 @@ input, textarea {
     display: none;
   }
   .for-you-item {
-    min-width: 180px;
+    flex-basis: 190px;
+    width: 190px;
   }
 }
 
@@ -802,6 +835,10 @@ input, textarea {
   overflow: hidden;
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 23.5rem;
 }
 .catalog-book-card:hover {
   border-color: hsl(38, 75%, 183.3333333333%);
@@ -846,6 +883,7 @@ input, textarea {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
 }
 .catalog-book-card .catalog-book-card__body h3 {
   font-family: "Playfair Display", serif;
@@ -860,15 +898,18 @@ input, textarea {
 }
 .catalog-book-card .catalog-book-card__body .catalog-book-card__footer {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
   padding-top: 0.25rem;
-  margin-top: 0.25rem;
+  margin-top: auto;
   border-top: 1px solid hsl(24, 20%, 28%);
 }
 .catalog-book-card .catalog-book-card__body .catalog-book-card__footer .genre-tag {
   flex-shrink: 0;
+}
+.catalog-book-card .catalog-book-card__body .catalog-book-card__footer .genre-tags-wrap {
+  flex: 1 1 auto;
 }
 .catalog-book-card .catalog-book-card__body .catalog-book-card__coins {
   display: flex;
@@ -890,6 +931,7 @@ input, textarea {
 .book-card-container {
   cursor: pointer;
   perspective: 1000px;
+  height: 100%;
 }
 .book-card-container:hover .book-card-inner {
   transform: rotateY(180deg);
@@ -901,6 +943,7 @@ input, textarea {
   border: 1px solid var(--border);
   overflow: hidden;
   min-height: 320px;
+  height: 100%;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
 }
@@ -1016,6 +1059,10 @@ input, textarea {
   background: var(--card);
   overflow: hidden;
   transition: all 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 23.5rem;
 }
 .book-card-static:hover {
   transform: translateY(-6px) scale(1.02);
@@ -1046,6 +1093,7 @@ input, textarea {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
 }
 .book-card-static .card-body h3 {
   font-size: 1rem;
@@ -2759,6 +2807,7 @@ footer.site-footer .footer-secure span {
 .read-footer {
   position: sticky;
   bottom: 0;
+  z-index: 25;
   border-top: 1px solid var(--border);
   background: hsl(24, 20%, 14.7368421053%);
   backdrop-filter: blur(8px);
@@ -2772,6 +2821,15 @@ footer.site-footer .footer-secure span {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+}
+.read-footer-inner > .btn-read-nav {
+  flex-shrink: 0;
+}
+
+.read-page-pills-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .btn-read-nav {
@@ -2804,31 +2862,56 @@ footer.site-footer .footer-secure span {
 
 .read-page-pills {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  justify-content: center;
-  flex: 1;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background: transparent;
+  border: none;
+}
+.read-page-pills::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
-.read-pill {
-  width: 1.75rem;
-  height: 1.75rem;
+.read-book-page .read-pill {
+  flex: 0 0 auto;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.35rem;
   border-radius: 0.25rem;
-  border: none;
+  box-sizing: border-box;
+  border: 1px solid hsl(30, 20%, 32%);
   cursor: pointer;
-  font-size: 0.75rem;
-  font-family: "Crimson Text", serif;
-  background: transparent;
-  color: var(--muted-foreground);
-  transition: all 0.15s;
+  font-size: 0.55rem;
+  font-family: "Press Start 2P", ui-monospace, monospace;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-align: center;
+  background: hsl(24, 22%, 16%);
+  color: hsl(38, 40%, 96%);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
 }
-.read-pill:hover {
-  color: var(--foreground);
-  background: var(--muted);
+.read-book-page .read-pill:hover {
+  color: hsl(38, 50%, 100%);
+  background: hsl(24, 18%, 22%);
+  border-color: hsl(38, 75%, 45%);
 }
-.read-pill.active {
-  background: var(--primary);
-  color: var(--primary-foreground);
+.read-book-page .read-pill.active {
+  background: hsl(38, 75%, 55%);
+  color: hsl(24, 35%, 10%);
+  border-color: hsl(38, 75%, 45%);
 }
 
 .community-section h2 {

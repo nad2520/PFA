@@ -13,7 +13,7 @@ const {
     communityPosts,
 } = LX;
 
-/** @type {Array<{id:number,title:string,author:string,genre:string,trending:boolean,description:string,audience:string,cover:string}>} */
+/** @type {Array<{id:number,title:string,author:string,publicationYear?:number,genre:string,genres?:string[],trending:boolean,description:string,audience:string,cover:string}>} */
 let books = Array.isArray(LX.books) ? LX.books.slice() : [];
 /** @type {Record<number, {cost:number,xpReward:number,coinReward:number}>} */
 let bookPrices = { ...(LX.bookPrices || {}) };
@@ -21,11 +21,21 @@ let bookPrices = { ...(LX.bookPrices || {}) };
 const LX_API_BASE = '/PFA';
 
 function lxMapCatalogApiRow(row) {
+    const rowGenres = Array.isArray(row.genres)
+        ? row.genres.map((g) => String(g || '').trim()).filter(Boolean)
+        : [];
+    const legacyGenre = String(row.genre || '').trim();
+    const genres = rowGenres.length > 0
+        ? rowGenres
+        : (legacyGenre ? [legacyGenre] : []);
+
     return {
         id: Number(row.id),
         title: String(row.title || ''),
         author: String(row.author || ''),
-        genre: String(row.genre || ''),
+        publicationYear: Number(row.publicationYear || row.publication_year || 0),
+        genre: legacyGenre,
+        genres,
         trending: !!row.trending,
         description: String(row.description || ''),
         audience: String(row.audience || 'All'),
@@ -269,6 +279,41 @@ const communityStore = (() => {
 function genreTagHTML(genre) {
     const c = genreColors[genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
     return `<span class="genre-tag" style="${c.css}">${genre}</span>`;
+}
+
+function normalizeBookGenres(book) {
+    if (!book || typeof book !== 'object') return [];
+    const source = Array.isArray(book.genres) && book.genres.length > 0
+        ? book.genres
+        : [book.genre];
+    const seen = new Set();
+    const out = [];
+    source.forEach((g) => {
+        const genre = String(g || '').trim();
+        if (!genre) return;
+        const key = genre.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        out.push(genre);
+    });
+    return out;
+}
+
+function genreTagsHTML(book) {
+    const genres = normalizeBookGenres(book);
+    if (genres.length === 0) return '';
+    return `<div class="genre-tags-wrap">${genres.map((g) => genreTagHTML(g)).join('')}</div>`;
+}
+
+function getPublicationYear(book) {
+    const y = Number(book?.publicationYear ?? book?.publication_year ?? 0);
+    return Number.isFinite(y) && y > 0 ? Math.floor(y) : null;
+}
+
+function publicationYearHTML(book) {
+    const y = getPublicationYear(book);
+    if (!y) return '';
+    return `<p class="book-pub-year">Published: ${y}</p>`;
 }
 
 // ─── Navigate helper ─────────────────────────────────────────────────────────
@@ -525,7 +570,8 @@ function initChatbot() {
 function buildCatalogBookCardHTML(book, index) {
     const cover = genreCovers[book.genre];
     const price = bookPrices[book.id];
-    const tag = genreTagHTML(book.genre);
+    const tags = genreTagsHTML(book);
+    const year = publicationYearHTML(book);
     const costStr = price ? price.cost.toLocaleString() : 'FREE';
     const delay = index * 0.05;
     return `
@@ -538,8 +584,9 @@ function buildCatalogBookCardHTML(book, index) {
       <div class="catalog-book-card__body">
         <h3 class="line-clamp-1">${book.title}</h3>
         <p class="line-clamp-1 catalog-book-card__author">${book.author}</p>
+        ${year}
         <div class="catalog-book-card__footer">
-          ${tag}
+          ${tags}
           <div class="catalog-book-card__coins">
             ${SVG.coins}
             <span class="catalog-book-card__cost">${costStr}</span>
@@ -552,7 +599,8 @@ function buildCatalogBookCardHTML(book, index) {
 function buildBookCardHTML(book, index, flip = true) {
     const cover = genreCovers[book.genre];
     const price = bookPrices[book.id];
-    const tag = genreTagHTML(book.genre);
+    const tags = genreTagsHTML(book);
+    const year = publicationYearHTML(book);
     const priceStr = price ? price.cost.toLocaleString() + ' COINS' : 'FREE';
     const rewardStr = `+${price?.xpReward ?? 50} XP & +${price?.coinReward ?? 100} COINS`;
 
@@ -569,7 +617,8 @@ function buildBookCardHTML(book, index, flip = true) {
           <div class="card-body">
             <h3 class="line-clamp-1">${book.title}</h3>
             <p class="line-clamp-1">${book.author}</p>
-            ${tag}
+            ${year}
+            ${tags}
           </div>
         </div>
         <div class="book-card-back">
@@ -593,7 +642,8 @@ function buildBookCardHTML(book, index, flip = true) {
       <div class="card-body">
         <h3 class="line-clamp-1">${book.title}</h3>
         <p class="line-clamp-1">${book.author}</p>
-        ${tag}
+        ${year}
+        ${tags}
       </div>
     </div>`;
     }
@@ -702,7 +752,9 @@ function initCatalog() {
     async function loadForYouBooks() {
         try {
             const resp = await lxApi('/api/user/recommendations/for-you?limit=14', 'GET');
-            forYouBooks = (resp?.success && Array.isArray(resp.data)) ? resp.data : [];
+            forYouBooks = (resp?.success && Array.isArray(resp.data))
+                ? resp.data.map(lxMapCatalogApiRow).filter((b) => b.id > 0)
+                : [];
             if (window.LX_USER_ROLE === 'User -18') {
                 forYouBooks = forYouBooks.filter(b => b.audience !== '+18 Only');
             }
@@ -764,10 +816,22 @@ function initCatalog() {
         let result = books;
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
-            result = result.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
+            result = result.filter((b) => {
+                const yearText = String(b.publicationYear || '').toLowerCase();
+                return b.title.toLowerCase().includes(q)
+                    || b.author.toLowerCase().includes(q)
+                    || yearText.includes(q);
+            });
         }
         if (activeFilter === 'trending') result = result.filter(b => b.trending);
-        else result = result.filter(b => b.genre === activeFilter);
+        else {
+            result = result.filter((b) => {
+                const genreList = Array.isArray(b.genres) && b.genres.length > 0
+                    ? b.genres
+                    : (b.genre ? [b.genre] : []);
+                return genreList.includes(activeFilter);
+            });
+        }
 
         if (window.LX_USER_ROLE === 'User -18') {
             result = result.filter(b => b.audience !== '+18 Only');
@@ -877,9 +941,47 @@ function initLumoWelcomeModal() {
     const lumoOverlay = document.getElementById('lumoOverlay');
     const lumoClose = document.getElementById('lumoClose');
     const acceptBtn = document.getElementById('acceptBounties');
+    const bountyList = document.getElementById('bountyList');
     if (!getStartedBtn || !lumoOverlay) return;
 
-    getStartedBtn.addEventListener('click', () => lumoOverlay.classList.remove('hidden'));
+    const esc = (s) => String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/"/g, '&quot;');
+
+    async function loadBounties() {
+        if (!bountyList) return;
+        bountyList.innerHTML = `<div class="bounty-item"><div><h3>Loading quests...</h3><p>Please wait while Lumo fetches the latest bounties.</p></div></div>`;
+        try {
+            const res = await lxApi('/api/user/quests', 'GET');
+            const allRows = Array.isArray(res?.data) ? res.data : [];
+            const rows = allRows.slice(0, 3);
+            if (rows.length === 0) {
+                bountyList.innerHTML = `<div class="bounty-item"><div><h3>No active quests</h3><p>There are no active bounties right now. Check back later.</p></div></div>`;
+                return;
+            }
+            bountyList.innerHTML = rows.map((q) => `
+              <div class="bounty-item${q.is_completed ? ' is-complete' : ''}" style="${q.is_completed ? 'opacity:.72;' : ''}">
+                ${SVG.scroll}
+                <div>
+                  <h3>${esc(q.title || q.quest_key || 'Quest')}</h3>
+                  <p>${esc(q.description || 'Complete this quest to earn rewards.')}</p>
+                  <p style="margin-top:4px;color:#d7b56d;font-size:12px">
+                    Progress: ${Math.max(0, Number(q.progress_value) || 0)} / ${Math.max(1, Number(q.target_value) || 1)}
+                  </p>
+                  <span class="reward">+${Number(q.xp_reward) || 0} XP, +${Number(q.coins_reward) || 0} Coins${q.is_completed ? ' • Completed' : ''}</span>
+                </div>
+              </div>
+            `).join('');
+        } catch (_) {
+            bountyList.innerHTML = `<div class="bounty-item"><div><h3>Could not load quests</h3><p>Please try again in a moment.</p></div></div>`;
+        }
+    }
+
+    getStartedBtn.addEventListener('click', async () => {
+        lumoOverlay.classList.remove('hidden');
+        await loadBounties();
+    });
     if (lumoClose) lumoClose.addEventListener('click', () => lumoOverlay.classList.add('hidden'));
     if (acceptBtn) acceptBtn.addEventListener('click', () => lumoOverlay.classList.add('hidden'));
     lumoOverlay.addEventListener('click', e => { if (e.target === lumoOverlay) lumoOverlay.classList.add('hidden'); });
@@ -1169,8 +1271,9 @@ function renderProfileShelvesFromLexoraState() {
       </div>`;
         } else {
             libGrid.innerHTML = library.map(ub => {
-                const c = genreColors[ub.book.genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
                 const cover = genreCovers[ub.book.genre] || ub.book.cover || '';
+                const tags = genreTagsHTML(ub.book);
+                const year = publicationYearHTML(ub.book);
                 const badgeCls = ub.status === 'completed' ? 'completed' : 'reading';
                 const badgeTxt = ub.status === 'completed' ? '✓ DONE' : 'READING';
                 let progressPct = Number(ub.progress ?? 0) || 0;
@@ -1197,8 +1300,9 @@ function renderProfileShelvesFromLexoraState() {
         <div class="card-body">
           <h3 class="line-clamp-1">${ub.book.title}</h3>
           <p class="line-clamp-1">${ub.book.author}</p>
+          ${year}
           ${progress}
-          <span class="genre-tag" style="${c.css}">${ub.book.genre}</span>
+          ${tags}
         </div>
       </div>`;
             }).join('');
@@ -1221,8 +1325,9 @@ function renderProfileShelvesFromLexoraState() {
       </div>`;
         } else {
             listGrid.innerHTML = planToRead.map(ub => {
-                const c = genreColors[ub.book.genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
                 const cover = genreCovers[ub.book.genre] || ub.book.cover || '';
+                const tags = genreTagsHTML(ub.book);
+                const year = publicationYearHTML(ub.book);
                 return `<div class="book-card-static" role="link" data-book-id="${ub.book.id}" style="cursor:pointer">
           <div class="cover-wrap">
             <img src="${cover}" alt="${ub.book.title}" loading="lazy">
@@ -1232,7 +1337,8 @@ function renderProfileShelvesFromLexoraState() {
           <div class="card-body">
             <h3 class="line-clamp-1">${ub.book.title}</h3>
             <p class="line-clamp-1">${ub.book.author}</p>
-            <span class="genre-tag" style="${c.css}">${ub.book.genre}</span>
+            ${year}
+            ${tags}
           </div>
         </div>`;
             }).join('');
@@ -1366,7 +1472,9 @@ function initProfile() {
                         id: bid,
                         title: String(raw.title || `Book #${bid}`),
                         author: String(raw.author || 'Unknown Author'),
+                        publicationYear: Number(raw.publicationYear || raw.publication_year || 0),
                         genre: String(raw.genre || ''),
+                        genres: Array.isArray(raw.genres) ? raw.genres : [],
                         status: normalize(String(row?.status || '')),
                     };
                 }).filter(Boolean);
@@ -1375,8 +1483,9 @@ function initProfile() {
                 const listRows = rows.filter((r) => r.status === 'plan-to-read');
 
                 const cardHtml = (r, badgeHtml = '') => {
-                    const c = genreColors[r.genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
                     const cover = genreCovers[r.genre] || '';
+                    const tags = genreTagsHTML(r);
+                    const year = publicationYearHTML(r);
                     return `<div class="book-card-static" role="link" data-book-id="${r.id}" style="cursor:pointer">
           <div class="cover-wrap">
             <img src="${cover}" alt="${r.title}" loading="lazy">
@@ -1386,7 +1495,8 @@ function initProfile() {
           <div class="card-body">
             <h3 class="line-clamp-1">${r.title}</h3>
             <p class="line-clamp-1">${r.author}</p>
-            <span class="genre-tag" style="${c.css}">${r.genre || 'General'}</span>
+            ${year}
+            ${tags || `<span class="genre-tag" style="background:var(--secondary);color:var(--secondary-foreground)">General</span>`}
           </div>
         </div>`;
                 };
@@ -1420,39 +1530,9 @@ function initProfile() {
         const questBtn = document.getElementById('claimQuestRewardBtn');
         const questMsg = document.getElementById('coinSystemMsg');
         if (questBtn) {
-            questBtn.addEventListener('click', async () => {
-                const csrf = window.LX_SESSION?.csrfToken || '';
-                questBtn.disabled = true;
-                if (questMsg) questMsg.textContent = 'Claiming reward...';
-                try {
-                    const res = await fetch('/PFA/api/user/quest/complete', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-Token': csrf,
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({ quest_key: 'daily_reader_quest' }),
-                    });
-                    const j = await res.json();
-                    if (!res.ok || !j.success) {
-                        throw new Error(j.message || 'Could not claim quest reward.');
-                    }
-
-                    if (window.LX_applyProfileStats) {
-                        window.LX_applyProfileStats({ newCoins: j.newCoins });
-                    }
-                    if (questMsg) {
-                        questMsg.textContent = j.alreadyClaimed
-                            ? 'Quest already claimed.'
-                            : `Quest completed! +${j.coinsEarned} coins.`;
-                    }
-                } catch (e) {
-                    if (questMsg) questMsg.textContent = e.message || 'Quest claim failed.';
-                } finally {
-                    questBtn.disabled = false;
-                }
-            });
+            questBtn.disabled = true;
+            questBtn.textContent = 'AUTO REWARDS ENABLED';
+            if (questMsg) questMsg.textContent = 'Quests are rewarded automatically when objectives are completed.';
         }
 
         const myLbRoot = document.getElementById('profileLeaderboardRows');
@@ -1547,7 +1627,8 @@ function initBookDetail() {
 
     const St = window.LexoraState;
     const cover = genreCovers[book.genre];
-    const colors = genreColors[book.genre];
+    const tags = genreTagsHTML(book);
+    const pubYear = getPublicationYear(book);
     const price = bookPrices[book.id];
     const userBook = St ? St.getBookStatus(book.id) : null;
     const totalPages = St ? St.getBookPages(book.id).length : 24;
@@ -1589,7 +1670,9 @@ function initBookDetail() {
         ? (isCompleted ? 'READ AGAIN' : (hasStarted ? 'CONTINUE READING' : 'START READING'))
         : 'ADD TO LIBRARY';
 
-    const addListBtn = `<button type="button" class="btn-detail-secondary" data-action="add-list">ADD TO LIST</button>`;
+    const listAction = inList ? 'remove-list' : 'add-list';
+    const addListBtnLabel = inList ? 'REMOVE FROM LIST' : 'ADD TO LIST';
+    const addListBtn = `<button type="button" class="btn-detail-secondary" data-action="${listAction}">${addListBtnLabel}</button>`;
 
     document.title = `${book.title} — Lexora`;
 
@@ -1605,9 +1688,10 @@ function initBookDetail() {
     </div>
     <div class="detail-info">
       <div>
-        <span class="genre-tag" style="${colors.css}">${book.genre}</span>
+        ${tags}
         <h1 style="margin-top:.5rem">${book.title}</h1>
         <p class="byline">by ${book.author}</p>
+        ${pubYear ? `<p class="book-pub-year">Published: ${pubYear}</p>` : ''}
       </div>
       <p class="description">${book.description}</p>
       <div class="reward-chips">
@@ -1722,7 +1806,11 @@ function initBookDetail() {
                     window.LX_applyProfileStats({ coins: purchase.newCoins });
                 }
                 renderProfileShelvesFromLexoraState();
-                await syncProfileAfterBookAction();
+                try {
+                    await syncProfileAfterBookAction();
+                } catch (_) {
+                    // Do not fail the user-visible success flow if profile refresh JSON is temporarily broken.
+                }
                 if (purchase?.already_in_library) {
                     showDetailToast('This book is already in My Library.');
                     setActionStatus('Already in your library.');
@@ -1762,16 +1850,50 @@ function initBookDetail() {
             try {
                 const resp = await lxApi('/api/user/book/list/add', 'POST', { book_id: book.id });
                 if (resp.already_in_list) {
+                    if (window.LexoraState?.addToList) window.LexoraState.addToList(book.id);
                     showDetailToast(`"${book.title}" is already in your list.`);
                     setActionStatus('Already in your list.');
                 } else if (resp.in_library) {
                     showDetailToast(resp.message || 'This book is already in your library.');
                     setActionStatus(resp.message || 'This book is already in your library.');
                 } else {
+                    if (window.LexoraState?.addToList) window.LexoraState.addToList(book.id);
                     showDetailToast(`"${book.title}" added to your reading list.`);
                     setActionStatus('Added to your list.');
                 }
-                await syncProfileAfterBookAction();
+                try {
+                    await syncProfileAfterBookAction();
+                } catch (_) {
+                    // Keep add-to-list success message even if background profile sync fails.
+                }
+                initBookDetail();
+            } catch (e) {
+                showDetailToast(e.message || 'Could not update your list.');
+                setActionStatus(e.message || 'Could not update your list.', true);
+            } finally {
+                actionInFlight = false;
+                targetBtn.disabled = false;
+                targetBtn.textContent = prevText;
+            }
+            return;
+        }
+
+        if (act === 'remove-list') {
+            const prevText = targetBtn.textContent;
+            targetBtn.disabled = true;
+            actionInFlight = true;
+            targetBtn.textContent = 'PROCESSING...';
+            setActionStatus('Removing from your list...');
+            try {
+                await lxApi('/api/user/book/list/remove', 'POST', { book_id: book.id });
+                if (window.LexoraState?.removeFromList) window.LexoraState.removeFromList(book.id);
+                showDetailToast(`"${book.title}" removed from your list.`);
+                setActionStatus('Removed from your list.');
+                try {
+                    await syncProfileAfterBookAction();
+                } catch (_) {
+                    // Keep remove-from-list success message even if profile sync fails.
+                }
                 initBookDetail();
             } catch (e) {
                 showDetailToast(e.message || 'Could not update your list.');

@@ -90,6 +90,18 @@ const btnNext     = document.getElementById('readNext');
 const btnBack     = document.getElementById('readBack');
 const readNextLabel = document.getElementById('readNextLabel');
 
+if (elPills && !elPills.dataset.pillNavBound) {
+    elPills.dataset.pillNavBound = '1';
+    elPills.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.read-pill');
+        if (!btn || !elPills.contains(btn)) return;
+        const idx = parseInt(btn.getAttribute('data-page') || '', 10);
+        if (!Number.isFinite(idx) || idx < 0 || idx >= pages.length) return;
+        if (idx === currentPage) return;
+        goToPage(idx);
+    });
+}
+
 // ── Render current page ───────────────────────────────────────────────────────
 function renderPage() {
     const p     = currentPage;
@@ -111,9 +123,25 @@ function renderPage() {
     if (elPct)  elPct.textContent  = pct + '%';
 
     if (elPills) {
-        elPills.innerHTML = Array.from({ length: total }, (_, i) =>
-            `<span class="pill${i === p ? ' pill-active' : ''}"></span>`
-        ).join('');
+        elPills.replaceChildren();
+        const n = Math.max(0, total);
+        for (let i = 0; i < n; i++) {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'read-pill' + (i === p ? ' active' : '');
+            b.dataset.page = String(i);
+            b.setAttribute('aria-label', `Go to page ${i + 1}`);
+            if (i === p) b.setAttribute('aria-current', 'page');
+            b.textContent = String(i + 1);
+            elPills.appendChild(b);
+        }
+        requestAnimationFrame(() => {
+            const activePill = elPills.querySelector('.read-pill.active');
+            if (!activePill) return;
+            const target = activePill.offsetLeft - (elPills.clientWidth / 2) + (activePill.offsetWidth / 2);
+            const maxScroll = Math.max(0, elPills.scrollWidth - elPills.clientWidth);
+            elPills.scrollLeft = Math.max(0, Math.min(target, maxScroll));
+        });
     }
 
     if (btnPrev) btnPrev.disabled = p === 0;

@@ -124,7 +124,9 @@ require_once __DIR__ . '/_lx_public_urls.php';
                     </svg>
                     PREV
                 </button>
-                <div class="read-page-pills" id="readPagePills"></div>
+                <div class="read-page-pills-wrap">
+                    <div class="read-page-pills" id="readPagePills" role="navigation" aria-label="Jump to page"></div>
+                </div>
                 <button type="button" class="btn-read-nav" id="readNext">
                     <span id="readNextLabel">NEXT</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor"

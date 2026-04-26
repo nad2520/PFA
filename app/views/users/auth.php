@@ -86,12 +86,12 @@ require_once __DIR__ . '/_lx_public_urls.php';
                     <h2 id="authFormTitle">Sign In</h2>
                     <form id="authForm" method="POST" action="index.php">
                         <input type="hidden" name="action" value="login">
-                        <!-- Username -->
+                        <!-- Email -->
                         <div class="field">
                             <label>
-                                <span style="font-size:1.1rem">??</span> Username
+                                <span style="font-size:1.1rem">??</span> Email
                             </label>
-                            <input type="text"  name="email" id="username" placeholder="Username" required>
+                            <input type="email"  name="email" id="email" placeholder="Email address" required>
                         </div>
                         <!-- Password -->
                         <div class="field">

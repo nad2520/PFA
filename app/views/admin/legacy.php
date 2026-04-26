@@ -3,9 +3,9 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-// MVC path: controllers should provide $users, $books, $posts.
+// MVC path: controllers should provide $users, $books, $posts, $quests.
 // Legacy fallback: if not provided, load from DB here (kept temporarily for compatibility).
-if (!isset($users, $books, $posts)) {
+if (!isset($users, $books, $posts, $quests)) {
     include("config/database.php");
 
     $stmt = $cnx->query("SELECT * FROM users ORDER BY id DESC");
@@ -16,6 +16,13 @@ if (!isset($users, $books, $posts)) {
 
     $stmtPosts = $cnx->query("SELECT * FROM posts ORDER BY id DESC");
     $posts = $stmtPosts->fetchAll();
+
+    try {
+        $stmtQuests = $cnx->query("SELECT * FROM quests ORDER BY sort_order ASC, id ASC");
+        $quests = $stmtQuests->fetchAll();
+    } catch (Throwable $e) {
+        $quests = [];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -58,6 +65,10 @@ if (!isset($users, $books, $posts)) {
             <button class="nav-item" data-section="books">
                 <i data-lucide="book-open"></i>
                 <span class="nav-label">Books</span>
+            </button>
+            <button class="nav-item" data-section="quests">
+                <i data-lucide="scroll"></i>
+                <span class="nav-label">Quests</span>
             </button>
             <button class="nav-item" data-section="community">
                 <i data-lucide="message-square"></i>
@@ -500,6 +511,97 @@ if (!isset($users, $books, $posts)) {
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- --- SECTION: QUESTS --- -->
+                <div id="quests-section" class="section-content hidden animate-in fade-in duration-500">
+                    <div style="margin-bottom:1.5rem">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem">
+                            <i data-lucide="scroll" style="color:#D4AF37"></i>
+                            <h2 style="font-size:1.25rem;font-weight:bold;color:#F5EDD6">Quests Management</h2>
+                        </div>
+                        <p style="font-size:0.85rem;color:#A08060;margin-left:2.25rem">Manage Lumo's bounty quests and
+                            rewards</p>
+                        <div
+                            style="margin-top:0.75rem;height:1px;background:linear-gradient(90deg, #8B7322, transparent)">
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:1rem;margin-bottom:1rem">
+                        <input type="text" placeholder="Search quests..." class="admin-input" style="flex:1"
+                            data-filter="quests-search">
+                        <select class="admin-input" style="min-width:170px" data-filter="quests-active">
+                            <option value="All">All Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        <button class="admin-btn primary" onclick="openAddQuestModal()"><i data-lucide="plus"></i> Add
+                            Quest</button>
+                    </div>
+
+                    <div class="admin-card" style="padding:0">
+                        <div class="admin-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Quest Key</th>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th>Target</th>
+                                        <th>Reward</th>
+                                        <th>Status</th>
+                                        <th>Sort</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="questTbody">
+                                    <?php foreach (($quests ?? []) as $q): ?>
+                                        <tr>
+                                            <td><?= (int)$q['id'] ?></td>
+                                            <td><span class="badge blue"><?= htmlspecialchars((string)$q['quest_key']) ?></span></td>
+                                            <td style="font-weight:bold"><?= htmlspecialchars((string)$q['title']) ?></td>
+                                            <td style="max-width:260px;color:#A08060;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                                <?= htmlspecialchars((string)($q['description'] ?? '')) ?>
+                                            </td>
+                                            <td><span class="badge purple"><?= htmlspecialchars((string)($q['quest_type'] ?? 'read_pages_total')) ?></span></td>
+                                            <td><?= max(1, (int)($q['target_value'] ?? 1)) ?></td>
+                                            <td style="font-size:0.72rem;color:#A08060">+<?= (int)($q['xp_reward'] ?? 0) ?>xp /
+                                                +<?= (int)($q['coins_reward'] ?? 0) ?> coins</td>
+                                            <td>
+                                                <span class="badge <?= !empty($q['is_active']) ? 'green' : 'red' ?>">
+                                                    <?= !empty($q['is_active']) ? 'Active' : 'Inactive' ?>
+                                                </span>
+                                            </td>
+                                            <td><?= (int)($q['sort_order'] ?? 0) ?></td>
+                                            <td>
+                                                <div style="display:flex;gap:0.25rem">
+                                                    <button class="admin-btn ghost"
+                                                        onclick="openEditQuestModal(<?= (int)$q['id'] ?>, '<?= addslashes(htmlspecialchars((string)$q['quest_key'])) ?>', '<?= addslashes(htmlspecialchars((string)$q['title'])) ?>', '<?= addslashes(htmlspecialchars((string)($q['description'] ?? ''))) ?>', '<?= addslashes(htmlspecialchars((string)($q['quest_type'] ?? 'read_pages_total'))) ?>', <?= max(1, (int)($q['target_value'] ?? 1)) ?>, <?= (int)($q['coins_reward'] ?? 0) ?>, <?= (int)($q['xp_reward'] ?? 0) ?>, <?= !empty($q['is_active']) ? 1 : 0 ?>, <?= (int)($q['sort_order'] ?? 0) ?>)"><i
+                                                            data-lucide="edit-2"
+                                                            style="width:13px;height:13px"></i></button>
+                                                    <form method="POST" action="/PFA/admin/quests/delete" style="margin:0"
+                                                        onsubmit="return confirm('Are you sure you want to delete this quest?');">
+                                                        <input type="hidden" name="idq" value="<?= (int)$q['id'] ?>">
+                                                        <button type="submit" class="admin-btn ghost" style="color:#EF4444">
+                                                            <i data-lucide="trash-2" style="width:13px;height:13px"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <?php if (empty($quests ?? [])): ?>
+                                        <tr>
+                                            <td colspan="10" style="text-align:center;color:#A08060;padding:2rem">No quests
+                                                found.</td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -1068,6 +1170,75 @@ if (!isset($users, $books, $posts)) {
                 return false;
             });
         }
+
+        function openAddQuestModal() {
+            const html = `
+                <form id="phpAddQuestForm" method="POST" action="/PFA/admin/quests/create">
+                    <label class="label-xs">Quest Key</label><input name="quest_key" class="admin-input full" placeholder="daily_reader_quest" required>
+                    <label class="label-xs mt-3">Title</label><input name="title" class="admin-input full" required>
+                    <label class="label-xs mt-3">Description</label><textarea name="description" class="admin-input full" rows="3"></textarea>
+                    <div class="grid-2 mt-3" style="gap:1rem">
+                        <div>
+                            <label class="label-xs">Quest Type</label>
+                            <select name="quest_type" class="admin-input full">
+                                <option value="read_pages_total">Read pages total</option>
+                                <option value="complete_books_count">Complete books count</option>
+                                <option value="add_to_list_count">Add to list count</option>
+                            </select>
+                        </div>
+                        <div><label class="label-xs">Target Value</label><input name="target_value" type="number" min="1" class="admin-input full" value="1"></div>
+                    </div>
+                    <div class="grid-3 mt-3" style="gap:1rem">
+                        <div><label class="label-xs">Coin Reward</label><input name="coins_reward" type="number" class="admin-input full" value="200"></div>
+                        <div><label class="label-xs">XP Reward</label><input name="xp_reward" type="number" class="admin-input full" value="100"></div>
+                        <div><label class="label-xs">Sort Order</label><input name="sort_order" type="number" class="admin-input full" value="0"></div>
+                    </div>
+                    <div class="mt-3" style="display:flex;align-items:center;gap:.5rem">
+                        <label class="switch"><input name="is_active" type="checkbox" checked><span class="slider"></span></label>
+                        <span style="font-size:.8rem;color:#A08060">Active quest</span>
+                    </div>
+                </form>
+            `;
+            openModal("Add New Quest", html, () => {
+                document.getElementById('phpAddQuestForm').submit();
+                return false;
+            });
+        }
+
+        function openEditQuestModal(id, questKey, title, description, questType, targetValue, coinsReward, xpReward, isActive, sortOrder) {
+            const html = `
+                <form id="phpEditQuestForm" method="POST" action="/PFA/admin/quests/update">
+                    <input type="hidden" name="idq" value="${id}">
+                    <label class="label-xs">Quest Key</label><input class="admin-input full" value="${questKey}" disabled>
+                    <label class="label-xs mt-3">Title</label><input name="title" class="admin-input full" value="${title}" required>
+                    <label class="label-xs mt-3">Description</label><textarea name="description" class="admin-input full" rows="3">${description || ''}</textarea>
+                    <div class="grid-2 mt-3" style="gap:1rem">
+                        <div>
+                            <label class="label-xs">Quest Type</label>
+                            <select name="quest_type" class="admin-input full">
+                                <option value="read_pages_total" ${questType === 'read_pages_total' ? 'selected' : ''}>Read pages total</option>
+                                <option value="complete_books_count" ${questType === 'complete_books_count' ? 'selected' : ''}>Complete books count</option>
+                                <option value="add_to_list_count" ${questType === 'add_to_list_count' ? 'selected' : ''}>Add to list count</option>
+                            </select>
+                        </div>
+                        <div><label class="label-xs">Target Value</label><input name="target_value" type="number" min="1" class="admin-input full" value="${Math.max(1, Number(targetValue) || 1)}"></div>
+                    </div>
+                    <div class="grid-3 mt-3" style="gap:1rem">
+                        <div><label class="label-xs">Coin Reward</label><input name="coins_reward" type="number" class="admin-input full" value="${coinsReward}"></div>
+                        <div><label class="label-xs">XP Reward</label><input name="xp_reward" type="number" class="admin-input full" value="${xpReward}"></div>
+                        <div><label class="label-xs">Sort Order</label><input name="sort_order" type="number" class="admin-input full" value="${sortOrder}"></div>
+                    </div>
+                    <div class="mt-3" style="display:flex;align-items:center;gap:.5rem">
+                        <label class="switch"><input name="is_active" type="checkbox" ${isActive ? 'checked' : ''}><span class="slider"></span></label>
+                        <span style="font-size:.8rem;color:#A08060">Active quest</span>
+                    </div>
+                </form>
+            `;
+            openModal("Edit Quest", html, () => {
+                document.getElementById('phpEditQuestForm').submit();
+                return false;
+            });
+        }
         (function () {
 
     /* ── BOOKS FILTERING ─────────────────────────────────────────── */
@@ -1111,6 +1282,31 @@ if (!isset($users, $books, $posts)) {
     if (booksSearch)   booksSearch.addEventListener('input', filterBooks);
     if (booksGenre)    booksGenre.addEventListener('change', filterBooks);
     if (booksAudience) booksAudience.addEventListener('change', filterBooks);
+
+    /* ── QUESTS FILTERING ────────────────────────────────────────── */
+    const questsSearch = document.querySelector('[data-filter="quests-search"]');
+    const questsActive = document.querySelector('[data-filter="quests-active"]');
+    const questTbody   = document.getElementById('questTbody');
+
+    function filterQuests() {
+        if (!questTbody) return;
+        const q = (questsSearch?.value || '').toLowerCase().trim();
+        const active = questsActive?.value || 'All';
+        Array.from(questTbody.rows).forEach((row) => {
+            if (row.cells.length < 8) return;
+            const key = (row.cells[1]?.textContent ?? '').toLowerCase();
+            const title = (row.cells[2]?.textContent ?? '').toLowerCase();
+            const desc = (row.cells[3]?.textContent ?? '').toLowerCase();
+            const statusTxt = (row.cells[7]?.textContent ?? '').trim().toLowerCase();
+            const rowActive = statusTxt === 'active' ? '1' : '0';
+            const matchQ = !q || key.includes(q) || title.includes(q) || desc.includes(q);
+            const matchActive = active === 'All' || active === rowActive;
+            row.style.display = (matchQ && matchActive) ? '' : 'none';
+        });
+    }
+
+    if (questsSearch) questsSearch.addEventListener('input', filterQuests);
+    if (questsActive) questsActive.addEventListener('change', filterQuests);
 
     /* ── USERS FILTERING ─────────────────────────────────────────── */
     const usersSearch = document.querySelector('[data-filter="users-search"]');

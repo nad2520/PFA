@@ -5,6 +5,8 @@ require_once CORE_PATH . '/Controller.php';
 require_once CORE_PATH . '/Database.php';
 require_once APP_PATH  . '/models/UserModel.php';
 require_once APP_PATH  . '/models/BookModel.php';
+require_once APP_PATH  . '/models/QuestModel.php';
+require_once APP_PATH  . '/services/QuestService.php';
 
 /**
  * UserApiController
@@ -126,6 +128,7 @@ class UserApiController extends Controller
 
         UserModel::updateAfterReading($userId, $minutesRead);
         $milestoneCoins = UserModel::applyPageMilestoneRewards($userId, $bookId);
+        QuestService::onPagesRead($userId, max(0, $pagesRead));
         $user = UserModel::findById($userId);
 
         $this->json([
@@ -383,6 +386,8 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'Could not save completion.'], 500);
         }
 
+        QuestService::onBookCompleted($userId, 1);
+
         $user = UserModel::findById($userId);
         $this->json([
             'success'     => true,
@@ -515,6 +520,7 @@ class UserApiController extends Controller
         if (!$ok) {
             $this->json(['success' => false, 'message' => 'Could not add to list.'], 500);
         }
+        QuestService::onBookAddedToList($userId, 1);
         $this->json([
             'success' => true,
             'already_in_list' => false,
@@ -566,42 +572,42 @@ class UserApiController extends Controller
             $this->json(['success' => false, 'message' => 'quest_key required.'], 400);
         }
 
-        $reward = 200;
-        $pdo = Database::pdo();
-        $pdo->beginTransaction();
-        try {
-            $ins = $pdo->prepare(
-                'INSERT INTO user_quest_rewards (user_id, quest_key, coins_rewarded) VALUES (?, ?, ?)'
-            );
-            $ins->execute([$userId, $questKey, $reward]);
-
-            $pdo->prepare('UPDATE users SET coins = coins + ? WHERE id = ?')->execute([$reward, $userId]);
-            $pdo->prepare(
-                'INSERT INTO economy_logs (user_id, log_date, coins_earned, event_type) VALUES (?, CURDATE(), ?, ?)'
-            )->execute([$userId, $reward, 'quest_completion']);
-            $pdo->commit();
-        } catch (\Throwable $e) {
-            $pdo->rollBack();
-            if (($e instanceof PDOException) && ($e->getCode() === '23000')) {
-                $user = UserModel::findById($userId);
-                $this->json([
-                    'success' => true,
-                    'alreadyClaimed' => true,
-                    'message' => 'Quest reward already claimed.',
-                    'coinsEarned' => 0,
-                    'newCoins' => (int)($user['coins'] ?? 0),
-                ]);
-            }
-            $this->json(['success' => false, 'message' => 'Could not complete quest.'], 500);
-        }
-
         $user = UserModel::findById($userId);
         $this->json([
             'success' => true,
-            'message' => 'Quest completed!',
-            'coinsEarned' => $reward,
+            'auto' => true,
+            'alreadyClaimed' => true,
+            'message' => 'Quest rewards are granted automatically when objectives are completed.',
+            'coinsEarned' => 0,
+            'xpEarned' => 0,
             'newCoins' => (int)($user['coins'] ?? 0),
+            'newXp' => (int)($user['xp'] ?? 0),
+            'newLevel' => max(1, (int)($user['level'] ?? 1)),
         ]);
+    }
+
+    // ── GET /api/user/quests ───────────────────────────────────────────────────
+    public function getQuests(): void
+    {
+        $this->requireAuth();
+        $userId = (int)$_SESSION['user_id'];
+        $rows = QuestModel::activeForBoardForUser($userId);
+        $out = array_map(static function (array $r): array {
+            return [
+                'id' => (int)($r['id'] ?? 0),
+                'quest_key' => (string)($r['quest_key'] ?? ''),
+                'title' => (string)($r['title'] ?? ''),
+                'description' => (string)($r['description'] ?? ''),
+                'quest_type' => (string)($r['quest_type'] ?? ''),
+                'target_value' => max(1, (int)($r['target_value'] ?? 1)),
+                'progress_value' => max(0, (int)($r['progress_value'] ?? 0)),
+                'is_completed' => !empty($r['is_completed']),
+                'coins_reward' => (int)($r['coins_reward'] ?? 0),
+                'xp_reward' => (int)($r['xp_reward'] ?? 0),
+            ];
+        }, $rows);
+
+        $this->json(['success' => true, 'data' => $out]);
     }
 
     // ── GET /api/leaderboard ──────────────────────────────────────────────────
