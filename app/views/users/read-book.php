@@ -4,11 +4,12 @@ declare(strict_types=1);
 require_once CORE_PATH . '/Database.php';
 require_once APP_PATH . '/models/BookModel.php';
 require_once APP_PATH . '/models/UserModel.php';
+require_once dirname(__DIR__, 3) . '/public/_lx_public_urls.php';
 
 //session_start();
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: /PFA/');
+    header('Location: ' . lx_app_href('/'));
     exit;
 }
 header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -22,9 +23,9 @@ if (!$book) {
     // No row in `books` (or DB error): frontend catalog still uses ids 1–16 from JS — run
     // database/migrations/004_lexora_catalog_books_seed.sql so ids match. Prefer book-detail over store.
     if ($bookId > 0) {
-        header('Location: /PFA/book-detail?id=' . $bookId . '&book_missing=1');
+        header('Location: ' . lx_app_href('/book-detail?id=' . $bookId . '&book_missing=1'));
     } else {
-        header('Location: /PFA/user');
+        header('Location: ' . lx_app_href('/user'));
     }
     exit;
 }
@@ -40,7 +41,7 @@ $alreadyCompleted = false;
 // Fail-closed: pages are only reachable after Start Reading + successful POST /api/user/book/purchase.
 try {
     if (!UserModel::userHasReadableAccess($userId, (int)$book['id'])) {
-        header('Location: /PFA/book-detail?id=' . (int)$book['id'] . '&access_denied=1');
+        header('Location: ' . lx_app_href('/book-detail?id=' . (int)$book['id'] . '&access_denied=1'));
         exit;
     }
     $pdo = Database::pdo();
@@ -49,7 +50,7 @@ try {
     $ubRow = $chk->fetch(PDO::FETCH_ASSOC);
     $alreadyCompleted = ($ubRow['status'] ?? '') === 'completed';
 } catch (Throwable $e) {
-    header('Location: /PFA/book-detail?id=' . (int)$book['id'] . '&access_error=1');
+    header('Location: ' . lx_app_href('/book-detail?id=' . (int)$book['id'] . '&access_error=1'));
     exit;
 }
 
@@ -70,7 +71,6 @@ $lxSessionJson = json_encode([
     'userCoins' => $lxUserCoins,
     'userLevel' => $lxUserLevel,
 ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-require_once __DIR__ . '/_lx_public_urls.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -161,9 +161,9 @@ require_once __DIR__ . '/_lx_public_urls.php';
                     <h2 id="finishStep1Title" class="font-display read-finish-title">Did you finish this book?</h2>
                     <p class="read-finish-sub font-body" id="finishBookName"></p>
                     <div class="read-finish-actions">
-                        <button type="button" class="btn-primary" id="btnFinishYes" aria-label="Completed">✅
+                        <button type="button" class="btn-primary" id="btnFinishYes" aria-label="Completed">
                             Completed</button>
-                        <button type="button" class="btn-outline" id="btnFinishNo" aria-label="Not finished">❌ Not
+                        <button type="button" class="btn-outline" id="btnFinishNo" aria-label="Not finished"> Not
                             finished</button>
                     </div>
                 </div>

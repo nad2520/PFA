@@ -52,7 +52,7 @@ class BooksController extends Controller
         $this->requireAdmin();
 
         if (!isset($_POST['title'])) {
-            $this->redirectBack('index.php?view=admin&addbook=error');
+            $this->redirectBack('admin?addbook=error');
         }
 
         $data = [
@@ -70,7 +70,7 @@ class BooksController extends Controller
         if ($data['cover'] === '') $data['cover'] = '📖';
 
         $ok = BookModel::create($data);
-        $this->redirectBack('index.php?view=admin&addbook=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?addbook=' . ($ok ? 'ok' : 'error'));
     }
 
     public function update(): void
@@ -78,7 +78,7 @@ class BooksController extends Controller
         $this->requireAdmin();
 
         if (!isset($_POST['idb'])) {
-            $this->redirectBack('index.php?view=admin&editbook=error');
+            $this->redirectBack('admin?editbook=error');
         }
         $id = (int)$_POST['idb'];
 
@@ -97,7 +97,7 @@ class BooksController extends Controller
         if ($data['cover'] === '') $data['cover'] = '📖';
 
         $ok = BookModel::update($id, $data);
-        $this->redirectBack('index.php?view=admin&editbook=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?editbook=' . ($ok ? 'ok' : 'error'));
     }
 
     public function delete(): void
@@ -105,7 +105,7 @@ class BooksController extends Controller
         $this->requireAdmin();
         $id = isset($_GET['idb']) ? (int)$_GET['idb'] : 0;
         $ok = $id > 0 ? BookModel::delete($id) : false;
-        $this->redirectBack('index.php?view=admin&deletebook=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?deletebook=' . ($ok ? 'ok' : 'error'));
     }
 
     public function search(): void

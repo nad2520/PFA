@@ -16,7 +16,7 @@ class AdminController extends Controller
         $posts = PostModel::all();
         $quests = QuestModel::all();
 
-        $this->render('admin/index', [
+        $this->render('admin/legacy', [
             'users' => $users,
             'books' => $books,
             'posts' => $posts,

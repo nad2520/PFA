@@ -10,7 +10,7 @@ class QuestsController extends Controller
     {
         $this->requireAdmin();
         if (!isset($_POST['quest_key'], $_POST['title'])) {
-            $this->redirectBack('index.php?view=admin&addquest=error');
+            $this->redirectBack('admin?addquest=error');
         }
 
         $ok = QuestModel::create([
@@ -25,14 +25,14 @@ class QuestsController extends Controller
             'sort_order' => (int)($_POST['sort_order'] ?? 0),
         ]);
 
-        $this->redirectBack('index.php?view=admin&addquest=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?addquest=' . ($ok ? 'ok' : 'error'));
     }
 
     public function update(): void
     {
         $this->requireAdmin();
         if (!isset($_POST['idq'], $_POST['title'])) {
-            $this->redirectBack('index.php?view=admin&editquest=error');
+            $this->redirectBack('admin?editquest=error');
         }
 
         $id = (int)$_POST['idq'];
@@ -47,7 +47,7 @@ class QuestsController extends Controller
             'sort_order' => (int)($_POST['sort_order'] ?? 0),
         ]);
 
-        $this->redirectBack('index.php?view=admin&editquest=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?editquest=' . ($ok ? 'ok' : 'error'));
     }
 
     public function delete(): void
@@ -60,6 +60,6 @@ class QuestsController extends Controller
             $id = (int)$_GET['idq'];
         }
         $ok = $id > 0 ? QuestModel::delete($id) : false;
-        $this->redirectBack('index.php?view=admin&deletequest=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?deletequest=' . ($ok ? 'ok' : 'error'));
     }
 }

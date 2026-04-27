@@ -2,8 +2,9 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
+require_once dirname(__DIR__, 3) . '/public/_lx_public_urls.php';
 if (empty($_SESSION['user_id']) || (string)($_SESSION['user_role'] ?? '') !== 'admin') {
-    header("Location: /PFA/");
+    header('Location: ' . lx_app_href('/'));
     exit();
 }
 header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -21,6 +22,7 @@ $quests = $quests ?? [];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="<?= htmlspecialchars(lx_app_href('/'), ENT_QUOTES, 'UTF-8') ?>">
     <title>Lexora Admin Kingdom Management</title>
     <link rel="stylesheet" href="public/assets/css/admin/main.css">
     <link rel="stylesheet" href="public/assets/css/admin/admin.css">
@@ -89,7 +91,7 @@ $quests = $quests ?? [];
             </button>
             <div style="flex:1"></div>
             <button class="nav-item logout" data-section="logout"
-                onclick="window.location.href='/PFA/logout'">
+                onclick="window.location.href='<?= htmlspecialchars(lx_app_href('/logout'), ENT_QUOTES, 'UTF-8') ?>'">
                 <i data-lucide="log-out"></i>
                 <span class="nav-label">Logout</span>
             </button>
@@ -411,7 +413,7 @@ $quests = $quests ?? [];
                                                         onclick="openEditModal(<?= $u['id'] ?>, '<?= htmlspecialchars($u['nom']) ?>', '<?= htmlspecialchars($u['email']) ?>')"><i
                                                             data-lucide="edit-2"
                                                             style="width:13px;height:13px"></i></button>
-                                                    <a href="/PFA/admin/users/delete?idu=<?= $u['id'] ?>"
+                                                    <a href="<?= htmlspecialchars(lx_app_href('/admin/users/delete?idu=' . $u['id']), ENT_QUOTES, 'UTF-8') ?>"
                                                         onclick="return confirm('Are you sure you want to delete this user?');"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
@@ -498,7 +500,7 @@ $quests = $quests ?? [];
                                                         onclick="openEditBookModal(<?= $b['id'] ?>, '<?= addslashes(htmlspecialchars($b['title'])) ?>', '<?= addslashes(htmlspecialchars($b['author'])) ?>', '<?= addslashes(htmlspecialchars($b['genre'])) ?>', '<?= addslashes(htmlspecialchars($b['cover'])) ?>', <?= $b['coinCost'] ?>, <?= $b['xpReward'] ?>, <?= $b['coinReward'] ?>, '<?= addslashes(htmlspecialchars($b['audience'])) ?>', <?= $b['trending'] ?>)"><i
                                                             data-lucide="edit-2"
                                                             style="width:13px;height:13px"></i></button>
-                                                    <a href="/PFA/admin/books/delete?idb=<?= $b['id'] ?>"
+                                                    <a href="<?= htmlspecialchars(lx_app_href('/admin/books/delete?idb=' . $b['id']), ENT_QUOTES, 'UTF-8') ?>"
                                                         onclick="return confirm('Are you sure you want to delete this book?');"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
@@ -580,7 +582,7 @@ $quests = $quests ?? [];
                                                         onclick="openEditQuestModal(<?= (int)$q['id'] ?>, '<?= addslashes(htmlspecialchars((string)$q['quest_key'])) ?>', '<?= addslashes(htmlspecialchars((string)$q['title'])) ?>', '<?= addslashes(htmlspecialchars((string)($q['description'] ?? ''))) ?>', '<?= addslashes(htmlspecialchars((string)($q['quest_type'] ?? 'read_pages_total'))) ?>', <?= max(1, (int)($q['target_value'] ?? 1)) ?>, <?= (int)($q['coins_reward'] ?? 0) ?>, <?= (int)($q['xp_reward'] ?? 0) ?>, <?= !empty($q['is_active']) ? 1 : 0 ?>, <?= (int)($q['sort_order'] ?? 0) ?>)"><i
                                                             data-lucide="edit-2"
                                                             style="width:13px;height:13px"></i></button>
-                                                    <form method="POST" action="/PFA/admin/quests/delete" style="margin:0"
+                                                    <form method="POST" action="<?= htmlspecialchars(lx_app_href('/admin/quests/delete'), ENT_QUOTES, 'UTF-8') ?>" style="margin:0"
                                                         onsubmit="return confirm('Are you sure you want to delete this quest?');">
                                                         <input type="hidden" name="idq" value="<?= (int)$q['id'] ?>">
                                                         <button type="submit" class="admin-btn ghost" style="color:#EF4444">
@@ -693,13 +695,13 @@ $quests = $quests ?? [];
                                                     <a href="#" class="admin-btn ghost"
                                                         onclick="alert('Post preview is visual-only in parity mode.')"><i
                                                             data-lucide="eye" style="width:13px;height:13px"></i></a>
-                                                    <a href="/PFA/admin/posts/update?id=<?= $p['id'] ?>&action=review"
+                                                    <a href="<?= htmlspecialchars(lx_app_href('/admin/posts/update?id=' . $p['id'] . '&action=review'), ENT_QUOTES, 'UTF-8') ?>"
                                                         class="admin-btn ghost"><i data-lucide="check"
                                                             style="width:13px;height:13px"></i></a>
-                                                    <a href="/PFA/admin/posts/update?id=<?= $p['id'] ?>&action=tag"
+                                                    <a href="<?= htmlspecialchars(lx_app_href('/admin/posts/update?id=' . $p['id'] . '&action=tag'), ENT_QUOTES, 'UTF-8') ?>"
                                                         class="admin-btn ghost"><i data-lucide="tag"
                                                             style="width:13px;height:13px"></i></a>
-                                                    <a href="/PFA/admin/posts/delete?id=<?= $p['id'] ?>"
+                                                    <a href="<?= htmlspecialchars(lx_app_href('/admin/posts/delete?id=' . $p['id']), ENT_QUOTES, 'UTF-8') ?>"
                                                         class="admin-btn ghost" style="color:#EF4444"><i
                                                             data-lucide="trash-2" style="width:13px;height:13px"></i></a>
                                                 </div>
@@ -1079,7 +1081,7 @@ $quests = $quests ?? [];
     <script>
         function openEditModal(id, currentName, currentEmail) {
             const html = `
-                <form id="phpEditUserForm" method="POST" action="/PFA/admin/users/update">
+                <form id="phpEditUserForm" method="POST" action="<?= htmlspecialchars(lx_app_href('/admin/users/update'), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="idu" value="${id}">
                     <label class="label-xs mt-3">Name</label>
                     <input class="admin-input full" type="text" name="user_name" value="${currentName}" required>
@@ -1097,7 +1099,7 @@ $quests = $quests ?? [];
 
         function openAddBookModal() {
             const html = `
-                <form id="phpAddBookForm" method="POST" action="/PFA/admin/books/create">
+                <form id="phpAddBookForm" method="POST" action="<?= htmlspecialchars(lx_app_href('/admin/books/create'), ENT_QUOTES, 'UTF-8') ?>">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" required>
                     <div class="grid-2 mt-3" style="gap:1rem">
@@ -1132,7 +1134,7 @@ $quests = $quests ?? [];
 
         function openEditBookModal(id, title, author, genre, cover, coinCost, xpReward, coinReward, audience, trending) {
             const html = `
-                <form id="phpEditBookForm" method="POST" action="/PFA/admin/books/update">
+                <form id="phpEditBookForm" method="POST" action="<?= htmlspecialchars(lx_app_href('/admin/books/update'), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="idb" value="${id}">
                     <label class="label-xs">Title</label><input name="title" class="admin-input full" value="${title}" required>
                     <label class="label-xs mt-3">Author</label><input name="author" class="admin-input full" value="${author}" required>
@@ -1168,7 +1170,7 @@ $quests = $quests ?? [];
 
         function openAddQuestModal() {
             const html = `
-                <form id="phpAddQuestForm" method="POST" action="/PFA/admin/quests/create">
+                <form id="phpAddQuestForm" method="POST" action="<?= htmlspecialchars(lx_app_href('/admin/quests/create'), ENT_QUOTES, 'UTF-8') ?>">
                     <label class="label-xs">Quest Key</label><input name="quest_key" class="admin-input full" placeholder="daily_reader_quest" required>
                     <label class="label-xs mt-3">Title</label><input name="title" class="admin-input full" required>
                     <label class="label-xs mt-3">Description</label><textarea name="description" class="admin-input full" rows="3"></textarea>
@@ -1202,7 +1204,7 @@ $quests = $quests ?? [];
 
         function openEditQuestModal(id, questKey, title, description, questType, targetValue, coinsReward, xpReward, isActive, sortOrder) {
             const html = `
-                <form id="phpEditQuestForm" method="POST" action="/PFA/admin/quests/update">
+                <form id="phpEditQuestForm" method="POST" action="<?= htmlspecialchars(lx_app_href('/admin/quests/update'), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="idq" value="${id}">
                     <label class="label-xs">Quest Key</label><input class="admin-input full" value="${questKey}" disabled>
                     <label class="label-xs mt-3">Title</label><input name="title" class="admin-input full" value="${title}" required>

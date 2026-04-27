@@ -1,4 +1,5 @@
 <?php
+require_once dirname(__DIR__, 3) . '/public/_lx_public_urls.php';
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -9,12 +10,11 @@ header("Expires: 0");
 
 // Block access if not logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /PFA/");
+    header('Location: ' . lx_app_href('/'));
     exit();
 }
 $lxUserName = isset($_SESSION['user_name']) ? (string)$_SESSION['user_name'] : 'Reader';
 $lxUserNameEsc = htmlspecialchars($lxUserName, ENT_QUOTES, 'UTF-8');
-require_once __DIR__ . '/_lx_public_urls.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,7 +90,7 @@ require_once __DIR__ . '/_lx_public_urls.php';
 
                 <div class="auth-box">
                     <h2 id="authFormTitle">Sign In</h2>
-                    <form id="authForm" method="POST" action="index.php">
+                    <form id="authForm" method="POST" action="<?= htmlspecialchars(lx_app_href('/auth'), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="action" value="login">
                         <!-- Email -->
                         <div class="field">
@@ -158,8 +158,8 @@ require_once __DIR__ . '/_lx_public_urls.php';
     <script src="<?= htmlspecialchars(lx_public_asset('assets/js/user_app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
     <script>
     function logout() {
-        fetch('index.php?action=logout')
-            .then(() => window.location.href = 'index.php');
+        fetch(<?= json_encode(lx_app_href('/logout'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>)
+            .then(() => window.location.href = <?= json_encode(lx_app_href('/'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>);
     }
     </script>
 </body>

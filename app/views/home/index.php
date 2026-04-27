@@ -2,6 +2,7 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
   session_start();
 }
+require_once BASE_PATH . '/public/_lx_public_urls.php';
 
 $authModalMode = 'login';
 if (isset($_SESSION['auth_mode']) && in_array($_SESSION['auth_mode'], ['login', 'signup'], true)) {
@@ -17,6 +18,7 @@ unset($_SESSION['auth_mode']);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="<?= htmlspecialchars(lx_app_href('/'), ENT_QUOTES, 'UTF-8') ?>">
   <title>Lexora — Reading Adventure</title>
   <meta name="description"
     content="The most fun and immersive way to read. Track your journey, earn rewards, and explore infinite worlds." />
@@ -99,13 +101,15 @@ unset($_SESSION['auth_mode']);
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
             </svg>
-            Explore
+            Services
           </a>
-          <a href="#stats" class="navbar-link">
+          <a href="#portals" class="navbar-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="3 11 22 2 13 21 11 13 3 11" />
+            <rect x="5" y="3" width="14" height="18" rx="2" />
+            <line x1="10" y1="3" x2="10" y2="21" />
+            <circle cx="13" cy="12" r="1" />
             </svg>
-            Map
+            Portals
           </a>
           <a href="#how-it-works" class="navbar-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -116,7 +120,7 @@ unset($_SESSION['auth_mode']);
               <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
               <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
             </svg>
-            Quests
+            How it Works 
           </a>
           <a href="#stats" class="navbar-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -125,7 +129,7 @@ unset($_SESSION['auth_mode']);
               <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
               <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-            Community
+            The Kingdom
           </a>
         </div>
 
@@ -158,7 +162,7 @@ unset($_SESSION['auth_mode']);
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
-          Explore
+          Discover Our Services
         </a>
         <a href="#how-it-works" class="navbar-link" onclick="closeMobileMenu()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
@@ -169,7 +173,7 @@ unset($_SESSION['auth_mode']);
             <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
             <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
           </svg>
-          Quests
+          How it Works
         </a>
         <a href="#stats" class="navbar-link" onclick="closeMobileMenu()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
@@ -178,7 +182,7 @@ unset($_SESSION['auth_mode']);
             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
-          Community
+          The Reading Kingdom
         </a>
         <div class="mobile-menu-auth">
           <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">Log In</button>
@@ -942,7 +946,7 @@ unset($_SESSION['auth_mode']);
         </div>
 
         <!-- Form -->
-        <form id="auth-form" class="auth-form" method="POST" action="/PFA/auth">
+        <form id="auth-form" class="auth-form" method="POST" action="<?= htmlspecialchars(lx_app_href('/auth'), ENT_QUOTES, 'UTF-8') ?>">
           <input type="hidden" name="action" id="auth-action" value="login" />
           <div id="username-field" class="form-group hidden">
             <i data-lucide="user" class="input-icon"></i>

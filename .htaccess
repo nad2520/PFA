@@ -1,6 +1,14 @@
 RewriteEngine On
 
-# If request is for an existing file/dir, serve it directly.
+# Block direct web access to non-public application folders.
+RewriteRule ^(?:app|config|core|database|docs|\.dist)(?:/|$) - [F,L,NC]
+RewriteRule ^public/_lx_public_urls\.php$ - [F,L,NC]
+
+# Canonicalize the duplicate root entry point to the public front controller.
+RewriteRule ^index\.php$ public/index.php [L,NC]
+
+# Allow assets and files that live under /public to be served directly.
+RewriteCond %{REQUEST_URI} ^(?:.*/)?public/ [NC]
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]

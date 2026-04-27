@@ -1,9 +1,10 @@
 <?php
+require_once dirname(__DIR__, 3) . '/public/_lx_public_urls.php';
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 if (empty($_SESSION['user_id'])) {
-    header("Location: /PFA/");
+    header('Location: ' . lx_app_href('/'));
     exit();
 }
 header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -28,7 +29,6 @@ if ($lxInitials === '') {
     $lxInitials = 'R';
 }
 $lxInitialsEsc = htmlspecialchars($lxInitials, ENT_QUOTES, 'UTF-8');
-require_once __DIR__ . '/_lx_public_urls.php';
 $libraryRows = is_array($library ?? null) ? $library : [];
 $libraryOnlyRows = array_values(array_filter($libraryRows, static function ($row): bool {
     $status = strtolower((string)($row['status'] ?? ''));
@@ -79,7 +79,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
         <a href="<?= htmlspecialchars(lx_app_href('/user'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link header-nav-active">My Home</a>
         <a href="<?= htmlspecialchars(lx_app_href('/store'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
-        <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
+        <button type="button" class="btn-disconnect" onclick="window.location.href='<?= htmlspecialchars(lx_app_href('/logout'), ENT_QUOTES, 'UTF-8') ?>'">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -255,7 +255,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 $status = strtolower((string)($entry['status'] ?? 'reading'));
                                 $badgeClass = $status === 'completed' ? 'completed' : 'reading';
                                 $badgeText = $status === 'completed' ? '✓ DONE' : 'READING';
-                                $detailHref = '/PFA/book-detail?id=' . $bookId;
+                                $detailHref = lx_app_href('/book-detail?id=' . $bookId);
                                 ?>
                                 <div class="book-card-static" role="link" data-book-id="<?= $bookId ?>" style="cursor:pointer" onclick="window.location.href='<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8') ?>'">
                                     <div class="card-body">
@@ -279,7 +279,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">
                                     Books you add from Book Detail will appear here.
                                 </p>
-                                <a href="/PFA/user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
+                                <a href="<?= htmlspecialchars(lx_app_href('/user#catalog'), ENT_QUOTES, 'UTF-8') ?>" class="btn-primary empty-library-cta">Browse the catalog</a>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -309,7 +309,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                     $fallbackGenre = trim((string)($book['genre'] ?? ''));
                                     $bookGenres = $fallbackGenre !== '' ? [$fallbackGenre] : ['General'];
                                 }
-                                $detailHref = '/PFA/book-detail?id=' . $bookId;
+                                $detailHref = lx_app_href('/book-detail?id=' . $bookId);
                                 ?>
                                 <div class="book-card-static" role="link" data-book-id="<?= $bookId ?>" style="cursor:pointer" onclick="window.location.href='<?= htmlspecialchars($detailHref, ENT_QUOTES, 'UTF-8') ?>'">
                                     <div class="card-body">
@@ -333,7 +333,7 @@ $planToReadRows = array_values(array_filter($libraryRows, static function ($row)
                                 <p class="empty-library-hint" style="margin:.5rem 0 1rem;font-size:.9rem;color:var(--muted-foreground)">
                                     Use “Add to list” on a book to save it here.
                                 </p>
-                                <a href="/PFA/user#catalog" class="btn-primary empty-library-cta">Browse the catalog</a>
+                                <a href="<?= htmlspecialchars(lx_app_href('/user#catalog'), ENT_QUOTES, 'UTF-8') ?>" class="btn-primary empty-library-cta">Browse the catalog</a>
                             </div>
                         <?php endif; ?>
                     </div>

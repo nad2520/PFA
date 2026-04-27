@@ -4,11 +4,13 @@ declare(strict_types=1);
 // Public front controller.
 
 define('BASE_PATH', dirname(__DIR__));
+define('PUBLIC_PATH', __DIR__);
 define('APP_PATH', BASE_PATH . '/app');
 define('CORE_PATH', BASE_PATH . '/core');
 define('CONFIG_PATH', BASE_PATH . '/config');
 define('VIEWS_PATH', APP_PATH . '/views');
 
+require PUBLIC_PATH . '/_lx_public_urls.php';
 require CORE_PATH . '/Router.php';
 
 $router = new Router();
@@ -45,11 +47,21 @@ if ($view !== null) {
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-$basePrefix = '/PFA';
-if ($path === $basePrefix) {
-    $path = '/';
-} elseif (strncmp($path, $basePrefix . '/', strlen($basePrefix) + 1) === 0) {
-    $path = substr($path, strlen($basePrefix));
+foreach (array_unique([lx_public_base_url(), lx_app_base_url()]) as $basePrefix) {
+    if ($basePrefix === '' || $basePrefix === '/') {
+        continue;
+    }
+
+    if ($path === $basePrefix) {
+        $path = '/';
+        break;
+    }
+
+    $prefixWithSlash = $basePrefix . '/';
+    if (strncmp($path, $prefixWithSlash, strlen($prefixWithSlash)) === 0) {
+        $path = substr($path, strlen($basePrefix));
+        break;
+    }
 }
 
 $router->dispatch($method, $path);

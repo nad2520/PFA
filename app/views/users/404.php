@@ -4,7 +4,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 $lxUserName = isset($_SESSION['user_name']) ? (string)$_SESSION['user_name'] : 'Reader';
 $lxUserNameEsc = htmlspecialchars($lxUserName, ENT_QUOTES, 'UTF-8');
-require_once __DIR__ . '/_lx_public_urls.php';
+require_once dirname(__DIR__, 3) . '/public/_lx_public_urls.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,15 +22,15 @@ require_once __DIR__ . '/_lx_public_urls.php';
         <!-- --- Global Header -------------------------------------------------------- -->
   <nav class="global-header">
     <div class="header-inner">
-      <a href="index.php" class="logo"> LEXORA</a>
+      <a href="<?= htmlspecialchars(lx_app_href('/user'), ENT_QUOTES, 'UTF-8') ?>" class="logo"> LEXORA</a>
       <div class="header-spacer" aria-hidden="true"></div>
       <div class="nav-right">
         <a id="navBackLecture" class="header-link-primary" href="<?= htmlspecialchars(lx_app_href('/read-book'), ENT_QUOTES, 'UTF-8') ?>" style="display:none">Back to
           lecture</a>
-        <a href="index.php" class="header-nav-link header-nav-active">My Home</a>
+        <a href="<?= htmlspecialchars(lx_app_href('/user'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link header-nav-active">My Home</a>
         <a href="<?= htmlspecialchars(lx_app_href('/store'), ENT_QUOTES, 'UTF-8') ?>" class="header-nav-link">My Store</a>
         <button type="button" id="mapBtn" class="header-nav-btn">My Map</button>
-        <button type="button" class="btn-disconnect" onclick="window.location.href='index.php'">
+        <button type="button" class="btn-disconnect" onclick="window.location.href='<?= htmlspecialchars(lx_app_href('/logout'), ENT_QUOTES, 'UTF-8') ?>'">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

@@ -83,7 +83,7 @@ class UserPageController extends Controller
             // Session is stale — force logout
             session_unset();
             session_destroy();
-            $this->redirect('/PFA/');
+            $this->redirect('');
         }
 
         $xp = (int) $row['xp'];

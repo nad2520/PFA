@@ -110,9 +110,21 @@ abstract class Controller
 
     protected function baseUrl(): string
     {
-        // This project is served from http://localhost/PFA/
-        // Keep it centralized to avoid accidental redirects to /dashboard.
-        return '/PFA';
+        if (function_exists('lx_app_base_url')) {
+            return lx_app_base_url();
+        }
+
+        $scriptName = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/'));
+        if (str_ends_with($scriptName, '/index.php')) {
+            $scriptName = substr($scriptName, 0, -10);
+        }
+        if (str_ends_with($scriptName, '/public')) {
+            $scriptName = substr($scriptName, 0, -7);
+        }
+
+        $scriptName = rtrim($scriptName, '/');
+
+        return $scriptName === '' ? '/' : $scriptName;
     }
 
     protected function render(string $viewPath, array $data = [], ?string $layout = 'layouts/main'): void
@@ -160,7 +172,7 @@ abstract class Controller
         exit;
     }
 
-    protected function redirectBack(string $fallbackPath = 'index.php?view=admin'): void
+    protected function redirectBack(string $fallbackPath = 'admin'): void
     {
         $ref = $_SERVER['HTTP_REFERER'] ?? '';
         if (is_string($ref) && $ref !== '') {

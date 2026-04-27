@@ -27,24 +27,28 @@ if (!function_exists('lx_trim_root_index')) {
 if (!function_exists('lx_app_base_url')) {
     function lx_app_base_url(): string
     {
-        $base = lx_trim_root_index((string)($_SERVER['SCRIPT_NAME'] ?? '/PFA/index.php'));
+        $base = lx_trim_root_index((string)($_SERVER['SCRIPT_NAME'] ?? '/public/index.php'));
 
         if ($base === '' || $base === '.') {
-            return '/PFA';
+            return '/';
         }
 
         if (str_ends_with($base, '/public')) {
             $base = substr($base, 0, -7);
         }
 
-        return rtrim($base, '/');
+        $base = rtrim($base, '/');
+
+        return $base === '' ? '/' : $base;
     }
 }
 
 if (!function_exists('lx_public_base_url')) {
     function lx_public_base_url(): string
     {
-        return lx_app_base_url() . '/public';
+        $appBase = lx_app_base_url();
+
+        return $appBase === '/' ? '/public' : $appBase . '/public';
     }
 }
 
@@ -54,14 +58,17 @@ if (!function_exists('lx_app_href')) {
         $base = lx_app_base_url();
 
         if ($path === '' || $path === '/') {
-            return $base . '/';
+            return $base === '/' ? '/' : $base . '/';
         }
 
         if ($path[0] === '?') {
-            return $base . '/index.php' . $path;
+            $indexPath = $base === '/' ? '/index.php' : $base . '/index.php';
+            return $indexPath . $path;
         }
 
-        return $base . '/' . ltrim($path, '/');
+        $cleanPath = ltrim($path, '/');
+
+        return $base === '/' ? '/' . $cleanPath : $base . '/' . $cleanPath;
     }
 }
 
@@ -75,9 +82,9 @@ if (!function_exists('lx_public_asset')) {
 if (!function_exists('lx_main_css_href')) {
     function lx_main_css_href(): string
     {
-        $fs = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR
-            . 'assets' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR . 'main.css';
-        $v = is_file($fs) ? (string)filemtime($fs) : (string)time();
+        $fs = __DIR__ . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR
+            . 'user' . DIRECTORY_SEPARATOR . 'main.css';
+        $v = is_file($fs) ? (string) filemtime($fs) : (string) time();
 
         return lx_public_asset('assets/css/user/main.css') . '?v=' . $v;
     }
@@ -87,9 +94,8 @@ if (!function_exists('lx_public_js_href')) {
     function lx_public_js_href(string $pathUnderPublicJs): string
     {
         $rel = ltrim(lx_normalize_web_path($pathUnderPublicJs), '/');
-        $fs = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR
-            . str_replace('/', DIRECTORY_SEPARATOR, $rel);
-        $v = is_file($fs) ? (string)filemtime($fs) : (string)time();
+        $fs = __DIR__ . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+        $v = is_file($fs) ? (string) filemtime($fs) : (string) time();
 
         return lx_public_asset($rel) . '?v=' . $v;
     }

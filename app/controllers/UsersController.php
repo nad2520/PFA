@@ -14,7 +14,7 @@ class UsersController extends Controller
         $this->requireAdmin();
 
         if (!isset($_POST['idu'])) {
-            $this->redirectBack('index.php?view=admin&modif=error');
+            $this->redirectBack('admin?modif=error');
         }
 
         $id = (int)$_POST['idu'];
@@ -23,12 +23,12 @@ class UsersController extends Controller
         $passwordInput = trim((string)($_POST['password'] ?? ''));
 
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->redirectBack('index.php?view=admin&modif=error');
+            $this->redirectBack('admin?modif=error');
         }
 
         $oldHash = UserModel::findPasswordById($id);
         if ($oldHash === null) {
-            $this->redirectBack('index.php?view=admin&modif=error');
+            $this->redirectBack('admin?modif=error');
         }
 
         $hash = $oldHash;
@@ -40,7 +40,7 @@ class UsersController extends Controller
         }
 
         $ok = UserModel::update($id, $name, $email, $hash);
-        $this->redirectBack('index.php?view=admin&modif=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?modif=' . ($ok ? 'ok' : 'error'));
     }
 
     public function delete(): void
@@ -48,7 +48,7 @@ class UsersController extends Controller
         $this->requireAdmin();
         $id = isset($_GET['idu']) ? (int)$_GET['idu'] : 0;
         $ok = $id > 0 ? UserModel::delete($id) : false;
-        $this->redirectBack('index.php?view=admin&deleteuser=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?deleteuser=' . ($ok ? 'ok' : 'error'));
     }
 }
 

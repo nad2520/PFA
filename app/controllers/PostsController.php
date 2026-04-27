@@ -10,14 +10,14 @@ class PostsController extends Controller
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         $action = $_GET['action'] ?? '';
         if ($id <= 0) {
-            $this->redirectBack('index.php?view=admin&post=error');
+            $this->redirectBack('admin?post=error');
         }
 
         $ok = false;
         if ($action === 'review') $ok = PostModel::markReviewed($id);
         if ($action === 'tag') $ok = PostModel::rotateTag($id);
 
-        $this->redirectBack('index.php?view=admin&post=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?post=' . ($ok ? 'ok' : 'error'));
     }
 
     public function delete(): void
@@ -25,7 +25,7 @@ class PostsController extends Controller
         $this->requireAdmin();
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         $ok = $id > 0 ? PostModel::delete($id) : false;
-        $this->redirectBack('index.php?view=admin&postdelete=' . ($ok ? 'ok' : 'error'));
+        $this->redirectBack('admin?postdelete=' . ($ok ? 'ok' : 'error'));
     }
 }
 
