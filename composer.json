@@ -1,0 +1,13 @@
+{
+  "name": "lexora/project",
+  "description": "Lexora test runner dependencies",
+  "type": "project",
+  "require-dev": {
+    "phpunit/phpunit": ">=11.5.1 <12.0"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  }
+}

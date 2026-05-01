@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for C:\xampp\htdocs\PFA\app\controllers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../_css/bootstrap.min.css?v=11.0.12" rel="stylesheet" type="text/css">
+  <link href="../../_css/nv.d3.min.css?v=11.0.12" rel="stylesheet" type="text/css">
+  <link href="../../_css/style.css?v=11.0.12" rel="stylesheet" type="text/css">
+  <link href="../../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../../index.html">C:\xampp\htdocs\PFA</a></li>
+         <li class="breadcrumb-item"><a href="../index.html">app</a></li>
+         <li class="breadcrumb-item"><a href="index.html">controllers</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="AdminController.php.html#8">AdminController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AuthController.php.html#5">AuthController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BooksController.php.html#7">BooksController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LandingController.php.html#6">LandingController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PostsController.php.html#5">PostsController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="QuestsController.php.html#7">QuestsController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#15">UserApiController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#13">UserPageController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UsersController.php.html#5">UsersController</a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="UserApiController.php.html#15">UserApiController</a></td><td class="text-right">10506</td></tr>
+       <tr><td><a href="AuthController.php.html#5">AuthController</a></td><td class="text-right">1056</td></tr>
+       <tr><td><a href="BooksController.php.html#7">BooksController</a></td><td class="text-right">420</td></tr>
+       <tr><td><a href="UserPageController.php.html#13">UserPageController</a></td><td class="text-right">272</td></tr>
+       <tr><td><a href="QuestsController.php.html#7">QuestsController</a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="UsersController.php.html#5">UsersController</a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="PostsController.php.html#5">PostsController</a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="LandingController.php.html#6">LandingController</a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="AdminController.php.html#10"><abbr title="AdminController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AuthController.php.html#10"><abbr title="AuthController::handle">handle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AuthController.php.html#36"><abbr title="AuthController::signup">signup</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AuthController.php.html#108"><abbr title="AuthController::login">login</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AuthController.php.html#147"><abbr title="AuthController::logout">logout</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AuthController.php.html#156"><abbr title="AuthController::sessionStatus">sessionStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AuthController.php.html#171"><abbr title="AuthController::redirectToAuthHome">redirectToAuthHome</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BooksController.php.html#12"><abbr title="BooksController::catalogBooks">catalogBooks</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BooksController.php.html#50"><abbr title="BooksController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BooksController.php.html#76"><abbr title="BooksController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BooksController.php.html#103"><abbr title="BooksController::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BooksController.php.html#111"><abbr title="BooksController::search">search</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LandingController.php.html#8"><abbr title="LandingController::index">index</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PostsController.php.html#7"><abbr title="PostsController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PostsController.php.html#23"><abbr title="PostsController::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="QuestsController.php.html#9"><abbr title="QuestsController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="QuestsController.php.html#31"><abbr title="QuestsController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="QuestsController.php.html#53"><abbr title="QuestsController::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#20"><abbr title="UserApiController::userBooksHasPurchasedAt">userBooksHasPurchasedAt</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#44"><abbr title="UserApiController::profile">profile</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#96"><abbr title="UserApiController::logSession">logSession</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#144"><abbr title="UserApiController::purchaseBook">purchaseBook</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#289"><abbr title="UserApiController::completeBook">completeBook</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#406"><abbr title="UserApiController::updateRating">updateRating</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#434"><abbr title="UserApiController::saveProgress">saveProgress</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#475"><abbr title="UserApiController::addBookToList">addBookToList</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#533"><abbr title="UserApiController::removeBookFromList">removeBookFromList</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#554"><abbr title="UserApiController::backToLecture">backToLecture</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#563"><abbr title="UserApiController::completeQuest">completeQuest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#591"><abbr title="UserApiController::getQuests">getQuests</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#615"><abbr title="UserApiController::leaderboard">leaderboard</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#622"><abbr title="UserApiController::myLeaderboard">myLeaderboard</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#634"><abbr title="UserApiController::searchLeaderboard">searchLeaderboard</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#653"><abbr title="UserApiController::getCategoryPreferences">getCategoryPreferences</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#672"><abbr title="UserApiController::saveCategoryPreferences">saveCategoryPreferences</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#716"><abbr title="UserApiController::forYouRecommendations">forYouRecommendations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#730"><abbr title="UserApiController::chatbotRecommendations">chatbotRecommendations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserApiController.php.html#764"><abbr title="UserApiController::jsonBody">jsonBody</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#15"><abbr title="UserPageController::home">home</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#22"><abbr title="UserPageController::profile">profile</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#35"><abbr title="UserPageController::store">store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#43"><abbr title="UserPageController::bookDetail">bookDetail</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#57"><abbr title="UserPageController::readBook">readBook</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#77"><abbr title="UserPageController::currentUserData">currentUserData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserPageController.php.html#122"><abbr title="UserPageController::renderUserView">renderUserView</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UsersController.php.html#7"><abbr title="UsersController::hashPassword">hashPassword</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UsersController.php.html#12"><abbr title="UsersController::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UsersController.php.html#46"><abbr title="UsersController::delete">delete</abbr></a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="UserApiController.php.html#144"><abbr title="UserApiController::purchaseBook">purchaseBook</abbr></a></td><td class="text-right">306</td></tr>
+       <tr><td><a href="UserApiController.php.html#289"><abbr title="UserApiController::completeBook">completeBook</abbr></a></td><td class="text-right">240</td></tr>
+       <tr><td><a href="AuthController.php.html#36"><abbr title="AuthController::signup">signup</abbr></a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="UserApiController.php.html#672"><abbr title="UserApiController::saveCategoryPreferences">saveCategoryPreferences</abbr></a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="AuthController.php.html#108"><abbr title="AuthController::login">login</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="UserApiController.php.html#475"><abbr title="UserApiController::addBookToList">addBookToList</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="UsersController.php.html#12"><abbr title="UsersController::update">update</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="UserApiController.php.html#44"><abbr title="UserApiController::profile">profile</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="UserPageController.php.html#77"><abbr title="UserPageController::currentUserData">currentUserData</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="AuthController.php.html#10"><abbr title="AuthController::handle">handle</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="PostsController.php.html#7"><abbr title="PostsController::update">update</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="UserApiController.php.html#406"><abbr title="UserApiController::updateRating">updateRating</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="UserApiController.php.html#434"><abbr title="UserApiController::saveProgress">saveProgress</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="BooksController.php.html#50"><abbr title="BooksController::create">create</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="BooksController.php.html#76"><abbr title="BooksController::update">update</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="QuestsController.php.html#53"><abbr title="QuestsController::delete">delete</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="UserApiController.php.html#730"><abbr title="UserApiController::chatbotRecommendations">chatbotRecommendations</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="BooksController.php.html#12"><abbr title="BooksController::catalogBooks">catalogBooks</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="BooksController.php.html#103"><abbr title="BooksController::delete">delete</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="PostsController.php.html#23"><abbr title="PostsController::delete">delete</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="QuestsController.php.html#9"><abbr title="QuestsController::create">create</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="QuestsController.php.html#31"><abbr title="QuestsController::update">update</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="UserApiController.php.html#533"><abbr title="UserApiController::removeBookFromList">removeBookFromList</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="UserApiController.php.html#634"><abbr title="UserApiController::searchLeaderboard">searchLeaderboard</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="UserApiController.php.html#764"><abbr title="UserApiController::jsonBody">jsonBody</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="UsersController.php.html#46"><abbr title="UsersController::delete">delete</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="AuthController.php.html#156"><abbr title="AuthController::sessionStatus">sessionStatus</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="UserApiController.php.html#20"><abbr title="UserApiController::userBooksHasPurchasedAt">userBooksHasPurchasedAt</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="UserApiController.php.html#96"><abbr title="UserApiController::logSession">logSession</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="UserApiController.php.html#563"><abbr title="UserApiController::completeQuest">completeQuest</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="UserPageController.php.html#57"><abbr title="UserPageController::readBook">readBook</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BooksController.php.html#111"><abbr title="BooksController::search">search</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="LandingController.php.html#8"><abbr title="LandingController::index">index</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="UserApiController.php.html#622"><abbr title="UserApiController::myLeaderboard">myLeaderboard</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="UserPageController.php.html#43"><abbr title="UserPageController::bookDetail">bookDetail</abbr></a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.12</a> using <a href="https://www.php.net/" target="_top">PHP 8.2.12</a> and <a href="https://phpunit.de/">PHPUnit 11.5.55</a> at Tue Apr 28 19:19:05 CEST 2026.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../_js/jquery.min.js?v=11.0.12" type="text/javascript"></script>
+  <script src="../../_js/d3.min.js?v=11.0.12" type="text/javascript"></script>
+  <script src="../../_js/nv.d3.min.js?v=11.0.12" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([9,0,0,0,0,0,0,0,0,0,0,0], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([48,0,0,0,0,0,0,0,0,0,0,0], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0,1,"<a href=\"AdminController.php.html#8\">AdminController<\/a>"],[0,32,"<a href=\"AuthController.php.html#5\">AuthController<\/a>"],[0,20,"<a href=\"BooksController.php.html#7\">BooksController<\/a>"],[0,2,"<a href=\"LandingController.php.html#6\">LandingController<\/a>"],[0,10,"<a href=\"PostsController.php.html#5\">PostsController<\/a>"],[0,13,"<a href=\"QuestsController.php.html#7\">QuestsController<\/a>"],[0,102,"<a href=\"UserApiController.php.html#15\">UserApiController<\/a>"],[0,16,"<a href=\"UserPageController.php.html#13\">UserPageController<\/a>"],[0,13,"<a href=\"UsersController.php.html#5\">UsersController<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,1,"<a href=\"AdminController.php.html#10\">AdminController::index<\/a>"],[0,6,"<a href=\"AuthController.php.html#10\">AuthController::handle<\/a>"],[0,13,"<a href=\"AuthController.php.html#36\">AuthController::signup<\/a>"],[0,8,"<a href=\"AuthController.php.html#108\">AuthController::login<\/a>"],[0,1,"<a href=\"AuthController.php.html#147\">AuthController::logout<\/a>"],[0,3,"<a href=\"AuthController.php.html#156\">AuthController::sessionStatus<\/a>"],[0,1,"<a href=\"AuthController.php.html#171\">AuthController::redirectToAuthHome<\/a>"],[0,4,"<a href=\"BooksController.php.html#12\">BooksController::catalogBooks<\/a>"],[0,5,"<a href=\"BooksController.php.html#50\">BooksController::create<\/a>"],[0,5,"<a href=\"BooksController.php.html#76\">BooksController::update<\/a>"],[0,4,"<a href=\"BooksController.php.html#103\">BooksController::delete<\/a>"],[0,2,"<a href=\"BooksController.php.html#111\">BooksController::search<\/a>"],[0,2,"<a href=\"LandingController.php.html#8\">LandingController::index<\/a>"],[0,6,"<a href=\"PostsController.php.html#7\">PostsController::update<\/a>"],[0,4,"<a href=\"PostsController.php.html#23\">PostsController::delete<\/a>"],[0,4,"<a href=\"QuestsController.php.html#9\">QuestsController::create<\/a>"],[0,4,"<a href=\"QuestsController.php.html#31\">QuestsController::update<\/a>"],[0,5,"<a href=\"QuestsController.php.html#53\">QuestsController::delete<\/a>"],[0,3,"<a href=\"UserApiController.php.html#20\">UserApiController::userBooksHasPurchasedAt<\/a>"],[0,7,"<a href=\"UserApiController.php.html#44\">UserApiController::profile<\/a>"],[0,3,"<a href=\"UserApiController.php.html#96\">UserApiController::logSession<\/a>"],[0,17,"<a href=\"UserApiController.php.html#144\">UserApiController::purchaseBook<\/a>"],[0,15,"<a href=\"UserApiController.php.html#289\">UserApiController::completeBook<\/a>"],[0,6,"<a href=\"UserApiController.php.html#406\">UserApiController::updateRating<\/a>"],[0,6,"<a href=\"UserApiController.php.html#434\">UserApiController::saveProgress<\/a>"],[0,8,"<a href=\"UserApiController.php.html#475\">UserApiController::addBookToList<\/a>"],[0,4,"<a href=\"UserApiController.php.html#533\">UserApiController::removeBookFromList<\/a>"],[0,1,"<a href=\"UserApiController.php.html#554\">UserApiController::backToLecture<\/a>"],[0,3,"<a href=\"UserApiController.php.html#563\">UserApiController::completeQuest<\/a>"],[0,1,"<a href=\"UserApiController.php.html#591\">UserApiController::getQuests<\/a>"],[0,1,"<a href=\"UserApiController.php.html#615\">UserApiController::leaderboard<\/a>"],[0,2,"<a href=\"UserApiController.php.html#622\">UserApiController::myLeaderboard<\/a>"],[0,4,"<a href=\"UserApiController.php.html#634\">UserApiController::searchLeaderboard<\/a>"],[0,1,"<a href=\"UserApiController.php.html#653\">UserApiController::getCategoryPreferences<\/a>"],[0,10,"<a href=\"UserApiController.php.html#672\">UserApiController::saveCategoryPreferences<\/a>"],[0,1,"<a href=\"UserApiController.php.html#716\">UserApiController::forYouRecommendations<\/a>"],[0,5,"<a href=\"UserApiController.php.html#730\">UserApiController::chatbotRecommendations<\/a>"],[0,4,"<a href=\"UserApiController.php.html#764\">UserApiController::jsonBody<\/a>"],[0,1,"<a href=\"UserPageController.php.html#15\">UserPageController::home<\/a>"],[0,1,"<a href=\"UserPageController.php.html#22\">UserPageController::profile<\/a>"],[0,1,"<a href=\"UserPageController.php.html#35\">UserPageController::store<\/a>"],[0,2,"<a href=\"UserPageController.php.html#43\">UserPageController::bookDetail<\/a>"],[0,3,"<a href=\"UserPageController.php.html#57\">UserPageController::readBook<\/a>"],[0,7,"<a href=\"UserPageController.php.html#77\">UserPageController::currentUserData<\/a>"],[0,1,"<a href=\"UserPageController.php.html#122\">UserPageController::renderUserView<\/a>"],[0,1,"<a href=\"UsersController.php.html#7\">UsersController::hashPassword<\/a>"],[0,8,"<a href=\"UsersController.php.html#12\">UsersController::update<\/a>"],[0,4,"<a href=\"UsersController.php.html#46\">UsersController::delete<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>
