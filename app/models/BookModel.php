@@ -3,6 +3,9 @@ require_once __DIR__ . '/../../core/Database.php';
 
 class BookModel
 {
+    /** @var array<string,bool> */
+    private static array $columnExistsCache = [];
+
     private static function tableExists(string $tableName): bool
     {
         try {
@@ -16,6 +19,28 @@ class BookModel
         } catch (Throwable $e) {
             return false;
         }
+    }
+
+    private static function columnExists(string $tableName, string $columnName): bool
+    {
+        $cacheKey = $tableName . '.' . $columnName;
+        if (array_key_exists($cacheKey, self::$columnExistsCache)) {
+            return self::$columnExistsCache[$cacheKey];
+        }
+        try {
+            $pdo = Database::pdo();
+            $stmt = $pdo->prepare(
+                'SELECT COUNT(*) FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = ?
+                   AND COLUMN_NAME = ?'
+            );
+            $stmt->execute([$tableName, $columnName]);
+            self::$columnExistsCache[$cacheKey] = ((int)$stmt->fetchColumn() > 0);
+        } catch (\Throwable) {
+            self::$columnExistsCache[$cacheKey] = false;
+        }
+        return self::$columnExistsCache[$cacheKey];
     }
 
     private static function addEdgeDfs(array &$graph, int $fromId, int $toId, string $reason): void
@@ -646,22 +671,50 @@ class BookModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->prepare(
-                "INSERT INTO books (title, author, publication_year, genre, cover, coinCost, xpReward, coinReward, audience, trending)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            );
-            return (bool) $stmt->execute([
-                $data['title'],
-                $data['author'],
-                (int)($data['publication_year'] ?? 0),
-                $data['genre'],
-                $data['cover'] ?? '📖',
-                (int)($data['coinCost'] ?? 0),
-                (int)($data['xpReward'] ?? 0),
-                (int)($data['coinReward'] ?? 0),
-                $data['audience'] ?? 'All',
-                (int)($data['trending'] ?? 0),
-            ]);
+            $columns = ['title', 'author', 'genre'];
+            $values = [
+                (string)($data['title'] ?? ''),
+                (string)($data['author'] ?? ''),
+                (string)($data['genre'] ?? ''),
+            ];
+
+            if (self::columnExists('books', 'publication_year')) {
+                $columns[] = 'publication_year';
+                $values[] = (int)($data['publication_year'] ?? 0);
+            }
+            if (self::columnExists('books', 'cover')) {
+                $columns[] = 'cover';
+                $values[] = (string)($data['cover'] ?? '📖');
+            }
+            if (self::columnExists('books', 'coinCost')) {
+                $columns[] = 'coinCost';
+                $values[] = (int)($data['coinCost'] ?? 0);
+            }
+            if (self::columnExists('books', 'xpReward')) {
+                $columns[] = 'xpReward';
+                $values[] = (int)($data['xpReward'] ?? 0);
+            }
+            if (self::columnExists('books', 'coinReward')) {
+                $columns[] = 'coinReward';
+                $values[] = (int)($data['coinReward'] ?? 0);
+            }
+            if (self::columnExists('books', 'audience')) {
+                $columns[] = 'audience';
+                $values[] = (string)($data['audience'] ?? 'All');
+            }
+            if (self::columnExists('books', 'trending')) {
+                $columns[] = 'trending';
+                $values[] = (int)($data['trending'] ?? 0);
+            }
+            if (self::columnExists('books', 'description') && array_key_exists('description', $data)) {
+                $columns[] = 'description';
+                $values[] = (string)$data['description'];
+            }
+
+            $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+            $columnsSql = implode(', ', $columns);
+            $stmt = $pdo->prepare("INSERT INTO books ({$columnsSql}) VALUES ({$placeholders})");
+            return (bool)$stmt->execute($values);
         } catch (PDOException $e) {
             return false;
         }
@@ -671,24 +724,53 @@ class BookModel
     {
         try {
             $pdo = Database::pdo();
-            $stmt = $pdo->prepare(
-                "UPDATE books
-                 SET title = ?, author = ?, publication_year = ?, genre = ?, cover = ?, coinCost = ?, xpReward = ?, coinReward = ?, audience = ?, trending = ?
-                 WHERE id = ?"
-            );
-            return (bool) $stmt->execute([
-                $data['title'],
-                $data['author'],
-                (int)($data['publication_year'] ?? 0),
-                $data['genre'],
-                $data['cover'] ?? '📖',
-                (int)($data['coinCost'] ?? 0),
-                (int)($data['xpReward'] ?? 0),
-                (int)($data['coinReward'] ?? 0),
-                $data['audience'] ?? 'All',
-                (int)($data['trending'] ?? 0),
-                $id,
-            ]);
+            $setParts = [];
+            $values = [];
+
+            $setParts[] = 'title = ?';
+            $values[] = (string)($data['title'] ?? '');
+            $setParts[] = 'author = ?';
+            $values[] = (string)($data['author'] ?? '');
+            $setParts[] = 'genre = ?';
+            $values[] = (string)($data['genre'] ?? '');
+
+            if (self::columnExists('books', 'publication_year')) {
+                $setParts[] = 'publication_year = ?';
+                $values[] = (int)($data['publication_year'] ?? 0);
+            }
+            if (self::columnExists('books', 'cover')) {
+                $setParts[] = 'cover = ?';
+                $values[] = (string)($data['cover'] ?? '📖');
+            }
+            if (self::columnExists('books', 'coinCost')) {
+                $setParts[] = 'coinCost = ?';
+                $values[] = (int)($data['coinCost'] ?? 0);
+            }
+            if (self::columnExists('books', 'xpReward')) {
+                $setParts[] = 'xpReward = ?';
+                $values[] = (int)($data['xpReward'] ?? 0);
+            }
+            if (self::columnExists('books', 'coinReward')) {
+                $setParts[] = 'coinReward = ?';
+                $values[] = (int)($data['coinReward'] ?? 0);
+            }
+            if (self::columnExists('books', 'audience')) {
+                $setParts[] = 'audience = ?';
+                $values[] = (string)($data['audience'] ?? 'All');
+            }
+            if (self::columnExists('books', 'trending')) {
+                $setParts[] = 'trending = ?';
+                $values[] = (int)($data['trending'] ?? 0);
+            }
+            if (self::columnExists('books', 'description') && array_key_exists('description', $data)) {
+                $setParts[] = 'description = ?';
+                $values[] = (string)$data['description'];
+            }
+
+            $values[] = $id;
+            $setSql = implode(', ', $setParts);
+            $stmt = $pdo->prepare("UPDATE books SET {$setSql} WHERE id = ?");
+            return (bool)$stmt->execute($values);
         } catch (PDOException $e) {
             return false;
         }
@@ -698,9 +780,35 @@ class BookModel
     {
         try {
             $pdo = Database::pdo();
+            $pdo->beginTransaction();
+
+            $tablesWithBookFk = [
+                'user_books',
+                'reading_sessions',
+                'reading_progress',
+                'book_genres',
+                'posts',
+                'comments',
+            ];
+            foreach ($tablesWithBookFk as $tableName) {
+                if (!self::tableExists($tableName) || !self::columnExists($tableName, 'book_id')) {
+                    continue;
+                }
+                $pdo->prepare("DELETE FROM {$tableName} WHERE book_id = ?")->execute([$id]);
+            }
+
             $stmt = $pdo->prepare("DELETE FROM books WHERE id = ?");
-            return (bool) $stmt->execute([$id]);
+            $ok = (bool)$stmt->execute([$id]);
+            if ($ok) {
+                $pdo->commit();
+                return true;
+            }
+            $pdo->rollBack();
+            return false;
         } catch (PDOException $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             return false;
         }
     }
