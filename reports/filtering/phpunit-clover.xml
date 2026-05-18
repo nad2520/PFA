@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1779142804">
+  <project timestamp="1779142804" name="Clover Coverage">
+    <file name="C:\xampp\htdocs\PFA\app\controllers\BooksController.php">
+      <class name="BooksController" namespace="global">
+        <metrics complexity="22" methods="3" coveredmethods="3" conditionals="0" coveredconditionals="0" statements="40" coveredstatements="40" elements="43" coveredelements="43"/>
+      </class>
+      <line num="9" type="method" name="readStringQueryParam" visibility="private" complexity="2" crap="2" count="2"/>
+      <line num="11" type="stmt" count="2"/>
+      <line num="13" type="stmt" count="2"/>
+      <line num="14" type="stmt" count="1"/>
+      <line num="17" type="stmt" count="2"/>
+      <line num="23" type="method" name="catalogBooks" visibility="public" complexity="4" crap="4" count="2"/>
+      <line num="25" type="stmt" count="2"/>
+      <line num="26" type="stmt" count="2"/>
+      <line num="27" type="stmt" count="1"/>
+      <line num="28" type="stmt" count="2"/>
+      <line num="29" type="stmt" count="2"/>
+      <line num="31" type="stmt" count="2"/>
+      <line num="32" type="stmt" count="1"/>
+      <line num="33" type="stmt" count="2"/>
+      <line num="34" type="stmt" count="2"/>
+      <line num="35" type="stmt" count="2"/>
+      <line num="36" type="stmt" count="1"/>
+      <line num="37" type="stmt" count="1"/>
+      <line num="38" type="stmt" count="1"/>
+      <line num="39" type="stmt" count="1"/>
+      <line num="40" type="stmt" count="1"/>
+      <line num="42" type="stmt" count="1"/>
+      <line num="43" type="stmt" count="1"/>
+      <line num="44" type="stmt" count="1"/>
+      <line num="45" type="stmt" count="1"/>
+      <line num="46" type="stmt" count="1"/>
+      <line num="47" type="stmt" count="1"/>
+      <line num="48" type="stmt" count="1"/>
+      <line num="49" type="stmt" count="1"/>
+      <line num="50" type="stmt" count="1"/>
+      <line num="51" type="stmt" count="1"/>
+      <line num="52" type="stmt" count="1"/>
+      <line num="53" type="stmt" count="1"/>
+      <line num="54" type="stmt" count="1"/>
+      <line num="55" type="stmt" count="1"/>
+      <line num="56" type="stmt" count="1"/>
+      <line num="58" type="stmt" count="2"/>
+      <line num="124" type="method" name="search" visibility="public" complexity="2" crap="2" count="2"/>
+      <line num="126" type="stmt" count="2"/>
+      <line num="128" type="stmt" count="2"/>
+      <line num="129" type="stmt" count="1"/>
+      <line num="132" type="stmt" count="1"/>
+      <line num="133" type="stmt" count="1"/>
+      <metrics loc="137" ncloc="132" classes="1" methods="3" coveredmethods="3" conditionals="0" coveredconditionals="0" statements="40" coveredstatements="40" elements="43" coveredelements="43"/>
+    </file>
+    <file name="C:\xampp\htdocs\PFA\app\models\BookModel.php">
+      <class name="BookModel" namespace="global">
+        <metrics complexity="180" methods="3" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="38" coveredstatements="33" elements="41" coveredelements="34"/>
+      </class>
+      <line num="603" type="method" name="genresMapByBookIds" visibility="public" complexity="7" crap="7.08" count="3"/>
+      <line num="605" type="stmt" count="3"/>
+      <line num="606" type="stmt" count="2"/>
+      <line num="607" type="stmt" count="3"/>
+      <line num="608" type="stmt" count="3"/>
+      <line num="609" type="stmt" count="2"/>
+      <line num="613" type="stmt" count="1"/>
+      <line num="614" type="stmt" count="1"/>
+      <line num="615" type="stmt" count="1"/>
+      <line num="616" type="stmt" count="1"/>
+      <line num="618" type="stmt" count="1"/>
+      <line num="619" type="stmt" count="1"/>
+      <line num="620" type="stmt" count="1"/>
+      <line num="621" type="stmt" count="1"/>
+      <line num="622" type="stmt" count="1"/>
+      <line num="624" type="stmt" count="1"/>
+      <line num="625" type="stmt" count="1"/>
+      <line num="626" type="stmt" count="1"/>
+      <line num="627" type="stmt" count="1"/>
+      <line num="628" type="stmt" count="1"/>
+      <line num="629" type="stmt" count="0"/>
+      <line num="631" type="stmt" count="1"/>
+      <line num="632" type="stmt" count="1"/>
+      <line num="634" type="stmt" count="1"/>
+      <line num="636" type="stmt" count="1"/>
+      <line num="637" type="stmt" count="0"/>
+      <line num="639" type="stmt" count="0"/>
+      <line num="661" type="method" name="all" visibility="public" complexity="2" crap="2.15" count="2"/>
+      <line num="664" type="stmt" count="2"/>
+      <line num="665" type="stmt" count="2"/>
+      <line num="666" type="stmt" count="2"/>
+      <line num="667" type="stmt" count="2"/>
+      <line num="668" type="stmt" count="0"/>
+      <line num="670" type="stmt" count="0"/>
+      <line num="821" type="method" name="searchByTitle" visibility="public" complexity="2" crap="2" count="3"/>
+      <line num="824" type="stmt" count="3"/>
+      <line num="825" type="stmt" count="3"/>
+      <line num="826" type="stmt" count="2"/>
+      <line num="827" type="stmt" count="2"/>
+      <line num="828" type="stmt" count="1"/>
+      <line num="829" type="stmt" count="1"/>
+      <metrics loc="834" ncloc="822" classes="1" methods="3" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="38" coveredstatements="33" elements="41" coveredelements="34"/>
+    </file>
+    <metrics files="2" loc="971" ncloc="954" classes="2" methods="6" coveredmethods="4" conditionals="0" coveredconditionals="0" statements="78" coveredstatements="73" elements="84" coveredelements="77"/>
+  </project>
+</coverage>

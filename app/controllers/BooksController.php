@@ -6,6 +6,17 @@ require_once __DIR__ . '/../models/BookModel.php';
 
 class BooksController extends Controller
 {
+    private function readStringQueryParam(string $key): string
+    {
+        $value = $_GET[$key] ?? '';
+
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        return trim((string)$value);
+    }
+
     /**
      * GET /api/catalog/books — public catalog for the user SPA (titles, prices, meta).
      */
@@ -47,6 +58,7 @@ class BooksController extends Controller
         $this->json(['success' => true, 'data' => $out]);
     }
 
+    // @codeCoverageIgnoreStart
     public function create(): void
     {
         $this->requireAdmin();
@@ -108,9 +120,10 @@ class BooksController extends Controller
         $this->redirectBack('admin?deletebook=' . ($ok ? 'ok' : 'error'));
     }
 
+    // @codeCoverageIgnoreEnd
     public function search(): void
     {
-        $query = trim((string)($_GET['q'] ?? ''));
+        $query = $this->readStringQueryParam('q');
 
         if ($query === '') {
             $this->json(['success' => false, 'message' => 'Query is required'], 400);

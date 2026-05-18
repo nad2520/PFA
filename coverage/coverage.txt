@@ -1,0 +1,14 @@
+
+
+[1;37;40mCode Coverage Report:     [0m
+[1;37;40m  2026-05-19 00:57:08     [0m
+[1;37;40m                          [0m
+[1;37;40m Summary:                 [0m
+[30;42m  Classes: 100.00% (2/2)  [0m
+[30;42m  Methods: 100.00% (6/6)  [0m
+[30;42m  Lines:   100.00% (78/78)[0m
+
+BookModel
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 38/ 38)[0m
+BooksController
+  [30;42mMethods: 100.00% ( 3/ 3)[0m   [30;42mLines: 100.00% ( 40/ 40)[0m

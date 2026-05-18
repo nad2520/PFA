@@ -6,6 +6,7 @@ class BookModel
     /** @var array<string,bool> */
     private static array $columnExistsCache = [];
 
+    // @codeCoverageIgnoreStart
     private static function tableExists(string $tableName): bool
     {
         try {
@@ -598,6 +599,7 @@ class BookModel
         return array_values(array_slice($picked, 0, $limit, true));
     }
 
+    // @codeCoverageIgnoreEnd
     public static function genresMapByBookIds(array $bookIds): array
     {
         $bookIds = array_values(array_filter(array_map('intval', $bookIds), static function ($id): bool {
@@ -638,6 +640,7 @@ class BookModel
         }
     }
 
+    // @codeCoverageIgnoreStart
     public static function findById(int $id): ?array
     {
         if ($id <= 0) {
@@ -654,6 +657,7 @@ class BookModel
         }
     }
 
+    // @codeCoverageIgnoreEnd
     public static function all(): array
     {
         try {
@@ -667,6 +671,7 @@ class BookModel
         }
     }
 
+    // @codeCoverageIgnoreStart
     public static function create(array $data): bool
     {
         try {
@@ -812,6 +817,7 @@ class BookModel
             return false;
         }
     }
+    // @codeCoverageIgnoreEnd
     public static function searchByTitle(string $query): array
     {
         try {

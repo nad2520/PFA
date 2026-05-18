@@ -61,6 +61,19 @@ function lxBookPricesFromApiRows(rows) {
     return o;
 }
 
+function lxEscapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function lxEscapeAttr(value) {
+    return lxEscapeHtml(value);
+}
+
 /**
  * Loads catalog from MySQL (`books` table). On failure keeps `user_data.js` bootstrap.
  * Updates window.__lexora so LexoraState merges stay consistent.
@@ -282,7 +295,7 @@ const communityStore = (() => {
 // ─── Helper: make genre tag HTML ─────────────────────────────────────────────
 function genreTagHTML(genre) {
     const c = genreColors[genre] || { css: 'background:var(--secondary);color:var(--secondary-foreground)' };
-    return `<span class="genre-tag" style="${c.css}">${genre}</span>`;
+    return `<span class="genre-tag" style="${c.css}">${lxEscapeHtml(genre)}</span>`;
 }
 
 function normalizeBookGenres(book) {
@@ -646,16 +659,19 @@ function buildCatalogBookCardHTML(book, index) {
     const year = publicationYearHTML(book);
     const costStr = price ? price.cost.toLocaleString() : 'FREE';
     const delay = index * 0.05;
+    const safeTitle = lxEscapeHtml(book.title);
+    const safeAuthor = lxEscapeHtml(book.author);
+    const safeAlt = lxEscapeAttr(book.title);
     return `
     <div class="catalog-book-card" style="animation-delay:${delay}s" onclick="nav('${LX_API_BASE}/book-detail?id=${book.id}')">
       <div class="catalog-book-card__cover">
-        <img src="${cover}" alt="${book.title}" loading="lazy">
+        <img src="${cover}" alt="${safeAlt}" loading="lazy">
         <div class="catalog-book-card__cover-fade"></div>
         ${book.trending ? `<span class="catalog-book-card__hot">★ HOT</span>` : ''}
       </div>
       <div class="catalog-book-card__body">
-        <h3 class="line-clamp-1">${book.title}</h3>
-        <p class="line-clamp-1 catalog-book-card__author">${book.author}</p>
+        <h3 class="line-clamp-1">${safeTitle}</h3>
+        <p class="line-clamp-1 catalog-book-card__author">${safeAuthor}</p>
         ${year}
         <div class="catalog-book-card__footer">
           ${tags}
@@ -675,6 +691,9 @@ function buildBookCardHTML(book, index, flip = true) {
     const year = publicationYearHTML(book);
     const priceStr = price ? price.cost.toLocaleString() + ' COINS' : 'FREE';
     const rewardStr = `+${price?.xpReward ?? 50} XP & +${price?.coinReward ?? 100} COINS`;
+    const safeTitle = lxEscapeHtml(book.title);
+    const safeAuthor = lxEscapeHtml(book.author);
+    const safeAlt = lxEscapeAttr(book.title);
 
     if (flip) {
         return `
@@ -682,20 +701,20 @@ function buildBookCardHTML(book, index, flip = true) {
       <div class="book-card-inner" style="min-height:320px">
         <div class="book-card-front">
           <div class="cover-wrap">
-            <img src="${cover}" alt="${book.title}" loading="lazy">
+            <img src="${cover}" alt="${safeAlt}" loading="lazy">
             <div class="cover-fade"></div>
             ${book.trending ? `<span class="hot-badge">★ HOT</span>` : ''}
           </div>
           <div class="card-body">
-            <h3 class="line-clamp-1">${book.title}</h3>
-            <p class="line-clamp-1">${book.author}</p>
+            <h3 class="line-clamp-1">${safeTitle}</h3>
+            <p class="line-clamp-1">${safeAuthor}</p>
             ${year}
             ${tags}
           </div>
         </div>
         <div class="book-card-back">
-          <h3>${book.title}</h3>
-          <p>${book.author}</p>
+          <h3>${safeTitle}</h3>
+          <p>${safeAuthor}</p>
           <div class="divider"></div>
           <div class="reward-row">${SVG.coins}<span>${priceStr}</span></div>
           <div class="reward-row">${SVG.star}<span>${rewardStr}</span></div>
@@ -708,12 +727,12 @@ function buildBookCardHTML(book, index, flip = true) {
         return `
     <div class="book-card-static">
       <div class="cover-wrap">
-        <img src="${cover}" alt="${book.title}" loading="lazy">
+        <img src="${cover}" alt="${safeAlt}" loading="lazy">
         <div class="cover-fade"></div>
       </div>
       <div class="card-body">
-        <h3 class="line-clamp-1">${book.title}</h3>
-        <p class="line-clamp-1">${book.author}</p>
+        <h3 class="line-clamp-1">${safeTitle}</h3>
+        <p class="line-clamp-1">${safeAuthor}</p>
         ${year}
         ${tags}
       </div>
@@ -723,6 +742,7 @@ function buildBookCardHTML(book, index, flip = true) {
 
 function initCatalog() {
     const grid = document.getElementById('bookGrid');
+    const noResults = document.getElementById('noResults');
     const forYouSection = document.getElementById('forYouSection');
     const forYouGrid = document.getElementById('forYouGrid');
     const searchInput = document.getElementById('bookSearch');
@@ -740,9 +760,10 @@ function initCatalog() {
     // Build filter tabs
     if (filterRow) {
         const allFilters = ['trending', ...genres];
-        filterRow.innerHTML = allFilters.map(f =>
-            `<button data-filter="${f}" class="${f === activeFilter ? 'active' : ''}">${f === 'trending' ? '🔥 Trending' : f}</button>`
-        ).join('');
+        filterRow.innerHTML = allFilters.map((f) => {
+            const label = f === 'trending' ? 'Trending' : lxEscapeHtml(f);
+            return `<button data-filter="${lxEscapeAttr(f)}" class="${f === activeFilter ? 'active' : ''}">${label}</button>`;
+        }).join('');
         filterRow.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', () => {
                 activeFilter = btn.dataset.filter;
@@ -780,7 +801,7 @@ function initCatalog() {
         }
         prefChoices.innerHTML = availableGenres.map((g) => {
             const active = selectedGenres.includes(g);
-            return `<button type="button" data-genre="${g}" class="btn-outline lx-pref-chip${active ? ' active' : ''}" style="padding:.65rem .7rem;font-size:.75rem;${active ? 'background:var(--primary);border-color:var(--primary);color:var(--primary-foreground);' : ''}">${g}</button>`;
+            return `<button type="button" data-genre="${lxEscapeAttr(g)}" class="btn-outline lx-pref-chip${active ? ' active' : ''}" style="padding:.65rem .7rem;font-size:.75rem;${active ? 'background:var(--primary);border-color:var(--primary);color:var(--primary-foreground);' : ''}">${lxEscapeHtml(g)}</button>`;
         }).join('');
         prefChoices.querySelectorAll('button[data-genre]').forEach((btn) => {
             btn.addEventListener('click', () => {
@@ -911,6 +932,7 @@ function initCatalog() {
 
         const visible = result.slice(0, visibleCount);
         grid.innerHTML = visible.map((b, i) => buildCatalogBookCardHTML(b, i)).join('');
+        if (noResults) noResults.style.display = result.length === 0 ? 'block' : 'none';
 
         if (exploreBtn) exploreBtn.style.display = visibleCount < result.length ? '' : 'none';
 
